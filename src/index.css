@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  /* Fondo oscuro principal (espacio entre paneles) */
+  --bg-base: #03050a;
+  
+  /* Fondo interno de los paneles */
+  --bg-surface: #060a14;
+  
+  /* Colores de acento Cyan Neon */
+  --accent-cyan: #00e5ff;
+  --border-cyan: rgba(0, 229, 255, 0.25);
+  --border-cyan-glow: rgba(0, 229, 255, 0.5);
+  
+  --text-primary: #EDEDED;
+  --text-secondary: #00e5ff; /* Cyan para los textos destacados como CONTACTOS/GRUPOS en el diseño */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+}

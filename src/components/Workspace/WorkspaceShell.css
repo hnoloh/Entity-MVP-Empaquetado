@@ -1,0 +1,49 @@
+.workspace-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--bg-base);
+  overflow: hidden;
+  padding: 16px; /* Espaciado global para que los paneles floten */
+  gap: 16px;     /* Separación entre el Top Bar (Hub) y el contenido */
+}
+
+.workspace-shell.state-minimizado {
+  height: 60px;
+  background: var(--bg-surface);
+}
+
+
+.workspace-content {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  gap: 20px; /* Separación clara entre la columna y la mesa */
+}
+
+.entities-column {
+  width: 280px;
+  background-color: var(--bg-surface);
+  /* Bordes redondeados y contorno cyan según diseño */
+  border-radius: 16px;
+  border: 1px solid var(--border-cyan);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.2s ease-in-out;
+  /* Sutil resplandor exterior */
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.05);
+  z-index: 10;
+}
+
+.workbench-region {
+  flex: 1;
+  background-color: var(--bg-surface);
+  /* Bordes redondeados y contorno cyan según diseño */
+  border-radius: 16px;
+  border: 1px solid var(--border-cyan);
+  position: relative;
+  /* Efecto de resplandor sutil */
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.05);
+  display: flex;
+}

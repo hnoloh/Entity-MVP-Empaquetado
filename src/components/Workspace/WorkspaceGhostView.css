@@ -34,23 +34,10 @@
   animation: float 6s ease-in-out infinite;
 }
 
-.ghost-glow {
-  position: absolute;
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 229, 255, 0.5) 0%, rgba(0, 229, 255, 0) 70%);
-  z-index: 0; /* Detrás de la imagen */
-}
-
 .ghost-visual-element {
-  width: 200px; /* Reducido a la mitad */
+  width: 200px; /* Tamaño reducido */
   height: auto;
-  opacity: 0.25; /* Levemente más opaco, la vida se la da el glow y filtro */
-  mix-blend-mode: screen; /* Mejor integración dark neon */
-  filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5)) contrast(130%) brightness(1.2);
-  /* Técnica de difuminado radial para que los bordes desaparezcan suavemente */
-  -webkit-mask-image: radial-gradient(circle, black 25%, transparent 65%);
-  mask-image: radial-gradient(circle, black 25%, transparent 65%);
-  z-index: 1; /* Por delante del aura */
+  /* Técnica de difuminado radial para integrar en la mesa sin efecto "pegote" */
+  -webkit-mask-image: radial-gradient(circle, black 30%, transparent 65%);
+  mask-image: radial-gradient(circle, black 30%, transparent 65%);
 }

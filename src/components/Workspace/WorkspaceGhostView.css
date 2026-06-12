@@ -7,14 +7,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-left: 300px; /* Alineado visualmente a la Mesa de Trabajo (280px del hub + 20px gap) */
   pointer-events: none; /* pasivo, no captura clicks */
-  z-index: 1; /* Detrás de las ventanas (Columna/Workbench) */
+  z-index: 100; /* Visible sobre la mesa pero sin interactividad */
   background: transparent;
 }
 
 .ghost-visual-element {
-  width: 300px;
+  width: 400px;
   height: auto;
-  opacity: 0.2;
-  filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.5));
+  opacity: 0.15; /* Sutil y no agresivo */
+  mix-blend-mode: screen; /* Mejor integración dark neon */
+  filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.3));
+  /* Técnica de difuminado radial para que los bordes desaparezcan suavemente */
+  -webkit-mask-image: radial-gradient(circle, black 30%, transparent 70%);
+  mask-image: radial-gradient(circle, black 30%, transparent 70%);
 }

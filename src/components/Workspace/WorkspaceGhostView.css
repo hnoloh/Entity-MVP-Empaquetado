@@ -13,13 +13,61 @@
   background: transparent;
 }
 
+/* Animación de flotación suave */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Animación de pulso para el brillo interior/exterior */
+@keyframes pulseGlow {
+  0% {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+}
+
+.ghost-animator {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: float 6s ease-in-out infinite;
+}
+
+.ghost-glow {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.8) 0%, rgba(0, 229, 255, 0) 70%);
+  animation: pulseGlow 4s ease-in-out infinite;
+  z-index: 0; /* Detrás de la imagen */
+}
+
 .ghost-visual-element {
-  width: 400px;
+  width: 200px; /* Reducido a la mitad */
   height: auto;
-  opacity: 0.15; /* Sutil y no agresivo */
+  opacity: 0.25; /* Levemente más opaco, la vida se la da el glow y filtro */
   mix-blend-mode: screen; /* Mejor integración dark neon */
-  filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.3));
+  filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5)) contrast(130%) brightness(1.2);
   /* Técnica de difuminado radial para que los bordes desaparezcan suavemente */
-  -webkit-mask-image: radial-gradient(circle, black 30%, transparent 70%);
-  mask-image: radial-gradient(circle, black 30%, transparent 70%);
+  -webkit-mask-image: radial-gradient(circle, black 25%, transparent 65%);
+  mask-image: radial-gradient(circle, black 25%, transparent 65%);
+  z-index: 1; /* Por delante del aura */
 }

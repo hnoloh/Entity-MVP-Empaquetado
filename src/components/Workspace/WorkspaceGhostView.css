@@ -13,8 +13,8 @@
 }
 
 .ghost-visual-element {
-  width: 400px;
-  height: 400px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 229, 255, 0.03) 0%, transparent 70%);
+  width: 300px;
+  height: auto;
+  opacity: 0.2;
+  filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.5));
 }

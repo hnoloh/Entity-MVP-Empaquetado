@@ -1,11 +1,14 @@
-import WorkspaceGhostView from './WorkspaceGhostView';
+import WorkspaceGhostView from "./WorkspaceGhostView";
 
 interface GhostRegionProps {
   entisCount?: number;
   gruposCount?: number;
 }
 
-export default function GhostRegion({ entisCount = 0, gruposCount = 0 }: GhostRegionProps) {
+export default function GhostRegion({
+  entisCount = 0,
+  gruposCount = 0,
+}: GhostRegionProps) {
   const isWorkspaceEmpty = entisCount === 0 && gruposCount === 0;
 
   return (

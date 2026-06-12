@@ -6,14 +6,13 @@
   background-color: var(--bg-base);
   overflow: hidden;
   padding: 16px; /* Espaciado global para que los paneles floten */
-  gap: 16px;     /* Separación entre el Top Bar (Hub) y el contenido */
+  gap: 16px; /* Separación entre el Top Bar (Hub) y el contenido */
 }
 
 .workspace-shell.state-minimizado {
   height: 60px;
   background: var(--bg-surface);
 }
-
 
 .workspace-content {
   display: flex;

@@ -1,6 +1,6 @@
-import React from 'react';
-import HubLateralView from './HubLateralView';
-import { EntitiesColumnRegion } from './EntitiesColumnRegion';
+import React from "react";
+import HubLateralView from "./HubLateralView";
+import { EntitiesColumnRegion } from "./EntitiesColumnRegion";
 
 export const HubRegion: React.FC = () => {
   return (

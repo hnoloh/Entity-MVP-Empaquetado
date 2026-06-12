@@ -71,7 +71,12 @@
 
 .entities-separator {
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border-cyan), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--border-cyan),
+    transparent
+  );
   opacity: 0.3;
   margin: 12px 0;
 }
@@ -82,7 +87,9 @@
   color: var(--text-primary);
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
   margin-bottom: 4px;
 }
 

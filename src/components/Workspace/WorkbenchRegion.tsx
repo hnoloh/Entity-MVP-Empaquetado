@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import './WorkbenchRegion.css';
+import type { ReactNode } from "react";
+import "./WorkbenchRegion.css";
 
 interface WorkbenchRegionProps {
   editorStub?: ReactNode;
@@ -13,8 +13,10 @@ export default function WorkbenchRegion({ editorStub }: WorkbenchRegionProps) {
           {editorStub}
         </div>
       ) : (
-        <div data-testid="workbench-empty-state" className="workbench-empty-state">
-        </div>
+        <div
+          data-testid="workbench-empty-state"
+          className="workbench-empty-state"
+        ></div>
       )}
     </div>
   );

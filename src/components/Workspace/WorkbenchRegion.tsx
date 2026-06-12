@@ -14,7 +14,6 @@ export default function WorkbenchRegion({ editorStub }: WorkbenchRegionProps) {
         </div>
       ) : (
         <div data-testid="workbench-empty-state" className="workbench-empty-state">
-          <span>El área de trabajo está vacía.</span>
         </div>
       )}
     </div>

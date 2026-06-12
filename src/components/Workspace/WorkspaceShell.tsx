@@ -5,7 +5,12 @@ import { HubRegion } from './HubRegion';
 import GhostRegion from './GhostRegion';
 import './WorkspaceShell.css';
 
-export default function WorkspaceShell() {
+interface WorkspaceShellProps {
+  entisCount?: number;
+  gruposCount?: number;
+}
+
+export default function WorkspaceShell({ entisCount = 0, gruposCount = 0 }: WorkspaceShellProps) {
   const [state, setState] = useState<WorkspaceState>('visible');
 
   const handleToggleState = () => {
@@ -26,7 +31,7 @@ export default function WorkspaceShell() {
         <WorkbenchRegion />
       </div>
       
-      <GhostRegion />
+      <GhostRegion entisCount={entisCount} gruposCount={gruposCount} />
       
       {/* Botón temporal de prueba para cambiar estado */}
       <button data-testid="toggle-state-btn" onClick={handleToggleState} style={{display: 'none'}}>Toggle</button>

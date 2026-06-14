@@ -5,3 +5,4 @@ export * from './closeChatWindowFlow';
 export * from './minimizeChatWindowFlow';
 export * from './restoreChatWindowFlow';
 export * from './repositionChatWindowFlow';
+export * from './resizeChatWindowFlow';

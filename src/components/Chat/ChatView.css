@@ -1,0 +1,60 @@
+.chat-view-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+}
+
+.chat-view-header {
+  padding: 10px;
+  background: #eee;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  justify-content: space-between;
+}
+
+.chat-view-history {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-view-empty {
+  color: #666;
+  font-style: italic;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.chat-message {
+  padding: 8px;
+  border-radius: 4px;
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+.chat-message.role-user {
+  align-self: flex-end;
+  background: #e3f2fd;
+}
+
+.chat-message.role-assistant {
+  align-self: flex-start;
+  background: #f1f8e9;
+}
+
+.chat-message-role {
+  font-weight: bold;
+  margin-right: 8px;
+  text-transform: capitalize;
+}
+
+.chat-view-error {
+  color: red;
+  padding: 20px;
+}

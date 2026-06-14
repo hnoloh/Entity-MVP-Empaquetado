@@ -27,10 +27,10 @@ describe('ChatWindow Model - RV-04/FIA-001', () => {
     expect(() => createChatWindow('win-1', '', geom)).toThrow('chatId is required');
   });
 
-  it('TEST-FIA001-04: rechaza estado fuera de visible | closed', () => {
+  it('TEST-FIA001-04: rechaza estado fuera de visible | closed | minimized', () => {
     const geom = { x: 0, y: 0, width: 100, height: 100 };
     // @ts-expect-error - testing invalid state for runtime validation
-    expect(() => createChatWindow('w1', 'c1', geom, 'minimized')).toThrow('state must be visible or closed');
+    expect(() => createChatWindow('w1', 'c1', geom, 'invalid_state')).toThrow(/state must be visible, closed or minimized/);
   });
 
   it('TEST-FIA001-05: geometry no muta el original si se altera el retorno (es clónica superficial)', () => {

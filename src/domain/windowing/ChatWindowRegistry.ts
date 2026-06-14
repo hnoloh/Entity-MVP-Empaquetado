@@ -6,6 +6,7 @@ export interface ChatWindowRegistry {
   findByChatId(chatId: string): ChatWindow[];
   list(): ChatWindow[];
   unregister(windowId: string): void;
+  update(window: ChatWindow): void;
 }
 
 export function createChatWindowRegistry(): ChatWindowRegistry {
@@ -19,8 +20,8 @@ export function createChatWindowRegistry(): ChatWindowRegistry {
       if (!window.chatId || window.chatId.trim() === '') {
         throw new Error('chatId is required and cannot be empty.');
       }
-      if (window.state !== 'visible' && window.state !== 'closed') {
-        throw new Error('state must be visible or closed.');
+      if (window.state !== 'visible' && window.state !== 'closed' && window.state !== 'minimized') {
+        throw new Error('state must be visible, closed or minimized.');
       }
       if (!window.geometry || typeof window.geometry.x !== 'number') {
         throw new Error('geometry must be valid.');
@@ -64,6 +65,21 @@ export function createChatWindowRegistry(): ChatWindowRegistry {
 
     unregister(windowId: string) {
       registry.delete(windowId);
+    },
+
+    update(window: ChatWindow) {
+      if (!window || !window.windowId || !registry.has(window.windowId)) {
+        throw new Error('Cannot update non-existent ChatWindow.');
+      }
+      if (window.state !== 'visible' && window.state !== 'closed' && window.state !== 'minimized') {
+        throw new Error('state must be visible, closed or minimized.');
+      }
+      registry.set(window.windowId, {
+        windowId: window.windowId,
+        chatId: window.chatId,
+        state: window.state,
+        geometry: { ...window.geometry }
+      });
     }
   };
 }

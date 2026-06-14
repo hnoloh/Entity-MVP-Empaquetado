@@ -1,4 +1,4 @@
-export type ChatWindowState = 'visible' | 'closed';
+export type ChatWindowState = 'visible' | 'closed' | 'minimized';
 
 export interface ChatWindowGeometry {
   x: number;
@@ -26,8 +26,8 @@ export function createChatWindow(
   if (!chatId || chatId.trim() === '') {
     throw new Error('chatId is required and cannot be empty.');
   }
-  if (state !== 'visible' && state !== 'closed') {
-    throw new Error('state must be visible or closed.');
+  if (state !== 'visible' && state !== 'closed' && state !== 'minimized') {
+    throw new Error('state must be visible, closed or minimized.');
   }
 
   return {

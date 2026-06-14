@@ -72,7 +72,7 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
     fireEvent.click(screen.getByTestId("btn-accept-api-key"));
     
     // Dirty, so closing triggers dialog
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     expect(screen.getByTestId("close-dialog")).toBeInTheDocument();
   });
 
@@ -87,7 +87,7 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
     fireEvent.change(input, { target: { value: "sk-test" } });
     fireEvent.click(screen.getByTestId("btn-accept-api-key"));
     
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-guardar"));
     
     expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
@@ -109,7 +109,7 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
     fireEvent.change(input, { target: { value: "sk-test" } });
     fireEvent.click(screen.getByTestId("btn-accept-api-key"));
     
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-descartar"));
     
     expect(mockOnSave).not.toHaveBeenCalled();
@@ -127,7 +127,7 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
     fireEvent.change(input, { target: { value: "sk-test" } });
     fireEvent.click(screen.getByTestId("btn-accept-api-key"));
     
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-cancelar"));
     
     expect(screen.queryByTestId("close-dialog")).not.toBeInTheDocument();

@@ -48,7 +48,7 @@ describe("FIA-008 Workspace Harness Base Integration", () => {
     
     // Seleccionamos enti 2 (sin guardar el 1), abre un segundo editor y no los datos del 1
     fireEvent.click(screen.getByTestId("enti-item-enti-2"));
-    const inputFunc2 = screen.getAllByTestId("input-function")[0];
+    const inputFunc2 = screen.getAllByTestId("input-function")[1];
     expect(inputFunc2).toHaveValue("F2");
   });
 
@@ -87,7 +87,7 @@ describe("FIA-008 Workspace Harness Base Integration", () => {
     
     fireEvent.change(screen.getByTestId("input-function"), { target: { value: "Saved change" } });
     
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-guardar"));
     
     // Verificar en repo
@@ -104,7 +104,7 @@ describe("FIA-008 Workspace Harness Base Integration", () => {
     
     fireEvent.change(screen.getByTestId("input-function"), { target: { value: "Draft discard" } });
     
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-descartar"));
     
     // Verificar en repo
@@ -121,7 +121,7 @@ describe("FIA-008 Workspace Harness Base Integration", () => {
     
     fireEvent.change(screen.getByTestId("input-function"), { target: { value: "Draft pending" } });
     
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-cancelar"));
     
     // Editor sigue abierto con draft

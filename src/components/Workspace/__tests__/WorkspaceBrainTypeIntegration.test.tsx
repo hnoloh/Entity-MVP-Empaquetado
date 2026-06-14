@@ -60,7 +60,7 @@ describe("Workspace Tipo de Brain Integration (FIA-013)", () => {
     expect(mockOnSave).not.toHaveBeenCalled();
 
     // Trigger close to verify dirty
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     expect(screen.getByTestId("close-dialog")).toBeInTheDocument();
   });
 
@@ -74,7 +74,7 @@ describe("Workspace Tipo de Brain Integration (FIA-013)", () => {
     
     expect(trigger).toHaveTextContent("IA Cloud/OpenAI");
     expect(mockOnSave).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     expect(screen.getByTestId("close-dialog")).toBeInTheDocument();
   });
 
@@ -85,7 +85,7 @@ describe("Workspace Tipo de Brain Integration (FIA-013)", () => {
     fireEvent.click(trigger);
     fireEvent.click(screen.getByTestId("option-local"));
     
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-guardar"));
     
     expect(mockOnSave).toHaveBeenCalledWith({
@@ -102,7 +102,7 @@ describe("Workspace Tipo de Brain Integration (FIA-013)", () => {
     fireEvent.click(screen.getByTestId("option-cloud"));
     fireEvent.click(screen.getByTestId("btn-accept-api-key"));
     
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-descartar"));
     
     expect(mockOnSave).not.toHaveBeenCalled();
@@ -117,7 +117,7 @@ describe("Workspace Tipo de Brain Integration (FIA-013)", () => {
     fireEvent.click(screen.getByTestId("option-cloud"));
     fireEvent.click(screen.getByTestId("btn-accept-api-key"));
     
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-cancelar"));
     
     expect(screen.queryByTestId("close-dialog")).not.toBeInTheDocument();

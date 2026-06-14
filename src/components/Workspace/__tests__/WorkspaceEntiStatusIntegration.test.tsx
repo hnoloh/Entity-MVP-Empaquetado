@@ -46,7 +46,7 @@ describe("Workspace Enti Status Integration (FIA-021)", () => {
     expect(screen.getByTestId("status-indicator-1")).toHaveClass("incomplete");
 
     // Descartar changes
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-descartar"));
 
     // Should remain incomplete
@@ -59,7 +59,7 @@ describe("Workspace Enti Status Integration (FIA-021)", () => {
     fireEvent.click(screen.getByTestId("option-cloud"));
     fireEvent.change(screen.getByTestId("input-openai-api-key"), { target: { value: "sk-1234" } });
     fireEvent.click(screen.getByTestId("btn-accept-api-key"));
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-guardar"));
 
     // Now list indicator should be complete
@@ -78,8 +78,6 @@ describe("Workspace Enti Status Integration (FIA-021)", () => {
     fireEvent.click(screen.getByTestId("enti-item-1"));
     expect(screen.getByTestId("editor-status-indicator-1")).toHaveClass("incomplete");
 
-    // Minimize 1
-    fireEvent.click(screen.getByTestId("btn-minimize-editor"));
 
     // Open 2
     fireEvent.click(screen.getByTestId("enti-item-2"));

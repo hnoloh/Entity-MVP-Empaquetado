@@ -55,7 +55,7 @@ describe("Workspace API Key OpenAI Integration (FIA-015 modificado)", () => {
     expect(mockOnSave).not.toHaveBeenCalled();
 
     // Check dirty by trying to close
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     const saveButton = screen.getByTestId("btn-dialog-guardar");
     expect(saveButton).toBeInTheDocument();
   });
@@ -67,7 +67,7 @@ describe("Workspace API Key OpenAI Integration (FIA-015 modificado)", () => {
     fireEvent.change(screen.getByTestId("input-openai-api-key"), { target: { value: "sk-new-key-123" } });
     fireEvent.click(screen.getByTestId("btn-accept-api-key"));
     
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-guardar"));
 
     expect(mockOnSave).toHaveBeenCalledWith({
@@ -86,7 +86,7 @@ describe("Workspace API Key OpenAI Integration (FIA-015 modificado)", () => {
     fireEvent.change(screen.getByTestId("input-openai-api-key"), { target: { value: "sk-discarded-key" } });
     fireEvent.click(screen.getByTestId("btn-accept-api-key"));
     
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-descartar"));
 
     expect(mockOnClose).toHaveBeenCalled();
@@ -100,7 +100,7 @@ describe("Workspace API Key OpenAI Integration (FIA-015 modificado)", () => {
     fireEvent.change(screen.getByTestId("input-openai-api-key"), { target: { value: "sk-pending-key" } });
     fireEvent.click(screen.getByTestId("btn-accept-api-key"));
 
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-cancelar"));
 
     expect(mockOnClose).not.toHaveBeenCalled();

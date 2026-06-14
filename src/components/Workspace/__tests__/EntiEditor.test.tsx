@@ -45,7 +45,7 @@ describe("FIA-004 EntiEditor Component", () => {
     const onClose = vi.fn();
     render(<EntiEditor enti={getMockEnti()} onSave={() => {}} onClose={onClose} />);
     
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     
     expect(screen.queryByTestId("close-dialog")).not.toBeInTheDocument();
     expect(onClose).toHaveBeenCalled();
@@ -55,7 +55,7 @@ describe("FIA-004 EntiEditor Component", () => {
     render(<EntiEditor enti={getMockEnti()} onSave={() => {}} onClose={() => {}} />);
     
     fireEvent.change(screen.getByTestId("input-name"), { target: { value: "Dirty Name" } });
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     
     expect(screen.getByTestId("close-dialog")).toBeInTheDocument();
     expect(screen.getByTestId("btn-dialog-guardar")).toBeInTheDocument();
@@ -69,7 +69,7 @@ describe("FIA-004 EntiEditor Component", () => {
     render(<EntiEditor enti={getMockEnti()} onSave={onSave} onClose={onClose} />);
     
     fireEvent.change(screen.getByTestId("input-name"), { target: { value: "Dirty Name" } });
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-guardar"));
     
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ name: "Dirty Name" }));
@@ -82,7 +82,7 @@ describe("FIA-004 EntiEditor Component", () => {
     render(<EntiEditor enti={getMockEnti()} onSave={onSave} onClose={onClose} />);
     
     fireEvent.change(screen.getByTestId("input-name"), { target: { value: "Dirty Name" } });
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-descartar"));
     
     expect(onSave).not.toHaveBeenCalled();
@@ -95,7 +95,7 @@ describe("FIA-004 EntiEditor Component", () => {
     render(<EntiEditor enti={getMockEnti()} onSave={onSave} onClose={onClose} />);
     
     fireEvent.change(screen.getByTestId("input-name"), { target: { value: "Dirty Name" } });
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-cancelar"));
     
     expect(onSave).not.toHaveBeenCalled();

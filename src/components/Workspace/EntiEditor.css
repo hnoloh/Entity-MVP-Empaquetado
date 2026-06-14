@@ -26,7 +26,7 @@
   pointer-events: auto;
 }
 
-.enti-editor:not(.minimized) {
+.enti-editor:not(.hidden) {
   animation: modalEnter 0.25s ease-out forwards;
 }
 
@@ -591,82 +591,4 @@
   transform: translateY(-1px);
 }
 
-/* MINIMIZED STATE (FOLDER TAB STYLE) */
-.enti-editor.minimized {
-  margin: 0;
-  align-self: flex-start;
-  width: auto;
-  min-width: 140px;
-  max-width: 250px;
-  padding: 0.5rem 1rem;
-  border-radius: 12px 12px 0 0;
-  border: 1px solid rgba(0, 229, 255, 0.15);
-  border-bottom: none;
-  background: rgba(15, 23, 42, 1);
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
-  transform-origin: bottom left;
-  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-  position: relative;
-  top: auto;
-  left: auto;
-  right: auto;
-  bottom: auto;
-  margin-top: -38px;
-  margin-bottom: -1px;
-  height: 39px;
-  min-height: 39px;
-  pointer-events: auto;
-  order: 1; /* optional now since we use absolute for max */
-  z-index: 10;
-}
 
-.enti-editor.minimized .editor-header {
-  margin: 0;
-  padding: 0;
-  border: none;
-  height: 100%;
-}
-
-.enti-editor.minimized:hover {
-  transform: scale(1.05);
-  background: rgba(30, 41, 59, 1);
-  box-shadow: 0 -6px 16px rgba(0, 229, 255, 0.15);
-  z-index: 201;
-}
-
-
-
-.enti-editor.minimized .editor-title {
-  font-size: 0.85rem;
-  font-weight: 500;
-  opacity: 0.9;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-right: 1rem;
-}
-
-.enti-editor.minimized .window-controls {
-  gap: 0.2rem;
-  margin-left: auto;
-}
-
-.enti-editor.minimized .window-controls button {
-  width: auto;
-  height: auto;
-  padding: 0 2px;
-  font-size: 11px;
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.enti-editor.minimized .window-controls button:hover {
-  background: transparent;
-  transform: scale(1.1);
-  color: #fff;
-}
-
-.enti-editor.minimized .window-controls button[data-testid="btn-close-editor"]:hover {
-  color: #ff4444;
-}

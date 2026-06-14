@@ -48,7 +48,7 @@ describe("Workspace Conocimientos Integration (FIA-012)", () => {
     expect(mockOnSave).not.toHaveBeenCalled();
 
     // Trigger close to see dirty state dialog
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     expect(screen.getByTestId("close-dialog")).toBeInTheDocument();
   });
 
@@ -57,7 +57,7 @@ describe("Workspace Conocimientos Integration (FIA-012)", () => {
     const knowledgeInput = screen.getByTestId("input-knowledge");
     
     fireEvent.change(knowledgeInput, { target: { value: "Nuevos conocimientos" } });
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     
     // Click Guardar
     fireEvent.click(screen.getByTestId("btn-dialog-guardar"));
@@ -75,7 +75,7 @@ describe("Workspace Conocimientos Integration (FIA-012)", () => {
     const knowledgeInput = screen.getByTestId("input-knowledge");
     
     fireEvent.change(knowledgeInput, { target: { value: "Nuevos conocimientos" } });
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     
     // Click Descartar
     fireEvent.click(screen.getByTestId("btn-dialog-descartar"));
@@ -89,7 +89,7 @@ describe("Workspace Conocimientos Integration (FIA-012)", () => {
     const knowledgeInput = screen.getByTestId("input-knowledge");
     
     fireEvent.change(knowledgeInput, { target: { value: "Nuevos conocimientos" } });
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     
     // Click Cancelar
     fireEvent.click(screen.getByTestId("btn-dialog-cancelar"));

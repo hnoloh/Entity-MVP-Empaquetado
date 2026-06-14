@@ -12,7 +12,7 @@ export default function WorkspaceShell() {
   const [entis, setEntis] = useState<Enti[]>(() => entiRepository.list());
   // Multi-editor state
   const [openedEntiIds, setOpenedEntiIds] = useState<string[]>([]);
-  const [maximizedEntiIds, setMaximizedEntiIds] = useState<string[]>([]);
+  const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [unsavedEntis, setUnsavedEntis] = useState<Record<string, Enti>>({});
   
   // For visual selection in the Hub
@@ -34,12 +34,7 @@ export default function WorkspaceShell() {
       if (!prev.includes(id)) return [...prev, id];
       return prev;
     });
-    setMaximizedEntiIds(prev => {
-      const next = [...prev];
-      if (!next.includes(id)) next.push(id);
-      if (next.length > 1) next.shift();
-      return next;
-    });
+    setActiveTabId(id);
     setFocusedEntiId(id);
   };
 
@@ -48,26 +43,12 @@ export default function WorkspaceShell() {
       if (!prev.includes(id)) return [...prev, id];
       return prev;
     });
-    setMaximizedEntiIds(prev => {
-      const next = prev.filter(mId => mId !== id);
-      next.push(id);
-      if (next.length > 1) next.shift();
-      return next;
-    });
+    setActiveTabId(id);
     setFocusedEntiId(id);
   };
 
-  const handleMinimizeEditor = (id: string) => {
-    setMaximizedEntiIds(prev => prev.filter(mId => mId !== id));
-  };
-
-  const handleRestoreEditor = (id: string) => {
-    setMaximizedEntiIds(prev => {
-      const next = prev.filter(mId => mId !== id);
-      next.push(id);
-      if (next.length > 1) next.shift();
-      return next;
-    });
+  const handleSelectTab = (id: string) => {
+    setActiveTabId(id);
     setFocusedEntiId(id);
   };
 
@@ -85,8 +66,13 @@ export default function WorkspaceShell() {
   };
 
   const handleCloseEditor = (id: string) => {
-    setOpenedEntiIds(prev => prev.filter(openId => openId !== id));
-    setMaximizedEntiIds(prev => prev.filter(mId => mId !== id));
+    setOpenedEntiIds(prev => {
+      const next = prev.filter(openId => openId !== id);
+      if (activeTabId === id) {
+        setActiveTabId(next.length > 0 ? next[next.length - 1] : null);
+      }
+      return next;
+    });
     setUnsavedEntis(prev => {
       if (prev[id]) {
         const next = { ...prev };
@@ -106,6 +92,10 @@ export default function WorkspaceShell() {
     handleCloseEditor(id);
   };
 
+  const handleCloseRequest = (id: string) => {
+    window.dispatchEvent(new CustomEvent('request-close-editor', { detail: { id } }));
+  };
+
   const activeEntis = openedEntiIds.map(id => {
     return unsavedEntis[id] || entiRepository.getById(id);
   }).filter((e): e is Enti => e !== undefined);
@@ -114,9 +104,7 @@ export default function WorkspaceShell() {
     <EntiEditor
       key={enti.id}
       enti={enti}
-      isMinimized={!maximizedEntiIds.includes(enti.id)}
-      onMinimize={() => handleMinimizeEditor(enti.id)}
-      onRestore={() => handleRestoreEditor(enti.id)}
+      isActive={activeTabId === enti.id}
       onSave={handleSaveEnti}
       onClose={() => handleCloseEditor(enti.id)}
     />
@@ -152,6 +140,10 @@ export default function WorkspaceShell() {
         />
         <WorkbenchRegion 
            editorStubs={editorStubs}
+           activeEntis={activeEntis}
+           activeTabId={activeTabId}
+           onSelectTab={handleSelectTab}
+           onCloseTab={handleCloseRequest}
         />
       </div>
 

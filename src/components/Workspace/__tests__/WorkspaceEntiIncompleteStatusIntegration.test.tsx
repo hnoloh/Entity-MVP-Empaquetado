@@ -45,7 +45,7 @@ describe("Workspace Enti Incomplete Status Integration (FIA-022)", () => {
 
     // Re-fill and save
     fireEvent.change(screen.getByTestId("input-name"), { target: { value: "Valid Name" } });
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-guardar"));
 
     // Now list indicator should be complete
@@ -68,13 +68,13 @@ describe("Workspace Enti Incomplete Status Integration (FIA-022)", () => {
     expect(screen.getByTestId("editor-status-indicator-1")).toHaveClass("incomplete");
 
     // Cancelar cierre (TEST-FIA022-08)
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-cancelar"));
     // Still in editor, draft still incomplete
     expect(screen.getByTestId("editor-status-indicator-1")).toHaveClass("incomplete");
 
     // Descartar cambios (TEST-FIA022-07)
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-descartar"));
     
     // Editor closed. Reopen to check draft is restored to original
@@ -94,8 +94,6 @@ describe("Workspace Enti Incomplete Status Integration (FIA-022)", () => {
     fireEvent.click(screen.getByTestId("enti-item-1"));
     expect(screen.getByTestId("editor-status-indicator-1")).toHaveClass("incomplete");
 
-    // Minimize 1
-    fireEvent.click(screen.getByTestId("btn-minimize-editor"));
 
     // Open 2
     fireEvent.click(screen.getByTestId("enti-item-2"));

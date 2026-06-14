@@ -59,7 +59,7 @@ describe("FIA-006 Workspace Entis List Integration", () => {
     fireEvent.change(inputName, { target: { value: "Mi Nuevo Enti" } });
     
     // Intentamos cerrar y guardamos
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-guardar"));
     
     // AHORA sí debe aparecer en la lista
@@ -83,7 +83,7 @@ describe("FIA-006 Workspace Entis List Integration", () => {
     fireEvent.change(nameInput, { target: { value: "Updated Name" } });
     
     // Guardar cerrando el editor
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-guardar"));
     
     // El listado debe reflejar el nuevo nombre

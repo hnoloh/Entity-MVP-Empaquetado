@@ -160,7 +160,7 @@ describe("FIA-007 Workspace Select Enti Integration", () => {
     const nameInput = screen.getByTestId("input-name");
     fireEvent.change(nameInput, { target: { value: "New Name" } });
     
-    fireEvent.click(screen.getByTestId("btn-close-editor"));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId("btn-dialog-guardar"));
     
     // Como el editor se cerró (así es el comportamiento en FIA-004), la selección se limpió

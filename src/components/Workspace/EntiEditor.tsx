@@ -8,9 +8,7 @@ interface EntiEditorProps {
   enti: Enti;
   onSave: (draft: Enti) => void;
   onClose: () => void;
-  isMinimized?: boolean;
-  onMinimize?: () => void;
-  onRestore?: () => void;
+  isActive: boolean;
 }
 
 // --- Subcomponentes para mantener el código limpio (Clean Code) ---
@@ -93,7 +91,7 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
 
 // --- Componente Principal ---
 
-export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, isMinimized: controlledIsMinimized, onMinimize, onRestore }) => {
+export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, isActive }) => {
   const [draft, setDraft] = useState<Enti>(enti);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [expandedField, setExpandedField] = useState<{ key: keyof Enti["harness"]; label: string } | null>(null);
@@ -102,19 +100,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
   const [localDetectionState, setLocalDetectionState] = useState<"detecting" | "detected">("detecting");
   const [tempApiKey, setTempApiKey] = useState(draft.cognitiveConfig.apiKey || "");
   const [showApiKey, setShowApiKey] = useState(false);
-  const [internalIsMinimized, setInternalIsMinimized] = useState(false);
-  const isMinimized = controlledIsMinimized !== undefined ? controlledIsMinimized : internalIsMinimized;
-
-  const handleMinimize = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    if (onMinimize) onMinimize();
-    else setInternalIsMinimized(true);
-  };
-
-  const handleRestore = () => {
-    if (onRestore) onRestore();
-    else setInternalIsMinimized(false);
-  };
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -135,13 +120,23 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
 
   const isDirty = JSON.stringify(draft) !== JSON.stringify(enti);
 
-  const handleCloseAttempt = () => {
+  const handleCloseAttempt = React.useCallback(() => {
     if (isDirty) {
       setShowCloseDialog(true);
     } else {
       onClose();
     }
-  };
+  }, [isDirty, onClose]);
+
+  React.useEffect(() => {
+    const handleGlobalClose = (e: CustomEvent) => {
+      if (e.detail.id === draft.id) {
+        handleCloseAttempt();
+      }
+    };
+    window.addEventListener('request-close-editor', handleGlobalClose as EventListener);
+    return () => window.removeEventListener('request-close-editor', handleGlobalClose as EventListener);
+  }, [draft.id, handleCloseAttempt]);
 
   const handleSave = () => {
     const updatedDraft = { ...draft, status: deriveEntiStatus(draft) };
@@ -174,10 +169,9 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
 
   return (
     <div 
-      className={`enti-editor ${isMinimized ? "minimized" : ""}`} 
+      className={`enti-editor ${!isActive ? "hidden" : ""}`} 
       data-testid="enti-editor"
-      onClick={isMinimized ? handleRestore : undefined}
-      style={isMinimized ? { cursor: "pointer" } : undefined}
+      style={{ display: isActive ? undefined : 'none' }}
     >
       <div className="editor-header">
         <div style={{ display: "flex", alignItems: "center" }}>
@@ -186,17 +180,12 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
             title={currentStatus === 'complete' ? 'Estado: Completo' : 'Estado: Incompleto'}
             data-testid={`editor-status-indicator-${draft.id}`}
           />
-          <h2 className="editor-title">{isMinimized ? `Editor: ${draft.name || "Sin nombre"}` : "Gestión de Enti"}</h2>
+          <h2 className="editor-title">Gestión de Enti</h2>
         </div>
         <div className="window-controls">
-          {!isMinimized && (
-            <button onClick={handleMinimize} data-testid="btn-minimize-editor" title="Minimizar Editor">
-              —
-            </button>
-          )}
           <button 
-            onClick={(e) => {
-              if (isMinimized) e.stopPropagation();
+            style={{ display: 'none' }}
+            onClick={() => {
               handleCloseAttempt();
             }} 
             data-testid="btn-close-editor" 
@@ -225,8 +214,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
         document.body
       )}
 
-      {!isMinimized && (
-        <>
+      <>
           {isBrainSelectOpen && (
             <>
               <div 
@@ -428,7 +416,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
         />
       )}
       </>
-      )}
     </div>
   );
 };

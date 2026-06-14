@@ -1,0 +1,74 @@
+
+ RUN  v4.1.8 /home/hnoloh/Escritorio/Entity-V2
+
+ ✓ src/components/Workspace/__tests__/WorkspaceEditorIntegration.test.tsx (3 tests) 298ms
+ ✓ src/components/Workspace/__tests__/WorkspaceSelectEntiIntegration.test.tsx (10 tests) 603ms
+ ❯ src/components/Workspace/__tests__/WorkspaceEditorEntiIntegration.test.tsx (7 tests | 1 failed) 626ms
+     ✓ TEST-FIA017-01: EntiEditor se renderiza como contenedor único del Enti seleccionado y no existe multi-editor 177ms
+     ✓ TEST-FIA017-02: Integra Nombre, Harness Base y Configuración Cognitiva en la misma superficie 62ms
+     ✓ TEST-FIA017-03: Cambios en campos activan dirty sin autosave 75ms
+     ✓ TEST-FIA017-04: Guardar/Descartar/Cancelar preservan el flujo bloqueado 154ms
+     × TEST-FIA017-05: Cambio de selectedEntiId resincroniza todos los campos sin carryover 64ms
+     ✓ TEST-FIA017-06: Existe multi-editor (modificado por FIA-020) 60ms
+     ✓ TEST-FIA017-07, 09, 10: Forbidden units y Ghost pasivo y nula exposición de API Key 27ms
+ ❯ src/components/Workspace/__tests__/WorkspaceEditorOpeningIntegration.test.tsx (8 tests | 1 failed) 640ms
+     ✓ TEST-FIA018-01: Seleccionar Enti existente abre EntiEditor en Mesa 166ms
+     ✓ TEST-FIA018-02: Existe multi-editor activo (modificado por FIA-020) 109ms
+     × TEST-FIA018-03: Seleccionar otro Enti reemplaza contenido y evita carryover de draft 162ms
+     ✓ TEST-FIA018-04: Click en eliminar no dispara apertura accidental del editor 29ms
+     ✓ TEST-FIA018-05: Eliminar Enti abierto limpia selectedEntiId y desmonta EntiEditor 49ms
+     ✓ TEST-FIA018-06: Apertura carga Nombre, Harness Base y Configuración Cognitiva ya bloqueados 30ms
+     ✓ TEST-FIA018-07: No se persiste editorOpen, selectedEntiId, draft, dirty, layout ni focus 62ms
+     ✓ TEST-FIA018-08, 09: Forbidden-units y Ghost permanece 27ms
+ ❯ src/components/Workspace/__tests__/WorkspaceHarnessBaseIntegration.test.tsx (10 tests | 1 failed) 658ms
+     ✓ TEST-FIA008-01: Editor de Enti seleccionado muestra Harness Base 158ms
+     ✓ TEST-FIA008-02: Harness Base contiene Función, Normas, Material de Trabajo y Conocimientos 60ms
+     × TEST-FIA008-03: Seleccionar otro Enti no mezcla Harness ni draft del Enti anterior 129ms
+     ✓ TEST-FIA008-04: Enti sin Brain permite abrir Harness Base 80ms
+     ✓ TEST-FIA008-05: Cambios de Harness Base no ejecutan autosave ni escriben repo antes de Guardar 47ms
+     ✓ TEST-FIA008-06: Guardar persiste según EntiRepository y flujo heredado 51ms
+     ✓ TEST-FIA008-07: Descartar conserva estado guardado previo 42ms
+     ✓ TEST-FIA008-08: Cancelar conserva Editor abierto y draft pendiente 42ms
+     ✓ TEST-FIA008-09: Ghost permanece en DOM como decoración permanente 21ms
+     ✓ TEST-FIA008-10: Forbidden-units scan 15ms
+ ❯ src/components/Workspace/__tests__/WorkspaceMultiEditorIntegration.test.tsx (8 tests | 5 failed) 764ms
+     ✓ TEST-FIA020-01: abrir dos Entis distintos crea dos editores 245ms
+     × TEST-FIA020-02, 03: cada editor mantiene draft aislado por Enti.id y Guardar solo persiste su propio Enti 154ms
+     × TEST-FIA020-04, 05: Descartar y Cancelar afectan solo la instancia correspondiente 106ms
+     × TEST-FIA020-06: minimizar/restaurar una instancia no afecta a otras 51ms
+     ✓ TEST-FIA020-07: eliminar Enti abierto desmonta solo su editor 78ms
+     × TEST-FIA020-08: no se duplica editor del mismo id 32ms
+     × TEST-FIA020-08B: máximo 1 editor maximizado, al abrir el 2do se minimiza el 1ro 54ms
+     ✓ TEST-FIA020-09, 10, 11: no storage, forbidden units intactas y Ghost visible 38ms
+ ✓ src/components/Workspace/__tests__/WorkspaceLocalBrainDetectionIntegration.test.tsx (4 tests) 1026ms
+     ✓ TEST-FIA014-02: Muestra lista controlada/stub de modelos locales detectados sin ejecución  688ms
+ ✓ src/components/Workspace/__tests__/WorkspaceOpenAIApiKeyIntegration.test.tsx (9 tests) 649ms
+ ✓ src/components/Workspace/__tests__/WorkspaceEntiStatusIntegration.test.tsx (3 tests) 425ms
+ ✓ src/components/Workspace/__tests__/WorkspaceEntisList.test.tsx (8 tests) 506ms
+ ✓ src/components/Workspace/__tests__/WorkspaceEntiIncompleteStatusIntegration.test.tsx (5 tests) 512ms
+ ✓ src/components/Workspace/__tests__/WorkspaceBrainTypeIntegration.test.tsx (9 tests) 618ms
+ ✓ src/components/Workspace/__tests__/WorkspaceCognitiveConfigIntegration.test.tsx (11 tests) 720ms
+ ✓ src/components/Workspace/__tests__/WorkspaceFuncionIntegration.test.tsx (6 tests) 445ms
+ ✓ src/components/Workspace/__tests__/EntiEditor.test.tsx (7 tests) 366ms
+ ✓ src/components/Workspace/__tests__/WorkspaceMaterialTrabajoIntegration.test.tsx (7 tests) 417ms
+ ✓ src/components/Workspace/__tests__/WorkspaceEditorTabsIntegration.test.tsx (4 tests) 507ms
+ ✓ src/components/Workspace/__tests__/WorkspaceConocimientosIntegration.test.tsx (7 tests) 381ms
+ ✓ src/components/Workspace/__tests__/WorkspaceDeleteEntiIntegration.test.tsx (4 tests) 406ms
+ ✓ src/components/Workspace/__tests__/WorkspaceNormasIntegration.test.tsx (7 tests) 453ms
+ ✓ src/components/Workspace/__tests__/WorkspaceEmptyState.test.tsx (9 tests) 311ms
+ ✓ src/components/Workspace/__tests__/WorkspaceLayout.test.tsx (6 tests) 210ms
+ ✓ src/components/Workspace/__tests__/WorkspaceShell.test.tsx (7 tests) 237ms
+ ✓ src/domain/enti/__tests__/EntiRepository.test.ts (7 tests) 20ms
+ ✓ src/components/Workspace/__tests__/EntitiesColumnRegion.test.tsx (8 tests) 231ms
+ ✓ src/components/Workspace/__tests__/WorkbenchRegion.test.tsx (4 tests) 130ms
+ ✓ src/components/Workspace/__tests__/HubLateralView.test.tsx (5 tests) 170ms
+ ✓ src/components/Workspace/__tests__/WorkspaceGhostView.test.tsx (5 tests) 130ms
+ ✓ src/domain/enti/__tests__/Enti.test.ts (6 tests) 11ms
+ ✓ src/domain/enti/__tests__/CreateEntiFlow.test.ts (2 tests) 9ms
+ ✓ src/domain/enti/__tests__/EntiStatus.test.ts (5 tests) 6ms
+
+ Test Files  4 failed | 27 passed (31)
+      Tests  8 failed | 193 passed (201)
+   Start at  07:10:59
+   Duration  11.61s (transform 1.63s, setup 3.37s, import 6.24s, tests 12.48s, environment 44.81s)
+

@@ -120,7 +120,7 @@ describe("WorkspaceLocalBrainDetectionIntegration", () => {
     expect(screen.getByTestId("local-brain-detection-block")).toBeInTheDocument();
 
     // Close the first editor so it doesn't pollute the DOM
-    fireEvent.click(screen.getByTestId('btn-close-editor'));
+    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     // Si estaba dirty aparecería el modal, si no se cierra solo.
     // Vamos a forzar un cambio para que esté dirty por si acaso, o simplemente verificar
     const dialogBtn = screen.queryByTestId('btn-dialog-descartar');

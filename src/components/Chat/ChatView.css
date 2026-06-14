@@ -21,6 +21,11 @@
   flex-direction: column;
 }
 
+.chat-view-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .chat-view-clear-btn {
   background: #ff4d4f;
   color: white;
@@ -33,6 +38,23 @@
 .chat-view-clear-btn:disabled {
   background: #ccc;
   cursor: not-allowed;
+}
+
+.chat-view-close-btn {
+  background: #666;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.chat-view-closed {
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+  border: 1px dashed #ccc;
+  text-align: center;
 }
 
 .chat-view-history {

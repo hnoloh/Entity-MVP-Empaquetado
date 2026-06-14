@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { chatRepository, getChatHistoryFlow, sendMessageToChatFlow, clearChatHistoryFlow, type Chat } from '../../domain/chat';
+import { chatRepository, getChatHistoryFlow, sendMessageToChatFlow, clearChatHistoryFlow, closeChatFlow, type Chat } from '../../domain/chat';
 import './ChatView.css';
 
 interface ChatViewProps {
@@ -9,6 +9,7 @@ interface ChatViewProps {
 export function ChatView({ chatId }: ChatViewProps) {
   const [draft, setDraft] = useState('');
   const [, setRefreshKey] = useState(0);
+  const [isClosed, setIsClosed] = useState(false);
 
   let chat: Chat | null = null;
   let error: string | null = null;
@@ -46,11 +47,24 @@ export function ChatView({ chatId }: ChatViewProps) {
     setRefreshKey(prev => prev + 1);
   };
 
+  const handleClose = () => {
+    closeChatFlow(chatId);
+    setIsClosed(true);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSend();
     }
   };
+
+  if (isClosed) {
+    return (
+      <div data-testid={`chat-view-closed-${chatId}`} className="chat-view-closed">
+        Chat cerrado
+      </div>
+    );
+  }
 
   return (
     <div data-testid={`chat-view-${chat.id}`} className="chat-view-container">
@@ -61,15 +75,25 @@ export function ChatView({ chatId }: ChatViewProps) {
             Propietario: {chat.owner?.type} ({chat.owner?.id})
           </span>
         </div>
-        <button 
-          className="chat-view-clear-btn" 
-          onClick={handleClear}
-          data-testid="chat-view-clear-btn"
-          disabled={history.length === 0}
-          title="Vaciar historial"
-        >
-          Vaciar
-        </button>
+        <div className="chat-view-header-actions">
+          <button 
+            className="chat-view-clear-btn" 
+            onClick={handleClear}
+            data-testid="chat-view-clear-btn"
+            disabled={history.length === 0}
+            title="Vaciar historial"
+          >
+            Vaciar
+          </button>
+          <button 
+            className="chat-view-close-btn" 
+            onClick={handleClose}
+            data-testid="chat-view-close-btn"
+            title="Cerrar Chat"
+          >
+            Cerrar
+          </button>
+        </div>
       </div>
 
       <div data-testid="chat-view-history" className="chat-view-history">

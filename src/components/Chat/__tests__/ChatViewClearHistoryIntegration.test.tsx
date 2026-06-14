@@ -38,7 +38,7 @@ describe('ChatViewClearHistoryIntegration - RV-03/FIA-012', () => {
     expect(codeFlow).not.toContain('fetch');
     expect(codeFlow).not.toContain('localStorage');
     
-    expect(codeView).not.toContain('closeChat');
+    expect(codeView).not.toContain('closeWindow');
     expect(codeView).not.toContain('deleteChat');
   });
 });

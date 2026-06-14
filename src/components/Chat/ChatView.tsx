@@ -1,5 +1,5 @@
-import React from 'react';
-import { chatRepository, getChatHistoryFlow, type Chat } from '../../domain/chat';
+import React, { useState } from 'react';
+import { chatRepository, getChatHistoryFlow, sendMessageToChatFlow, type Chat } from '../../domain/chat';
 import './ChatView.css';
 
 interface ChatViewProps {
@@ -7,6 +7,9 @@ interface ChatViewProps {
 }
 
 export function ChatView({ chatId }: ChatViewProps) {
+  const [draft, setDraft] = useState('');
+  const [, setRefreshKey] = useState(0);
+
   let chat: Chat | null = null;
   let error: string | null = null;
 
@@ -31,6 +34,19 @@ export function ChatView({ chatId }: ChatViewProps) {
 
   const history = getChatHistoryFlow(chatId);
 
+  const handleSend = () => {
+    if (draft.trim() === '') return;
+    sendMessageToChatFlow(chatId, draft.trim());
+    setDraft('');
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSend();
+    }
+  };
+
   return (
     <div data-testid={`chat-view-${chat.id}`} className="chat-view-container">
       <div data-testid="chat-view-header" className="chat-view-header">
@@ -53,6 +69,26 @@ export function ChatView({ chatId }: ChatViewProps) {
             </div>
           ))
         )}
+      </div>
+
+      <div className="chat-view-composer" data-testid="chat-view-composer">
+        <input
+          type="text"
+          className="chat-composer-input"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Escribe un mensaje..."
+          data-testid="chat-composer-input"
+        />
+        <button 
+          className="chat-composer-send" 
+          onClick={handleSend}
+          data-testid="chat-composer-send"
+          disabled={draft.trim() === ''}
+        >
+          Enviar
+        </button>
       </div>
     </div>
   );

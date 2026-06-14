@@ -8,6 +8,7 @@ import * as path from 'path';
 describe('ChatView - RV-03/FIA-010', () => {
   beforeEach(() => {
     chatRepository.clear();
+    vi.restoreAllMocks();
   });
 
   it('TEST-FIA010-01: renderiza Vista Chat para Chat owner Enti con historial vacío', () => {
@@ -74,14 +75,6 @@ describe('ChatView - RV-03/FIA-010', () => {
 
     expect(screen.getByText('Mensaje 1')).toBeInTheDocument();
     expect(screen.queryByText('Mensaje 2')).not.toBeInTheDocument();
-  });
-
-  it('TEST-FIA010-08: no hay input, composer, submit ni botón enviar', () => {
-    const chat = createChatFlow('enti', 'E1');
-    render(<ChatView chatId={chat.id} />);
-
-    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
   it('TEST-FIA010-10: forbidden-units scan sin Runtime, Prompt Engine, SDK/red, backend, storage, autosave, RV-04 ni FIA-011', () => {

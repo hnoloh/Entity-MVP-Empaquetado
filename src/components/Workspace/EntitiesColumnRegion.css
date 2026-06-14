@@ -2,7 +2,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 24px 20px;
+  padding: 16px 0;
   height: 100%;
 }
 
@@ -16,8 +16,110 @@
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  padding: 8px 0;
+  padding: 12px 16px;
   user-select: none;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.02);
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 0;
+  margin-bottom: 0;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.list-item:hover {
+  background: rgba(0, 229, 255, 0.04);
+  border-bottom-color: rgba(0, 229, 255, 0.15);
+}
+
+.list-item.selected {
+  background: rgba(0, 229, 255, 0.08);
+  border-bottom-color: rgba(0, 229, 255, 0.3);
+}
+
+.list-item.selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #00e5ff;
+}
+
+.item-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item-name {
+  color: #e2e8f0;
+  font-weight: 500;
+  font-size: 13px;
+  transition: color 0.2s ease;
+}
+
+.list-item.selected .item-name {
+  color: #00e5ff;
+}
+
+.item-info {
+  display: flex;
+  align-items: center;
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.status-indicator.complete {
+  background-color: #00e5ff;
+  box-shadow: 0 0 5px rgba(0, 229, 255, 0.5);
+}
+
+.status-indicator.incomplete {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.item-subtitle {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+}
+
+.btn-delete-inline {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  font-size: 14px;
+}
+
+.list-item:hover .btn-delete-inline {
+  opacity: 1;
+}
+
+.btn-delete-inline:hover {
+  color: #ff4444;
+}
+
+.btn-delete-inline:hover {
+  color: #ff4444;
 }
 
 .entity-section-title {
@@ -33,21 +135,21 @@
 .btn-create-inline {
   background: transparent;
   border: none;
-  color: var(--accent-cyan);
+  color: rgba(255, 255, 255, 0.75);
+  width: 24px;
+  height: 24px;
   font-size: 18px;
-  font-weight: 300;
+  font-weight: 400;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 4px;
-  opacity: 0.7;
   transition: all 0.2s ease;
 }
 
 .btn-create-inline:hover {
-  opacity: 1;
-  transform: scale(1.1);
+  color: #ffffff;
+  transform: scale(1.15);
 }
 
 .collapse-icon {
@@ -96,4 +198,75 @@
 .fixture-item:hover {
   background-color: rgba(0, 255, 255, 0.1);
   color: var(--accent-cyan);
+}
+
+.delete-dialog-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 150;
+  border-radius: 16px;
+}
+
+.delete-dialog {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-surface, #0f172a);
+  padding: 1.5rem;
+  border-radius: 16px;
+  border: 1px solid var(--border-cyan, #00e5ff);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  z-index: 160;
+  width: 85%;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.delete-dialog p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #fff;
+  line-height: 1.4;
+}
+
+.delete-dialog-buttons {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.delete-dialog-buttons button {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.delete-dialog-buttons .btn-confirm {
+  background: rgba(255, 68, 68, 0.15);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  color: #ff4444;
+}
+
+.delete-dialog-buttons .btn-confirm:hover {
+  background: rgba(255, 68, 68, 0.3);
+}
+
+.delete-dialog-buttons .btn-cancel {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.delete-dialog-buttons .btn-cancel:hover {
+  background: #334155;
 }

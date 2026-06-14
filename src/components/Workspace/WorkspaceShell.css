@@ -22,27 +22,15 @@
 }
 
 .entities-column {
-  width: 280px;
-  background-color: var(--bg-surface);
-  /* Bordes redondeados y contorno cyan según diseño */
+  width: 250px;
+  background: linear-gradient(180deg, rgba(0, 229, 255, 0.05) 0%, rgba(2, 6, 23, 0.9) 100%);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 229, 255, 0.1);
   border-radius: 16px;
-  border: 1px solid var(--border-cyan);
   display: flex;
   flex-direction: column;
   transition: width 0.2s ease-in-out;
-  /* Sutil resplandor exterior */
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.05);
   z-index: 10;
+  box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
 }
 
-.workbench-region {
-  flex: 1;
-  background-color: var(--bg-surface);
-  /* Bordes redondeados y contorno cyan según diseño */
-  border-radius: 16px;
-  border: 1px solid var(--border-cyan);
-  position: relative;
-  /* Efecto de resplandor sutil */
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.05);
-  display: flex;
-}

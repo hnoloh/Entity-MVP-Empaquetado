@@ -7,16 +7,25 @@ export interface EntityFixture {
 }
 
 export interface EntitiesColumnRegionProps {
-  entis?: EntityFixture[];
+  entis?: { id: string; name: string; status?: string }[];
   grupos?: EntityFixture[];
+  openEntiIds?: string[];
+  onCreateEnti?: () => void;
+  onSelectEnti?: (id: string) => void;
+  onDeleteEnti?: (id: string) => void;
 }
 
 export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
   entis = [],
   grupos = [],
+  openEntiIds = [],
+  onCreateEnti,
+  onSelectEnti,
+  onDeleteEnti,
 }) => {
   const [entisOpen, setEntisOpen] = useState(true);
   const [gruposOpen, setGruposOpen] = useState(true);
+  const [entityToDelete, setEntityToDelete] = useState<string | null>(null);
 
   return (
     <div
@@ -37,6 +46,7 @@ export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
               className="btn-create-inline"
               onClick={(e) => {
                 e.stopPropagation(); // Evita plegar/desplegar
+                if (onCreateEnti) onCreateEnti();
               }}
               title="Crear Enti"
             >
@@ -55,17 +65,34 @@ export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
             data-testid="section-content-entis"
             className="entity-section-content"
           >
-            {entis.length === 0
-              ? null
-              : entis.map((e) => (
-                  <div
-                    key={e.id}
-                    data-testid={`enti-item-${e.id}`}
-                    className="fixture-item"
-                  >
-                    {e.name}
-                  </div>
-                ))}
+            {Array.from(new Map(entis.map((e) => [e.id, e])).values()).map((e) => (
+              <div
+                key={e.id}
+                className={`list-item ${openEntiIds.includes(e.id) ? 'selected' : ''}`}
+                data-testid={`enti-item-${e.id}`}
+                onClick={() => onSelectEnti?.(e.id)}
+              >
+                <div className="item-info">
+                  <span 
+                    className={`status-indicator ${e.status}`} 
+                    title={e.status === 'complete' ? 'Estado: Completo' : 'Estado: Incompleto'}
+                    data-testid={`status-indicator-${e.id}`}
+                  />
+                  <span className="item-name">{e.name || "Sin nombre"}</span>
+                </div>
+                <button
+                  data-testid={`btn-delete-enti-${e.id}`}
+                  className="btn-delete-inline"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setEntityToDelete(e.id);
+                  }}
+                  title="Eliminar Enti"
+                >
+                  🗑
+                </button>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -118,6 +145,33 @@ export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
           </div>
         )}
       </div>
+
+      {entityToDelete && (
+        <div className="delete-dialog-overlay" data-testid="delete-dialog-overlay">
+          <div className="delete-dialog" data-testid="delete-dialog">
+            <p>¿Estás seguro de que deseas eliminar este Enti?</p>
+            <div className="delete-dialog-buttons">
+              <button 
+                className="btn-confirm" 
+                onClick={() => {
+                  onDeleteEnti?.(entityToDelete);
+                  setEntityToDelete(null);
+                }} 
+                data-testid="btn-confirm-delete"
+              >
+                Eliminar
+              </button>
+              <button 
+                className="btn-cancel" 
+                onClick={() => setEntityToDelete(null)} 
+                data-testid="btn-cancel-delete"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

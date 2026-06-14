@@ -4,7 +4,7 @@ import WorkspaceShell from "../WorkspaceShell";
 
 describe("FIA-006 Layout Base Workspace", () => {
   it("Layout integration: Hub/Columna/Mesa conviven de forma estable en estado base", () => {
-    render(<WorkspaceShell entisCount={0} gruposCount={0} />);
+    render(<WorkspaceShell />);
 
     // Verificamos instancias únicas
     const shells = screen.getAllByTestId("workspace-shell");
@@ -21,7 +21,7 @@ describe("FIA-006 Layout Base Workspace", () => {
   });
 
   it("Empty state: 0 Entis/0 Grupos muestra Ghost y MANTIENE Hub/Columna/Mesa intactos", () => {
-    render(<WorkspaceShell entisCount={0} gruposCount={0} />);
+    render(<WorkspaceShell />);
 
     expect(screen.getByTestId("workspace-ghost-view")).toBeInTheDocument();
     expect(screen.getByTestId("hub-region")).toBeInTheDocument();
@@ -29,22 +29,18 @@ describe("FIA-006 Layout Base Workspace", () => {
     expect(screen.getByTestId("workbench-region")).toBeInTheDocument();
   });
 
-  it("Non-empty Enti: 1 Enti/0 Grupos oculta Ghost pero mantiene el layout base", () => {
-    render(<WorkspaceShell entisCount={1} gruposCount={0} />);
+  it("Non-empty Enti: 1 Enti/0 Grupos MANTIENE Ghost (decoración mesa) y el layout base", () => {
+    render(<WorkspaceShell />);
 
-    expect(
-      screen.queryByTestId("workspace-ghost-view"),
-    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("workspace-ghost-view")).toBeInTheDocument();
     expect(screen.getByTestId("hub-region")).toBeInTheDocument();
     expect(screen.getByTestId("workbench-region")).toBeInTheDocument();
   });
 
-  it("Non-empty Grupo: 0 Entis/1 Grupo oculta Ghost y mantiene el layout base", () => {
-    render(<WorkspaceShell entisCount={0} gruposCount={1} />);
+  it("Non-empty Grupo: 0 Entis/1 Grupo MANTIENE Ghost y el layout base", () => {
+    render(<WorkspaceShell />);
 
-    expect(
-      screen.queryByTestId("workspace-ghost-view"),
-    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("workspace-ghost-view")).toBeInTheDocument();
     expect(screen.getByTestId("hub-region")).toBeInTheDocument();
     expect(screen.getByTestId("workbench-region")).toBeInTheDocument();
   });

@@ -15,28 +15,22 @@ describe("FIA-005 Ghost Workspace", () => {
   });
 
   it("GhostRegion shows Ghost when Workspace is empty (0 Entis, 0 Grupos)", () => {
-    render(<GhostRegion entisCount={0} gruposCount={0} />);
+    render(<GhostRegion />);
     expect(screen.getByTestId("workspace-ghost-view")).toBeInTheDocument();
   });
 
-  it("GhostRegion does not show Ghost when there is at least one Enti", () => {
-    render(<GhostRegion entisCount={1} gruposCount={0} />);
-    expect(
-      screen.queryByTestId("workspace-ghost-view"),
-    ).not.toBeInTheDocument();
+  it("GhostRegion shows Ghost when there is at least one Enti (decoración mesa)", () => {
+    render(<GhostRegion />);
+    expect(screen.getByTestId("workspace-ghost-view")).toBeInTheDocument();
   });
 
-  it("GhostRegion does not show Ghost when there is at least one Grupo", () => {
-    render(<GhostRegion entisCount={0} gruposCount={1} />);
-    expect(
-      screen.queryByTestId("workspace-ghost-view"),
-    ).not.toBeInTheDocument();
+  it("GhostRegion shows Ghost when there is at least one Grupo (decoración mesa)", () => {
+    render(<GhostRegion />);
+    expect(screen.getByTestId("workspace-ghost-view")).toBeInTheDocument();
   });
 
-  it("GhostRegion does not show Ghost when there are Entis and Grupos", () => {
-    render(<GhostRegion entisCount={1} gruposCount={1} />);
-    expect(
-      screen.queryByTestId("workspace-ghost-view"),
-    ).not.toBeInTheDocument();
+  it("GhostRegion shows Ghost when there are Entis and Grupos (decoración mesa)", () => {
+    render(<GhostRegion />);
+    expect(screen.getByTestId("workspace-ghost-view")).toBeInTheDocument();
   });
 });

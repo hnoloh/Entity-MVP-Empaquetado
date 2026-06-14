@@ -1,16 +1,19 @@
 import type { ReactNode } from "react";
+import GhostRegion from "./GhostRegion";
 import "./WorkbenchRegion.css";
 
 interface WorkbenchRegionProps {
-  editorStub?: ReactNode;
+  editorStubs?: ReactNode[];
 }
 
-export default function WorkbenchRegion({ editorStub }: WorkbenchRegionProps) {
+export default function WorkbenchRegion({ editorStubs }: WorkbenchRegionProps) {
   return (
     <div data-testid="workbench-region" className="workbench-region">
-      {editorStub ? (
+      <GhostRegion />
+      
+      {editorStubs && editorStubs.length > 0 ? (
         <div data-testid="editor-host-region" className="editor-host-region">
-          {editorStub}
+          {editorStubs}
         </div>
       ) : (
         <div

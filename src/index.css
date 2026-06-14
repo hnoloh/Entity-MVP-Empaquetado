@@ -14,6 +14,7 @@
   
   --text-primary: #EDEDED;
   --text-secondary: #00e5ff; /* Cyan para los textos destacados como CONTACTOS/GRUPOS en el diseño */
+  color-scheme: dark;
 }
 
 * {

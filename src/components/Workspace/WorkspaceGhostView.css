@@ -7,9 +7,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-left: 300px; /* Alineado visualmente a la Mesa de Trabajo (280px del hub + 20px gap) */
-  pointer-events: none; /* pasivo, no captura clicks */
-  z-index: 100; /* Visible sobre la mesa pero sin interactividad */
+  padding-left: 0;
+  pointer-events: none;
+  z-index: 0;
   background: transparent;
 }
 
@@ -35,9 +35,10 @@
 }
 
 .ghost-visual-element {
-  width: 200px; /* Tamaño reducido */
+  width: 200px;
   height: auto;
-  /* Técnica de difuminado radial para integrar en la mesa sin efecto "pegote" */
   -webkit-mask-image: radial-gradient(circle, black 30%, transparent 65%);
   mask-image: radial-gradient(circle, black 30%, transparent 65%);
+  mix-blend-mode: screen;
+  opacity: 0.9;
 }

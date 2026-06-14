@@ -1,19 +1,10 @@
 import WorkspaceGhostView from "./WorkspaceGhostView";
 
-interface GhostRegionProps {
-  entisCount?: number;
-  gruposCount?: number;
-}
-
-export default function GhostRegion({
-  entisCount = 0,
-  gruposCount = 0,
-}: GhostRegionProps) {
-  const isWorkspaceEmpty = entisCount === 0 && gruposCount === 0;
-
+export default function GhostRegion() {
+  // El fantasma es decoración de la mesa, siempre visible hasta que un Editor lo tape.
   return (
     <div data-testid="ghost-region" className="ghost-region">
-      {isWorkspaceEmpty && <WorkspaceGhostView />}
+      <WorkspaceGhostView />
     </div>
   );
 }

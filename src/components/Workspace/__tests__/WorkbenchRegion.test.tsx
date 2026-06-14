@@ -20,13 +20,11 @@ describe("WorkbenchRegion - FIA-004", () => {
   });
 
   it("renders a passive host correctly when an editor stub is provided", () => {
-    const stub = <div data-testid="test-editor-stub">Stub</div>;
-    render(<WorkbenchRegion editorStub={stub} />);
-
+    render(<WorkbenchRegion editorStubs={[<div key="1" data-testid="fake-editor" />]} />);
     expect(screen.getByTestId("editor-host-region")).toBeInTheDocument();
-    expect(screen.getByTestId("test-editor-stub")).toBeInTheDocument();
+    expect(screen.getByTestId("fake-editor")).toBeInTheDocument();
     expect(
-      screen.queryByTestId("workbench-empty-state"),
+      screen.queryByTestId("workbench-empty-state")
     ).not.toBeInTheDocument();
   });
 

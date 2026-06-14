@@ -140,9 +140,13 @@ export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
                   <div
                     key={g.id}
                     data-testid={`grupo-item-${g.id}`}
-                    className="fixture-item"
+                    className="list-item"
                   >
-                    {g.name}
+                    <div className="item-info">
+                      {/* Los grupos por ahora pueden no tener status complejo, le ponemos uno genérico o lo omitimos, pero para que se vea igual usamos uno neutro/incompleto */}
+                      <span className="status-indicator incomplete" />
+                      <span className="item-name">{g.name || "Nuevo Grupo"}</span>
+                    </div>
                   </div>
                 ))}
           </div>

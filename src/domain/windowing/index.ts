@@ -4,3 +4,4 @@ export * from './openChatWindowFlow';
 export * from './closeChatWindowFlow';
 export * from './minimizeChatWindowFlow';
 export * from './restoreChatWindowFlow';
+export * from './repositionChatWindowFlow';

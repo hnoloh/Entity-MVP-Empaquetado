@@ -7,6 +7,8 @@ export * from './receiveResponseToChatFlow';
 export * from './getChatHistoryFlow';
 export * from './associateChatEntiFlow';
 export * from './associateChatGrupoFlow';
+export * from './openChatFlow';
+
 
 
 

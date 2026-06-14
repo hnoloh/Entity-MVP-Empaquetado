@@ -9,13 +9,15 @@ interface HubRegionProps {
   onCreateEnti?: () => void;
   onSelectEnti?: (id: string) => void;
   onDeleteEnti?: (id: string) => void;
+  grupos?: { id: string; name: string }[];
+  onCreateGrupo?: () => void;
 }
 
-export const HubRegion: React.FC<HubRegionProps> = ({ entis, openEntiIds, onCreateEnti, onSelectEnti, onDeleteEnti }) => {
+export const HubRegion: React.FC<HubRegionProps> = ({ entis, openEntiIds, onCreateEnti, onSelectEnti, onDeleteEnti, grupos, onCreateGrupo }) => {
   return (
     <div data-testid="hub-region" className="hub-region entities-column">
       <HubLateralView entis={entis} openEntiIds={openEntiIds} onCreateEnti={onCreateEnti} onSelectEnti={onSelectEnti} onDeleteEnti={onDeleteEnti}>
-        <EntitiesColumnRegion entis={entis} openEntiIds={openEntiIds} onCreateEnti={onCreateEnti} onSelectEnti={onSelectEnti} onDeleteEnti={onDeleteEnti} />
+        <EntitiesColumnRegion entis={entis} openEntiIds={openEntiIds} onCreateEnti={onCreateEnti} onSelectEnti={onSelectEnti} onDeleteEnti={onDeleteEnti} grupos={grupos} onCreateGrupo={onCreateGrupo} />
       </HubLateralView>
     </div>
   );

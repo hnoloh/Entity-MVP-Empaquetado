@@ -4,12 +4,15 @@ import WorkbenchRegion from "./WorkbenchRegion";
 import { HubRegion } from "./HubRegion";
 import { entiRepository } from "../../domain/enti/entiRepository";
 import type { Enti } from "../../domain/enti/Enti";
+import type { Group } from "../../domain/group/Group";
+import { createGroupFlow } from "../../domain/group/createGroupFlow";
 import { EntiEditor } from "./EntiEditor";
 import "./WorkspaceShell.css";
 
 export default function WorkspaceShell() {
   const [state, setState] = useState<WorkspaceState>("visible");
   const [entis, setEntis] = useState<Enti[]>(() => entiRepository.list());
+  const [grupos, setGrupos] = useState<Group[]>([]);
   // Multi-editor state
   const [openedEntiIds, setOpenedEntiIds] = useState<string[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
@@ -36,6 +39,12 @@ export default function WorkspaceShell() {
     });
     setActiveTabId(id);
     setFocusedEntiId(id);
+  };
+
+  const handleCreateGrupo = () => {
+    const id = `grupo-${Date.now()}`;
+    const newGrupo = createGroupFlow(id);
+    setGrupos(prev => [...prev, newGrupo]);
   };
 
   const handleSelectEnti = (id: string) => {
@@ -137,6 +146,8 @@ export default function WorkspaceShell() {
            onCreateEnti={handleCreateEnti} 
            onSelectEnti={handleSelectEnti}
            onDeleteEnti={handleDeleteEnti}
+           grupos={grupos}
+           onCreateGrupo={handleCreateGrupo}
         />
         <WorkbenchRegion 
            editorStubs={editorStubs}

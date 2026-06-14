@@ -13,6 +13,7 @@ export interface EntitiesColumnRegionProps {
   onCreateEnti?: () => void;
   onSelectEnti?: (id: string) => void;
   onDeleteEnti?: (id: string) => void;
+  onCreateGrupo?: () => void;
 }
 
 export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
@@ -22,6 +23,7 @@ export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
   onCreateEnti,
   onSelectEnti,
   onDeleteEnti,
+  onCreateGrupo,
 }) => {
   const [entisOpen, setEntisOpen] = useState(true);
   const [gruposOpen, setGruposOpen] = useState(true);
@@ -113,6 +115,7 @@ export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
               className="btn-create-inline"
               onClick={(e) => {
                 e.stopPropagation(); // Evita plegar/desplegar
+                if (onCreateGrupo) onCreateGrupo();
               }}
               title="Crear Grupo"
             >

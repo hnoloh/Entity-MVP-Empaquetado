@@ -10,6 +10,13 @@ export function createChatFlow(ownerType: ChatOwnerType, ownerId: string, repo: 
     throw new Error('Owner ID is required and cannot be empty.');
   }
 
+  if (ownerType === 'grupo') {
+    const existing = repo.list().find(c => c.owner.type === 'grupo' && c.owner.id === ownerId);
+    if (existing) {
+      return existing;
+    }
+  }
+
   const id = crypto.randomUUID();
   const chat = createChat(id, ownerType, ownerId);
 

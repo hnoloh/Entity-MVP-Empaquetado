@@ -6,3 +6,4 @@ export * from './minimizeChatWindowFlow';
 export * from './restoreChatWindowFlow';
 export * from './repositionChatWindowFlow';
 export * from './resizeChatWindowFlow';
+export * from './focusChatWindowFlow';

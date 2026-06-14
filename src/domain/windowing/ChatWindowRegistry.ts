@@ -7,10 +7,13 @@ export interface ChatWindowRegistry {
   list(): ChatWindow[];
   unregister(windowId: string): void;
   update(window: ChatWindow): void;
+  focus(windowId: string): void;
+  getFocusedWindowId(): string | null;
 }
 
 export function createChatWindowRegistry(): ChatWindowRegistry {
   const registry = new Map<string, ChatWindow>();
+  let focusedWindowId: string | null = null;
 
   return {
     register(window: ChatWindow) {
@@ -65,6 +68,9 @@ export function createChatWindowRegistry(): ChatWindowRegistry {
 
     unregister(windowId: string) {
       registry.delete(windowId);
+      if (focusedWindowId === windowId) {
+        focusedWindowId = null;
+      }
     },
 
     update(window: ChatWindow) {
@@ -80,6 +86,16 @@ export function createChatWindowRegistry(): ChatWindowRegistry {
         state: window.state,
         geometry: { ...window.geometry }
       });
+    },
+
+    focus(windowId: string) {
+      if (registry.has(windowId)) {
+        focusedWindowId = windowId;
+      }
+    },
+
+    getFocusedWindowId(): string | null {
+      return focusedWindowId;
     }
   };
 }

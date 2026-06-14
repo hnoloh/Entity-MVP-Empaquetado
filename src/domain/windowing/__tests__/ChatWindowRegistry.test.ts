@@ -102,4 +102,46 @@ describe('ChatWindowRegistry Model - RV-04/FIA-002', () => {
     expect(code).not.toContain('PromptEngine');
     expect(code).not.toContain('Provider');
   });
+
+  describe('Focus Management', () => {
+    it('returns null initially for focusedWindowId', () => {
+      const registry = createChatWindowRegistry();
+      expect(registry.getFocusedWindowId()).toBeNull();
+    });
+
+    it('sets focusedWindowId using focus() when windowId is valid', () => {
+      const registry = createChatWindowRegistry();
+      const mockWin: ChatWindow = {
+        windowId: 'win-f1',
+        chatId: 'chat-f1',
+        state: 'visible',
+        geometry: { x: 0, y: 0, width: 100, height: 100 }
+      };
+      registry.register(mockWin);
+
+      registry.focus('win-f1');
+      expect(registry.getFocusedWindowId()).toBe('win-f1');
+    });
+
+    it('ignores focus() if windowId does not exist', () => {
+      const registry = createChatWindowRegistry();
+      registry.focus('win-fake');
+      expect(registry.getFocusedWindowId()).toBeNull();
+    });
+
+    it('clears focusedWindowId when the focused window is unregistered', () => {
+      const registry = createChatWindowRegistry();
+      const mockWin: ChatWindow = {
+        windowId: 'win-f1',
+        chatId: 'chat-f1',
+        state: 'visible',
+        geometry: { x: 0, y: 0, width: 100, height: 100 }
+      };
+      registry.register(mockWin);
+      registry.focus('win-f1');
+      
+      registry.unregister('win-f1');
+      expect(registry.getFocusedWindowId()).toBeNull();
+    });
+  });
 });

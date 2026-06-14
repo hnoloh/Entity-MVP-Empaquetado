@@ -4,6 +4,8 @@ export * from './chatRepository';
 export * from './createChatFlow';
 export * from './sendMessageToChatFlow';
 export * from './receiveResponseToChatFlow';
+export * from './getChatHistoryFlow';
+
 
 
 

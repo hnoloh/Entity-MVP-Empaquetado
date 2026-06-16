@@ -52,3 +52,12 @@ export interface ValidatedIntermediateGroupResultSendRequest {
   validationResult: IntermediateGroupValidationResult;
   explicitUserAction: boolean;
 }
+
+export interface GroupSequenceAdvanceRequest {
+  explicitUserAction: boolean;
+  groupId: string;
+  chatId: string;
+  currentSlotId: string;
+  sequenceState: GroupSequenceInitializationResult;
+  sentResult: ValidatedIntermediateGroupResultSendResult;
+}

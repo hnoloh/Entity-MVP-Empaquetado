@@ -95,3 +95,13 @@ export interface ValidatedIntermediateGroupResultSendResult {
   entiId?: string;
   responseText?: string;
 }
+
+export interface GroupSequenceAdvanceResult {
+  status: 'advanced' | 'completed' | 'blocked' | 'controlled_error';
+  error?: string;
+  groupId?: string;
+  chatId?: string;
+  previousSlotId?: string;
+  nextSlotId?: string;
+  updatedSequenceState?: GroupSequenceInitializationResult;
+}

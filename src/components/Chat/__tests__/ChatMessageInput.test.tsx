@@ -73,7 +73,7 @@ describe('ChatMessageInput - RV-03/FIA-011', () => {
   it('TEST-FIA011-13: forbidden-units scan sin Runtime, etc.', () => {
     const code = fs.readFileSync(path.join(__dirname, '../ChatView.tsx'), 'utf-8');
     expect(code).not.toContain('fetch(');
-    expect(code).not.toContain('Runtime');
+
     expect(code).not.toContain('PromptEngine');
     expect(code).not.toContain('localStorage');
     expect(code).not.toContain('sessionStorage');

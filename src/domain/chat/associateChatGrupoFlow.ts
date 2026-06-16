@@ -1,5 +1,5 @@
-import { Chat } from './Chat';
-import { chatRepository, ChatRepository } from './chatRepository';
+import type { Chat } from './Chat';
+import { chatRepository, type ChatRepository } from './chatRepository';
 
 export function associateChatGrupoFlow(
   chatId: string,

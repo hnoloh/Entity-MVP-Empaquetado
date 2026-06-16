@@ -7,7 +7,7 @@ describe('createGroupFlow - RV-05/FIA-001', () => {
   it('TEST-FIA001-01: crea un Grupo con identificador único de sesión', () => {
     const group = createGroupFlow('group-1');
     expect(group.id).toBe('group-1');
-    expect(group.name).toBe('Nuevo Grupo');
+    expect(group.name).toBe('');
     expect(group.type).toBe('group');
   });
 

@@ -1,5 +1,5 @@
 import { createChat } from './createChat';
-import { chatRepository, ChatRepository } from './chatRepository';
+import { chatRepository, type ChatRepository } from './chatRepository';
 import type { Chat, ChatOwnerType } from './Chat';
 
 export function createChatFlow(ownerType: ChatOwnerType, ownerId: string, repo: ChatRepository = chatRepository): Chat {

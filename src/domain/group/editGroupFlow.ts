@@ -1,9 +1,11 @@
 import type { Group } from './Group';
+import { validateGroupName } from './validateGroupName';
+import { validateGroupFunction } from './validateGroupFunction';
 
 export function editGroupFlow(
   groups: Group[],
   groupId: string,
-  patch: Partial<Pick<Group, 'name'>>
+  patch: Partial<Pick<Group, 'name' | 'function'>>
 ): Group[] {
   if (!groupId || groupId.trim() === '') {
     return groups;
@@ -14,10 +16,18 @@ export function editGroupFlow(
   }
 
   const keys = Object.keys(patch);
-  const allowedKeys = ['name'];
+  const allowedKeys = ['name', 'function'];
   const hasInvalidKeys = keys.some(key => !allowedKeys.includes(key));
   
   if (hasInvalidKeys) {
+    return groups;
+  }
+
+  if (patch.name !== undefined && !validateGroupName(patch.name)) {
+    return groups;
+  }
+
+  if (patch.function !== undefined && !validateGroupFunction(patch.function)) {
     return groups;
   }
 

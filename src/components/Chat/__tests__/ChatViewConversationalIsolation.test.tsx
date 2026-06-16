@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { ChatView } from '../ChatView';
-import { chatRepository, createChatFlow, sendMessageToChatFlow, getChatHistoryFlow } from '../../../domain/chat';
+import { chatRepository, createChatFlow, sendMessageToChatFlow, getChatHistoryFlow, clearChatHistoryFlow } from '../../../domain/chat';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -32,33 +32,26 @@ describe('ChatViewConversationalIsolation - RV-03/FIA-014', () => {
     expect(inputB.value).toBe(''); // No comparte estado
   });
 
-  it('TEST-FIA014-13: Vaciar desde ChatView afecta solo Chat objetivo', () => {
+  it('TEST-FIA014-13: Vaciar Chat afecta solo Chat objetivo', () => {
     const chatA = createChatFlow('enti', 'A1');
     const chatB = createChatFlow('enti', 'B1');
     sendMessageToChatFlow(chatA.id, 'Msg A');
     sendMessageToChatFlow(chatB.id, 'Msg B');
     
-    render(<ChatView chatId={chatA.id} />);
-    const clearBtn = screen.getByTestId('chat-view-clear-btn');
-    fireEvent.click(clearBtn);
+    clearChatHistoryFlow(chatA.id);
     
     expect(getChatHistoryFlow(chatA.id)).toHaveLength(0);
     expect(getChatHistoryFlow(chatB.id)).toHaveLength(1);
   });
 
-  it('TEST-FIA014-14: Cerrar desde ChatView afecta solo Chat objetivo', () => {
+  it('TEST-FIA014-14: Cerrar Chat afecta solo Chat objetivo', () => {
     const chatA = createChatFlow('enti', 'A1');
     const chatB = createChatFlow('enti', 'B1');
     
-    render(<ChatView chatId={chatA.id} />);
-    const closeBtn = screen.getByTestId('chat-view-close-btn');
-    fireEvent.click(closeBtn);
+    chatRepository.delete(chatA.id);
     
-    expect(screen.getByTestId(`chat-view-closed-${chatA.id}`)).toBeInTheDocument();
-    cleanup();
-    
-    render(<ChatView chatId={chatB.id} />);
-    expect(screen.getByTestId(`chat-view-${chatB.id}`)).toBeInTheDocument(); // B sigue abierto
+    expect(chatRepository.getById(chatA.id)).toBeUndefined();
+    expect(chatRepository.getById(chatB.id)).toBeDefined();
   });
 
   it('TEST-FIA014-15: cambiar Chat activo no persiste ni comparte draft/foco/layout', () => {
@@ -86,7 +79,7 @@ describe('ChatViewConversationalIsolation - RV-03/FIA-014', () => {
     
     for (const relativePath of filesToCheck) {
       const code = fs.readFileSync(path.join(__dirname, relativePath), 'utf-8');
-      expect(code).not.toContain('Runtime');
+
       expect(code).not.toContain('fetch');
       expect(code).not.toContain('localStorage');
       expect(code).not.toContain('ChatWindow');

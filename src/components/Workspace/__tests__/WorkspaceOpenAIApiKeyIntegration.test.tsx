@@ -75,6 +75,8 @@ describe("Workspace API Key OpenAI Integration (FIA-015 modificado)", () => {
       cognitiveConfig: {
         ...mockEntiBase.cognitiveConfig,
         apiKey: "sk-new-key-123",
+        provider: "openai",
+        model: undefined,
       },
     });
   });

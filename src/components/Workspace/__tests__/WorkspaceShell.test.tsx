@@ -18,10 +18,10 @@ describe("WorkspaceShell", () => {
     expect(screen.getByTestId("workbench-region")).toBeInTheDocument();
   });
 
-  it("4. Ausencia de ChatRegion, ChatView, ChatWindow o equivalentes dentro de WorkspaceShell", () => {
+  it("4. Ausencia de Chat embebido dentro de la mesa de trabajo (WorkbenchRegion)", () => {
     const { container } = render(<WorkspaceShell />);
-    const html = container.innerHTML.toLowerCase();
-    expect(html).not.toContain("chat");
+    const workbench = container.querySelector('.workbench-region');
+    expect(workbench?.innerHTML.toLowerCase()).not.toContain("chat");
   });
 
   it("5. Estado inicial visible", () => {

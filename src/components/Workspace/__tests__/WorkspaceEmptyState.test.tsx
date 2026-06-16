@@ -68,9 +68,10 @@ describe("FIA-007 Estado Workspace Vacío", () => {
   it("11. Ningún ChatRegion, ChatView ni ChatWindow en árbol Workspace", () => {
     const { container } = render(<WorkspaceShell />);
 
-    expect(container.innerHTML).not.toMatch(/chat-region/i);
-    expect(container.innerHTML).not.toMatch(/chat-view/i);
-    expect(container.innerHTML).not.toMatch(/chat-window/i);
+    const workbench = container.querySelector('.workbench-region');
+    expect(workbench?.innerHTML).not.toMatch(/chat-region/i);
+    expect(workbench?.innerHTML).not.toMatch(/chat-view/i);
+    expect(workbench?.innerHTML).not.toMatch(/chat-window/i);
   });
 
   it("12. localStorage y sessionStorage no reciben escrituras", () => {

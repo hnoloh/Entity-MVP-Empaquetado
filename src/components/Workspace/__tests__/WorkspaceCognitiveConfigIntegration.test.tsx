@@ -93,7 +93,8 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
     expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
       cognitiveConfig: {
         mode: "cloud",
-        apiKey: "sk-test"
+        apiKey: "sk-test",
+        provider: "openai"
       }
     }));
   });

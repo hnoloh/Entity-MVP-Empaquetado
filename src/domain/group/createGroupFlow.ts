@@ -8,6 +8,6 @@ export function createGroupFlow(id: string, name?: string): Group {
   return {
     id,
     type: 'group',
-    name: name || 'Nuevo Grupo'
+    name: name || ''
   };
 }

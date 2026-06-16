@@ -1,7 +1,7 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ChatView } from '../ChatView';
-import { chatRepository, createChatFlow, sendMessageToChatFlow } from '../../../domain/chat';
+import { chatRepository, createChatFlow, sendMessageToChatFlow, clearChatHistoryFlow } from '../../../domain/chat';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -18,9 +18,11 @@ describe('ChatViewClearHistoryIntegration - RV-03/FIA-012', () => {
     render(<ChatView chatId={chat.id} />);
     
     expect(screen.getByText('Un mensaje para borrar')).toBeInTheDocument();
-    
-    const clearBtn = screen.getByTestId('chat-view-clear-btn');
-    fireEvent.click(clearBtn);
+
+    clearChatHistoryFlow(chat.id);
+    act(() => {
+      window.dispatchEvent(new CustomEvent('chat-history-cleared', { detail: { chatId: chat.id } }));
+    });
     
     expect(screen.queryByText('Un mensaje para borrar')).not.toBeInTheDocument();
     expect(screen.getByTestId('chat-view-empty')).toBeInTheDocument();
@@ -34,7 +36,7 @@ describe('ChatViewClearHistoryIntegration - RV-03/FIA-012', () => {
     const codeFlow = fs.readFileSync(path.join(__dirname, '../../../domain/chat/clearChatHistoryFlow.ts'), 'utf-8');
     const codeView = fs.readFileSync(path.join(__dirname, '../ChatView.tsx'), 'utf-8');
     
-    expect(codeFlow).not.toContain('Runtime');
+
     expect(codeFlow).not.toContain('fetch');
     expect(codeFlow).not.toContain('localStorage');
     

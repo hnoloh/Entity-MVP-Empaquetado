@@ -1,6 +1,6 @@
-import { Chat } from './Chat';
-import { chatRepository, ChatRepository } from './chatRepository';
-import { entiRepository, EntiRepository } from '../enti/entiRepository';
+import type { Chat } from './Chat';
+import { chatRepository, type ChatRepository } from './chatRepository';
+import { entiRepository, type EntiRepository } from '../enti/entiRepository';
 
 export function associateChatEntiFlow(
   chatId: string,

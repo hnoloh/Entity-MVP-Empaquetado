@@ -211,9 +211,10 @@ describe('WorkspaceMultiEditorIntegration - FIA-020', () => {
     expect(setItemSpy).not.toHaveBeenCalled();
     setItemSpy.mockRestore();
     
-    // Forbidden units check (no chat, no tabs logic, just raw instances)
+    // Forbidden units check (no chat in workbench, no tabs logic in shell)
     const shellHTML = screen.getByTestId('workspace-shell').outerHTML;
-    expect(shellHTML).not.toMatch(/chat/i);
+    const workbenchHTML = screen.getByTestId('workbench-region').innerHTML;
+    expect(workbenchHTML).not.toMatch(/chat/i);
     expect(shellHTML).not.toMatch(/tab-list/i); // No layout manager / tabs for now
   });
 });

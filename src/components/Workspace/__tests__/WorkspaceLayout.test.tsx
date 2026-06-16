@@ -48,9 +48,10 @@ describe("FIA-006 Layout Base Workspace", () => {
   it("No-embed: ausencia total de ChatRegion/ChatView/ChatWindow en el DOM del Workspace", () => {
     const { container } = render(<WorkspaceShell />);
 
-    expect(container.innerHTML).not.toMatch(/chat-region/i);
-    expect(container.innerHTML).not.toMatch(/chat-view/i);
-    expect(container.innerHTML).not.toMatch(/chat-window/i);
+    const workbench = container.querySelector('.workbench-region');
+    expect(workbench?.innerHTML).not.toMatch(/chat-region/i);
+    expect(workbench?.innerHTML).not.toMatch(/chat-view/i);
+    expect(workbench?.innerHTML).not.toMatch(/chat-window/i);
   });
 
   it("State: visible/minimizado/restaurado se comporta sin side-effects ni escrituras locales", () => {

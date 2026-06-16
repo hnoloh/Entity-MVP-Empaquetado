@@ -1,4 +1,4 @@
-import { chatRepository, ChatRepository } from './chatRepository';
+import { chatRepository, type ChatRepository } from './chatRepository';
 
 export interface CloseChatResult {
   chatId: string;

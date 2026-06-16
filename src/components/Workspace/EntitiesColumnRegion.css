@@ -203,6 +203,29 @@
   color: var(--accent-cyan);
 }
 
+.btn-chat-inline {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  opacity: 0;
+  transition: opacity 0.2s, background-color 0.2s;
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.list-item:hover .btn-chat-inline {
+  opacity: 1;
+}
+
+.btn-chat-inline:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 .delete-dialog-overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;

@@ -48,6 +48,44 @@ describe('editGroupFlow - RV-05/FIA-002', () => {
     expect(updated).toBe(groups);
   });
 
+  it('TEST-FIA008-01: rechaza nombre vacío sin mutación', () => {
+    const groups: Group[] = [createGroupFlow('g1', 'Grupo 1')];
+    const updated = editGroupFlow(groups, 'g1', { name: '   ' });
+    
+    expect(updated).toBe(groups);
+  });
+
+  it('TEST-FIA008-02: rechaza nombre no string sin mutación', () => {
+    const groups: Group[] = [createGroupFlow('g1', 'Grupo 1')];
+    // @ts-expect-error probando invalid patch
+    const updated = editGroupFlow(groups, 'g1', { name: 123 });
+    
+    expect(updated).toBe(groups);
+  });
+
+  it('TEST-FIA009-01: permite editar la función del grupo', () => {
+    const groups: Group[] = [createGroupFlow('g1', 'Grupo 1')];
+    const updated = editGroupFlow(groups, 'g1', { function: 'Nueva función' });
+    
+    expect(updated[0].function).toBe('Nueva función');
+    expect(updated[0].name).toBe('Grupo 1');
+  });
+
+  it('TEST-FIA009-02: rechaza función vacía sin mutación', () => {
+    const groups: Group[] = [createGroupFlow('g1', 'Grupo 1')];
+    const updated = editGroupFlow(groups, 'g1', { function: '   ' });
+    
+    expect(updated).toBe(groups);
+  });
+
+  it('TEST-FIA009-03: rechaza función no string sin mutación', () => {
+    const groups: Group[] = [createGroupFlow('g1', 'Grupo 1')];
+    // @ts-expect-error probando invalid patch
+    const updated = editGroupFlow(groups, 'g1', { function: 123 });
+    
+    expect(updated).toBe(groups);
+  });
+
   it('TEST-FIA002-06: no introduce slots/members/sequence/function/Brain y cumple forbidden-units', () => {
     const code = fs.readFileSync(path.join(__dirname, '../editGroupFlow.ts'), 'utf-8');
     

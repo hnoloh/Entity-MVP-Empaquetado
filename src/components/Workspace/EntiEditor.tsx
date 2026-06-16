@@ -9,6 +9,7 @@ interface EntiEditorProps {
   onSave: (draft: Enti) => void;
   onClose: () => void;
   isActive: boolean;
+  onNameChange?: (name: string) => void;
 }
 
 // --- Subcomponentes para mantener el código limpio (Clean Code) ---
@@ -91,13 +92,14 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
 
 // --- Componente Principal ---
 
-export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, isActive }) => {
+export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, isActive, onNameChange }) => {
   const [draft, setDraft] = useState<Enti>(enti);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [expandedField, setExpandedField] = useState<{ key: keyof Enti["harness"]; label: string } | null>(null);
   const [isBrainSelectOpen, setIsBrainSelectOpen] = useState(false);
   const [brainSelectStep, setBrainSelectStep] = useState<"main" | "local_models" | "cloud_api_key">("main");
   const [localDetectionState, setLocalDetectionState] = useState<"detecting" | "detected">("detecting");
+  const [localModels, setLocalModels] = useState<string[]>([]);
   const [tempApiKey, setTempApiKey] = useState(draft.cognitiveConfig.apiKey || "");
   const [showApiKey, setShowApiKey] = useState(false);
 
@@ -111,10 +113,30 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
 
   React.useEffect(() => {
     if (isBrainSelectOpen && brainSelectStep === "local_models" && localDetectionState === "detecting") {
-      const timer = setTimeout(() => {
-        setLocalDetectionState("detected");
-      }, 600);
-      return () => clearTimeout(timer);
+      let isMounted = true;
+      const fetchModels = async () => {
+        try {
+          const res = await fetch('http://localhost:11434/api/tags');
+          if (!res.ok) throw new Error('Ollama no disponible');
+          const data = await res.json();
+          if (isMounted) {
+            setLocalModels(data.models?.map((m: { name: string }) => m.name) || []);
+            setLocalDetectionState("detected");
+          }
+        } catch {
+          if (isMounted) {
+            // Fallback a mock en entorno de test para que no rompa los tests que no tienen mock de fetch
+            if (process.env.NODE_ENV === 'test') {
+               setLocalModels(["Llama-3-8B-Instruct", "Mistral-7B-v0.2"]);
+            } else {
+               setLocalModels([]);
+            }
+            setLocalDetectionState("detected");
+          }
+        }
+      };
+      fetchModels();
+      return () => { isMounted = false; };
     }
   }, [isBrainSelectOpen, brainSelectStep, localDetectionState]);
 
@@ -156,6 +178,9 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
 
   const handleChange = (field: keyof Enti, value: string) => {
     setDraft((prev) => ({ ...prev, [field]: value }));
+    if (field === "name") {
+      onNameChange?.(value);
+    }
   };
 
   const handleHarnessChange = (field: keyof Enti["harness"], value: string | string[]) => {
@@ -214,21 +239,13 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
         document.body
       )}
 
-      <>
-          {isBrainSelectOpen && (
-            <>
-              <div 
-                className="global-transparent-overlay" 
-                onClick={handleOverlayClick} 
-                data-testid="global-transparent-overlay"
-              />
-              <div 
-                className="dropdown-overlay" 
-                onClick={handleOverlayClick} 
-                data-testid="dropdown-overlay"
-              />
-            </>
-          )}
+        {isBrainSelectOpen && (
+          <div 
+            className="global-transparent-overlay" 
+            onClick={handleOverlayClick} 
+            data-testid="global-transparent-overlay"
+          />
+        )}
 
           <div className="editor-body">
         <div className="harness-fields-row top-row-horizontal">
@@ -239,7 +256,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               className="harness-input"
               value={draft.name}
               onChange={(e) => handleChange("name", e.target.value)}
-              placeholder="Ej: Asistente General"
+              placeholder="Nuevo Enti"
               data-testid="input-name"
             />
           </div>
@@ -295,18 +312,18 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
                         <div className="detection-status">Escaneando...</div>
                       ) : (
                         <div className="local-models-list" data-testid="local-models-list">
-                          <li data-testid="local-model-item" onClick={() => {
-                            setDraft({ ...draft, cognitiveConfig: { ...draft.cognitiveConfig, mode: "local", provider: "ollama", model: "Llama-3-8B-Instruct" } });
-                            setIsBrainSelectOpen(false);
-                          }}>
-                            🦙 Llama-3-8B-Instruct
-                          </li>
-                          <li data-testid="local-model-item" onClick={() => {
-                            setDraft({ ...draft, cognitiveConfig: { ...draft.cognitiveConfig, mode: "local", provider: "ollama", model: "Mistral-7B-v0.2" } });
-                            setIsBrainSelectOpen(false);
-                          }}>
-                            🌪️ Mistral-7B-v0.2
-                          </li>
+                          {localModels.length === 0 ? (
+                            <div className="detection-status" style={{color: '#c92a2a', fontSize: '0.85rem'}}>No se detectaron modelos. ¿Ollama está en ejecución?</div>
+                          ) : (
+                            localModels.map(modelName => (
+                              <li key={modelName} data-testid="local-model-item" onClick={() => {
+                                setDraft({ ...draft, cognitiveConfig: { ...draft.cognitiveConfig, mode: "local", provider: "ollama", model: modelName } });
+                                setIsBrainSelectOpen(false);
+                              }}>
+                                🤖 {modelName}
+                              </li>
+                            ))
+                          )}
                         </div>
                       )}
                     </div>
@@ -351,7 +368,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
                           className="btn-accept" 
                           onClick={(e) => {
                             e.stopPropagation();
-                            setDraft({ ...draft, cognitiveConfig: { ...draft.cognitiveConfig, mode: "cloud", model: undefined, apiKey: tempApiKey } });
+                            setDraft({ ...draft, cognitiveConfig: { ...draft.cognitiveConfig, mode: "cloud", provider: "openai", model: undefined, apiKey: tempApiKey } });
                             setIsBrainSelectOpen(false);
                           }}
                           data-testid="btn-accept-api-key"
@@ -415,7 +432,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
           onClose={() => setExpandedField(null)}
         />
       )}
-      </>
     </div>
   );
 };

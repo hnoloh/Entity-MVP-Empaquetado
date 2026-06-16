@@ -27,7 +27,7 @@ describe('ChatViewMessageInputIntegration - RV-03/FIA-011', () => {
     
     const messages = within(history).getAllByTestId('chat-message');
     expect(messages).toHaveLength(1);
-    expect(messages[0]).toHaveTextContent('user');
+    expect(messages[0]).toHaveTextContent('Usuario');
   });
 
   it('TEST-FIA011-04: envío válido con historial previo agrega al final preservando orden, roles y contenido', () => {
@@ -45,7 +45,7 @@ describe('ChatViewMessageInputIntegration - RV-03/FIA-011', () => {
     const messages = screen.getAllByTestId('chat-message');
     expect(messages).toHaveLength(2);
     expect(messages[0]).toHaveTextContent('Hola primero');
-    expect(messages[1]).toHaveTextContent('user');
+    expect(messages[1]).toHaveTextContent('Usuario');
     expect(messages[1]).toHaveTextContent('Hola segundo');
   });
 

@@ -6,14 +6,19 @@ export interface EntityFixture {
   name: string;
 }
 
+import type { Group } from '../../domain/group/Group';
+import { validateGroupGapsFlow } from '../../domain/group/validateGroupGapsFlow';
+
 export interface EntitiesColumnRegionProps {
   entis?: { id: string; name: string; status?: string }[];
-  grupos?: EntityFixture[];
+  grupos?: Group[];
   openEntiIds?: string[];
   onCreateEnti?: () => void;
   onSelectEnti?: (id: string) => void;
   onDeleteEnti?: (id: string) => void;
   onCreateGrupo?: () => void;
+  onSelectGrupo?: (id: string) => void;
+  onDeleteGrupo?: (id: string) => void;
 }
 
 export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
@@ -24,10 +29,12 @@ export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
   onSelectEnti,
   onDeleteEnti,
   onCreateGrupo,
+  onSelectGrupo,
+  onDeleteGrupo,
 }) => {
   const [entisOpen, setEntisOpen] = useState(true);
   const [gruposOpen, setGruposOpen] = useState(true);
-  const [entityToDelete, setEntityToDelete] = useState<string | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<{ id: string; type: 'enti' | 'grupo' } | null>(null);
 
   return (
     <div
@@ -87,7 +94,7 @@ export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
                   className="btn-delete-inline"
                   onClick={(event) => {
                     event.stopPropagation();
-                    setEntityToDelete(e.id);
+                    setItemToDelete({ id: e.id, type: 'enti' });
                   }}
                   title="Eliminar Enti"
                 >
@@ -140,29 +147,47 @@ export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
                   <div
                     key={g.id}
                     data-testid={`grupo-item-${g.id}`}
-                    className="list-item"
+                    className={`list-item ${openEntiIds.includes(g.id) ? 'selected' : ''}`}
+                    onClick={() => onSelectGrupo?.(g.id)}
                   >
                     <div className="item-info">
-                      {/* Los grupos por ahora pueden no tener status complejo, le ponemos uno genérico o lo omitimos, pero para que se vea igual usamos uno neutro/incompleto */}
-                      <span className="status-indicator incomplete" />
+                      <span 
+                        className={`status-indicator ${(g.slots ? Object.values(g.slots).filter(Boolean).length : 0) >= 2 && g.name?.trim() && g.function?.trim() && validateGroupGapsFlow(g).valid ? 'complete' : 'incomplete'}`} 
+                        title="Estado de grupo"
+                      />
                       <span className="item-name">{g.name || "Nuevo Grupo"}</span>
                     </div>
+                    <button
+                      data-testid={`btn-delete-grupo-${g.id}`}
+                      className="btn-delete-inline"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setItemToDelete({ id: g.id, type: 'grupo' });
+                      }}
+                      title="Eliminar Grupo"
+                    >
+                      🗑
+                    </button>
                   </div>
                 ))}
           </div>
         )}
       </div>
 
-      {entityToDelete && (
+      {itemToDelete && (
         <div className="delete-dialog-overlay" data-testid="delete-dialog-overlay">
           <div className="delete-dialog" data-testid="delete-dialog">
-            <p>¿Estás seguro de que deseas eliminar este Enti?</p>
+            <p>¿Estás seguro de que deseas eliminar este {itemToDelete.type === 'enti' ? 'Enti' : 'Grupo'}?</p>
             <div className="delete-dialog-buttons">
               <button 
                 className="btn-confirm" 
                 onClick={() => {
-                  onDeleteEnti?.(entityToDelete);
-                  setEntityToDelete(null);
+                  if (itemToDelete.type === 'enti') {
+                    onDeleteEnti?.(itemToDelete.id);
+                  } else {
+                    onDeleteGrupo?.(itemToDelete.id);
+                  }
+                  setItemToDelete(null);
                 }} 
                 data-testid="btn-confirm-delete"
               >
@@ -170,7 +195,7 @@ export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
               </button>
               <button 
                 className="btn-cancel" 
-                onClick={() => setEntityToDelete(null)} 
+                onClick={() => setItemToDelete(null)} 
                 data-testid="btn-cancel-delete"
               >
                 Cancelar

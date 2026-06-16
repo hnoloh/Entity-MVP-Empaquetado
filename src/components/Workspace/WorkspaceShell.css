@@ -19,6 +19,8 @@
   flex: 1;
   width: 100%;
   gap: 20px; /* Separación clara entre la columna y la mesa */
+  min-width: 0;
+  min-height: 0;
 }
 
 .entities-column {

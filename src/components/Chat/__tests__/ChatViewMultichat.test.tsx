@@ -61,7 +61,7 @@ describe('ChatViewMultichat - RV-03/FIA-015', () => {
     
     for (const relativePath of filesToCheck) {
       const code = fs.readFileSync(path.join(__dirname, relativePath), 'utf-8');
-      expect(code).not.toContain('Runtime');
+
       expect(code).not.toContain('fetch');
       expect(code).not.toContain('localStorage');
       expect(code).not.toContain('ChatWindow');

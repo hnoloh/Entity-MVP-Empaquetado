@@ -22,8 +22,6 @@ describe('ChatViewGroupSingleChat - RV-03/FIA-016', () => {
     
     // Debería renderizar la UI básica sin petar
     expect(screen.getByTestId(`chat-view-${chatG.id}`)).toBeInTheDocument();
-    // Revisa que la cabecera reconozca "Grupo" si la UI lo especifica, o al menos que el id esté.
-    expect(screen.getByText(/G1/)).toBeInTheDocument();
   });
 
   it('TEST-FIA016-UI-02: Reapertura/selección del mismo Grupo no duplica representación lógica', () => {

@@ -1,11 +1,10 @@
 import type { ReactNode } from "react";
 import GhostRegion from "./GhostRegion";
-import type { Enti } from "../../domain/enti/Enti";
 import "./WorkbenchRegion.css";
 
 interface WorkbenchRegionProps {
   editorStubs?: ReactNode[];
-  activeEntis?: Enti[];
+  activeTabs?: { id: string; name: string }[];
   activeTabId?: string | null;
   onSelectTab?: (id: string) => void;
   onCloseTab?: (id: string) => void;
@@ -13,27 +12,27 @@ interface WorkbenchRegionProps {
 
 export default function WorkbenchRegion({ 
   editorStubs, 
-  activeEntis = [], 
+  activeTabs = [], 
   activeTabId = null, 
   onSelectTab, 
   onCloseTab 
 }: WorkbenchRegionProps) {
   return (
     <div data-testid="workbench-region" className="workbench-region">
-      {activeEntis.length > 0 && (
+      {activeTabs.length > 0 && (
         <div className="tab-bar" data-testid="tab-bar">
-          {activeEntis.map(enti => (
+          {activeTabs.map(tab => (
             <div 
-              key={enti.id} 
-              className={`tab-item ${activeTabId === enti.id ? 'active' : ''}`}
-              onClick={() => onSelectTab && onSelectTab(enti.id)}
-              data-testid={`tab-item-${enti.id}`}
+              key={tab.id} 
+              className={`tab-item ${activeTabId === tab.id ? 'active' : ''}`}
+              onClick={() => onSelectTab && onSelectTab(tab.id)}
+              data-testid={`tab-item-${tab.id}`}
             >
-              <span className="tab-title">{enti.name || "Sin nombre"}</span>
+              <span className="tab-title">{tab.name || "Sin nombre"}</span>
               <button 
                 className="tab-close" 
-                onClick={(e) => { e.stopPropagation(); if (onCloseTab) onCloseTab(enti.id); }}
-                data-testid={`tab-close-${enti.id}`}
+                onClick={(e) => { e.stopPropagation(); if (onCloseTab) onCloseTab(tab.id); }}
+                data-testid={`tab-close-${tab.id}`}
                 title="Cerrar pestaña"
               >✕</button>
             </div>

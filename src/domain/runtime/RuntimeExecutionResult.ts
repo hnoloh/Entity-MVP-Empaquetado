@@ -1,0 +1,45 @@
+import type { EntiCognitiveConfig } from '../enti/Enti';
+
+export interface RuntimeExecutionStartResult {
+  success: boolean;
+  error?: string;
+  executionId?: string;
+  status: 'started' | 'rejected';
+}
+
+export interface ActiveBrainResolutionResult {
+  success: boolean;
+  error?: string;
+  brainResolved: boolean;
+  activeBrain?: EntiCognitiveConfig;
+}
+
+export interface EntiContextBuildResult {
+  success: boolean;
+  error?: string;
+  contextId?: string;
+  entiId?: string;
+  chatId?: string;
+  activeBrain?: EntiCognitiveConfig;
+}
+
+export interface EntiExecutionResult {
+  status: 'executed' | 'blocked' | 'failed' | 'controlled_error';
+  error?: string;
+  executionId?: string;
+  entiId?: string;
+  chatId?: string;
+  brainId?: string;
+  contextId?: string;
+  responseText?: string;
+}
+
+export interface EntiResponseReceptionResult {
+  status: 'received' | 'blocked' | 'controlled_error';
+  error?: string;
+  executionId?: string;
+  entiId?: string;
+  chatId?: string;
+  brainId?: string;
+  contextId?: string;
+}

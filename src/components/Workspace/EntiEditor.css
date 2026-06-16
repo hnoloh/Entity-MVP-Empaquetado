@@ -5,25 +5,25 @@
   border: 1px solid rgba(0, 229, 255, 0.15);
   border-radius: 12px;
   padding: 0.8rem 1rem;
-  width: 100%;
+  width: calc(100% - 32px); /* Respeta el padding de 16px de la región huésped */
   max-width: 950px;
   max-height: 90%;
   margin: auto;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  position: relative;
   z-index: 200;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05);
   transition: background 0.3s ease, box-shadow 0.3s ease;
   min-height: 300px;
   position: absolute;
-  top: 0;
+  top: 16px; /* Deja margen por arriba */
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 16px; /* Deja margen por abajo */
   height: fit-content;
   pointer-events: auto;
+  overflow-y: auto;
 }
 
 .enti-editor:not(.hidden) {
@@ -235,8 +235,7 @@
 .expanded-field-overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(8px);
+  background: #0f172a;
   z-index: 100;
   border-radius: 12px;
   display: flex;
@@ -280,8 +279,8 @@
 
 .expanded-textarea {
   flex: 1;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #020617;
+  border: 1px solid rgba(0, 229, 255, 0.2);
   color: #fff;
   border-radius: 8px;
   padding: 1rem;
@@ -340,7 +339,7 @@
 .global-transparent-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  z-index: -1;
+  z-index: 40;
   background: transparent;
 }
 
@@ -589,6 +588,29 @@
   border-color: rgba(0, 229, 255, 0.4);
   color: #fff;
   transform: translateY(-1px);
+}
+
+/* Compact slots layout */
+.slots-fields-row {
+  gap: 0.4rem;
+}
+
+.slot-field-group {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.slot-field-group .slot-label {
+  margin-bottom: 0;
+  width: 1.5rem;
+  text-align: right;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.slot-field-group .custom-select-container {
+  flex: 1;
 }
 
 

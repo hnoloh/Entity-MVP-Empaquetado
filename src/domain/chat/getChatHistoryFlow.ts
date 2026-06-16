@@ -1,4 +1,4 @@
-import { chatRepository, ChatRepository } from './chatRepository';
+import { chatRepository, type ChatRepository } from './chatRepository';
 import type { ChatMessage } from './Chat';
 
 export function getChatHistoryFlow(

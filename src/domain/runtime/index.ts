@@ -8,6 +8,7 @@ export * from './executeEntiFlow';
 export * from './receiveEntiResponseFlow';
 export * from './initializeGroupSequenceFlow';
 export * from './executeCurrentGroupSlotFlow';
+export * from './buildIntermediateGroupResultFlow';
 export * from './provider/ProviderBridge';
 export * from './provider/LocalExecutor';
 export * from './provider/OpenAIExecutor';

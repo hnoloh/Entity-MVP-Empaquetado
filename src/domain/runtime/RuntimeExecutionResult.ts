@@ -65,3 +65,14 @@ export interface GroupSlotExecutionResult {
   executionId?: string;
   responseText?: string;
 }
+
+export interface IntermediateGroupResult {
+  status: 'success' | 'blocked' | 'controlled_error';
+  error?: string;
+  groupId?: string;
+  chatId?: string;
+  slotId?: string;
+  entiId?: string;
+  executionId?: string;
+  responseText?: string;
+}

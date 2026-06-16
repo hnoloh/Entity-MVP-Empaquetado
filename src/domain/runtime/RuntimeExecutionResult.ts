@@ -85,3 +85,13 @@ export interface IntermediateGroupValidationResult {
   slotId?: string;
   entiId?: string;
 }
+
+export interface ValidatedIntermediateGroupResultSendResult {
+  status: 'sent' | 'blocked' | 'controlled_error';
+  error?: string;
+  groupId?: string;
+  chatId?: string;
+  slotId?: string;
+  entiId?: string;
+  responseText?: string;
+}

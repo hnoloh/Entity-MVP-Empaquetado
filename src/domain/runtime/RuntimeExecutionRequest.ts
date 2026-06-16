@@ -1,4 +1,4 @@
-import { GroupSequenceInitializationResult, GroupSlotExecutionResult, IntermediateGroupResult } from './RuntimeExecutionResult';
+import { GroupSequenceInitializationResult, GroupSlotExecutionResult, IntermediateGroupResult, IntermediateGroupValidationResult } from './RuntimeExecutionResult';
 
 export interface RuntimeExecutionRequest {
   entiId: string;
@@ -44,5 +44,11 @@ export interface IntermediateGroupResultRequest {
 
 export interface IntermediateGroupValidationRequest {
   intermediateResult: IntermediateGroupResult;
+  explicitUserAction: boolean;
+}
+
+export interface ValidatedIntermediateGroupResultSendRequest {
+  intermediateResult: IntermediateGroupResult;
+  validationResult: IntermediateGroupValidationResult;
   explicitUserAction: boolean;
 }

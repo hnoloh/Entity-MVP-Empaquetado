@@ -12,6 +12,7 @@ export * from './buildIntermediateGroupResultFlow';
 export * from './validateIntermediateGroupResultFlow';
 export * from './sendValidatedIntermediateGroupResultFlow';
 export * from './advanceGroupSequenceFlow';
+export * from './buildFinalGroupResultFlow';
 export * from './provider/ProviderBridge';
 export * from './provider/LocalExecutor';
 export * from './provider/OpenAIExecutor';

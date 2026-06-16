@@ -105,3 +105,11 @@ export interface GroupSequenceAdvanceResult {
   nextSlotId?: string;
   updatedSequenceState?: GroupSequenceInitializationResult;
 }
+
+export interface FinalGroupResult {
+  status: 'finalized' | 'blocked' | 'controlled_error';
+  error?: string;
+  groupId?: string;
+  chatId?: string;
+  results?: ValidatedIntermediateGroupResultSendResult[];
+}

@@ -76,3 +76,12 @@ export interface IntermediateGroupResult {
   executionId?: string;
   responseText?: string;
 }
+
+export interface IntermediateGroupValidationResult {
+  status: 'valid' | 'blocked' | 'controlled_error';
+  error?: string;
+  groupId?: string;
+  chatId?: string;
+  slotId?: string;
+  entiId?: string;
+}

@@ -1,4 +1,4 @@
-import { GroupSequenceInitializationResult, GroupSlotExecutionResult } from './RuntimeExecutionResult';
+import { GroupSequenceInitializationResult, GroupSlotExecutionResult, IntermediateGroupResult } from './RuntimeExecutionResult';
 
 export interface RuntimeExecutionRequest {
   entiId: string;
@@ -40,4 +40,9 @@ export interface IntermediateGroupResultRequest {
   slotExecutionResult: GroupSlotExecutionResult;
   explicitUserAction: boolean;
   chatId?: string;
+}
+
+export interface IntermediateGroupValidationRequest {
+  intermediateResult: IntermediateGroupResult;
+  explicitUserAction: boolean;
 }

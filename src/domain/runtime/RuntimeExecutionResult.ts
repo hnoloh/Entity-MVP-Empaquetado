@@ -54,3 +54,14 @@ export interface GroupSequenceInitializationResult {
   pendingSlotIds?: string[];
   completedSlotIds?: string[];
 }
+
+export interface GroupSlotExecutionResult {
+  status: 'executed' | 'blocked' | 'controlled_error';
+  error?: string;
+  groupId?: string;
+  slotId?: string;
+  entiId?: string;
+  chatId?: string;
+  executionId?: string;
+  responseText?: string;
+}

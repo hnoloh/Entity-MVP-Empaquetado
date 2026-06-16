@@ -1,3 +1,5 @@
+import { GroupSequenceInitializationResult } from './RuntimeExecutionResult';
+
 export interface RuntimeExecutionRequest {
   entiId: string;
   chatId: string;
@@ -21,4 +23,12 @@ export interface GroupSequenceInitializationRequest {
   groupChatId: string;
   requestedByUserAction: boolean;
   targetType: 'GROUP';
+}
+
+export interface GroupSlotExecutionRequest {
+  sequenceState: GroupSequenceInitializationResult;
+  groupId: string;
+  chatId: string;
+  currentSlotId: string;
+  explicitUserAction: boolean;
 }

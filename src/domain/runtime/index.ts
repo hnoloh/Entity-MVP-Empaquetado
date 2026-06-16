@@ -6,6 +6,7 @@ export * from './buildEntiContextFlow';
 export * from './buildEntiPromptInput';
 export * from './executeEntiFlow';
 export * from './receiveEntiResponseFlow';
+export * from './initializeGroupSequenceFlow';
 export * from './provider/ProviderBridge';
 export * from './provider/LocalExecutor';
 export * from './provider/OpenAIExecutor';

@@ -43,3 +43,14 @@ export interface EntiResponseReceptionResult {
   brainId?: string;
   contextId?: string;
 }
+
+export interface GroupSequenceInitializationResult {
+  status: 'initialized' | 'blocked' | 'controlled_error';
+  error?: string;
+  groupId?: string;
+  chatId?: string;
+  sequenceId?: string;
+  currentSlotId?: string;
+  pendingSlotIds?: string[];
+  completedSlotIds?: string[];
+}

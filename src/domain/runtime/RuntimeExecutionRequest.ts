@@ -15,3 +15,10 @@ export interface EntiResponseReceptionRequest extends RuntimeExecutionRequest {
   executionId?: string;
   responseText?: string;
 }
+
+export interface GroupSequenceInitializationRequest {
+  groupId: string;
+  groupChatId: string;
+  requestedByUserAction: boolean;
+  targetType: 'GROUP';
+}

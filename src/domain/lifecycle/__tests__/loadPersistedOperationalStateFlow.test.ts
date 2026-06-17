@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { loadPersistedOperationalStateFlow, LoadPersistedOperationalStateRequest } from '../loadPersistedOperationalStateFlow';
+import type { LoadPersistedOperationalStateRequest } from '../loadPersistedOperationalStateFlow';
+import { loadPersistedOperationalStateFlow } from '../loadPersistedOperationalStateFlow';
 import { storage } from '../../../infrastructure/storage/indexedDbStorage';
 import { entiRepository } from '../../enti/entiRepository';
 import { chatRepository } from '../../chat/chatRepository';
@@ -59,7 +60,7 @@ describe('loadPersistedOperationalStateFlow', () => {
         positionPayload: { root: 'member_positions', version: '1.0', data: [] }
       }
     };
-    vi.mocked(storage.loadSnapshot).mockResolvedValueOnce(validPayload);
+    vi.mocked(storage.loadSnapshot).mockResolvedValueOnce(validPayload as any);
 
     const request: LoadPersistedOperationalStateRequest = { lifecyclePhaseAuthorized: true };
     const result = await loadPersistedOperationalStateFlow(request);
@@ -77,7 +78,7 @@ describe('loadPersistedOperationalStateFlow', () => {
         entiPayload: { entis: [{ id: 123, type: 'invalid' }] } // invalid types
       }
     };
-    vi.mocked(storage.loadSnapshot).mockResolvedValueOnce(invalidPayload);
+    vi.mocked(storage.loadSnapshot).mockResolvedValueOnce(invalidPayload as any);
 
     const request: LoadPersistedOperationalStateRequest = { lifecyclePhaseAuthorized: true };
     const result = await loadPersistedOperationalStateFlow(request);

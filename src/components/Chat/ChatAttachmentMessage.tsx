@@ -1,5 +1,4 @@
-import React from 'react';
-import { ChatAttachmentViewModel } from './attachmentViewModel';
+import type { ChatAttachmentViewModel } from './attachmentViewModel';
 
 interface ChatAttachmentMessageProps {
   attachment: ChatAttachmentViewModel;

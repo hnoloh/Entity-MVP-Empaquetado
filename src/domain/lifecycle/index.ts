@@ -1,5 +1,5 @@
 export { startEntityLifecycleFlow } from './startEntityLifecycleFlow';
-export type { StartEntityLifecycleRequest, StartEntityLifecycleResult } from './startEntityLifecycleFlow';
+export type { EntityStartupRequest, EntityStartupResult } from './startEntityLifecycleFlow';
 
 export { loadPersistedOperationalStateFlow } from './loadPersistedOperationalStateFlow';
 export type { LoadPersistedOperationalStateRequest, LoadPersistedOperationalStateResult } from './loadPersistedOperationalStateFlow';

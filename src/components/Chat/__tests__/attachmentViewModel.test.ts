@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { mapAttachmentRecordToChatAttachmentViewModel } from '../attachmentViewModel';
-import { Attachment } from '../../../domain/attachments/attachmentModel';
+import type { Attachment } from '../../../domain/attachments/attachmentModel';
 
 describe('attachmentViewModel', () => {
   it('maps correctly received attachment to renderizable', () => {

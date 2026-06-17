@@ -1,8 +1,7 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { ChatAttachmentMessage } from '../ChatAttachmentMessage';
-import { ChatAttachmentViewModel } from '../attachmentViewModel';
+import type { ChatAttachmentViewModel } from '../attachmentViewModel';
 
 describe('ChatAttachmentMessage', () => {
   it('renders a valid attachment correctly', () => {

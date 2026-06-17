@@ -1,4 +1,4 @@
-import { Attachment } from '../../domain/attachments/attachmentModel';
+import type { Attachment } from '../../domain/attachments/attachmentModel';
 
 class AttachmentsStore {
   private attachments: Attachment[] = [];
@@ -28,6 +28,12 @@ class AttachmentsStore {
     return this.chatCache.get(chatId)!;
   }
 
+  clearChat(chatId: string) {
+    this.attachments = this.attachments.filter(a => a.chatId !== chatId);
+    this.chatCache.delete(chatId);
+    this.emit();
+  }
+
   clear() {
     this.attachments = [];
     this.chatCache.clear();
@@ -36,3 +42,12 @@ class AttachmentsStore {
 }
 
 export const attachmentsStore = new AttachmentsStore();
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('chat-history-cleared', (e: Event) => {
+    const customEvent = e as CustomEvent;
+    if (customEvent.detail && customEvent.detail.chatId) {
+      attachmentsStore.clearChat(customEvent.detail.chatId);
+    }
+  });
+}

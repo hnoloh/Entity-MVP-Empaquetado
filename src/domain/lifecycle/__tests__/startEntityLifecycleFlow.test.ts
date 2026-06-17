@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { startEntityLifecycleFlow, EntityStartupRequest } from '../startEntityLifecycleFlow';
+import type { EntityStartupRequest } from '../startEntityLifecycleFlow';
+import { startEntityLifecycleFlow } from '../startEntityLifecycleFlow';
 
 describe('startEntityLifecycleFlow', () => {
   it('TEST-LIFECYCLE-01: Devuelve success en un arranque limpio', () => {

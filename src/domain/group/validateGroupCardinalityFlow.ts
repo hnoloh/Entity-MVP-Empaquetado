@@ -14,7 +14,7 @@ export function validateGroupCardinalityFlow(
   // Check for corrupted structure (slots outside 1..5)
   const actualKeys = Object.keys(group.slots);
   for (const key of actualKeys) {
-    if (!GROUP_SLOT_IDS.includes(key as GroupSlotId)) {
+    if (!GROUP_SLOT_IDS.includes(key as any)) {
       return false;
     }
   }

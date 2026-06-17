@@ -1,4 +1,4 @@
-import { Attachment } from '../../domain/attachments/attachmentModel';
+import type { Attachment } from '../../domain/attachments/attachmentModel';
 
 export interface ChatAttachmentViewModel {
   id: string;

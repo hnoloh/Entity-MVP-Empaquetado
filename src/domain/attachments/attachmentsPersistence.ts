@@ -103,12 +103,12 @@ export function restoreAttachmentRecordsFlow(
       return { status: 'blocked', reason: 'Missing chatId' };
     }
 
-    const attachment: Attachment = {
+    const attachment = {
       attachmentId: record.attachmentId,
       ownerType: record.ownerType,
       ownerId: record.ownerId,
       chatId: record.chatId,
-    };
+    } as Attachment;
 
     if (record.fileName) attachment.fileName = record.fileName;
     if (record.fileExtension) attachment.fileExtension = record.fileExtension;

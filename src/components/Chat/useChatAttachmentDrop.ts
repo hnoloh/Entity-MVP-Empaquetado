@@ -85,13 +85,12 @@ export function useChatAttachmentDrop(
       fileName: intent.metadata.fileName,
       fileExtension: intent.metadata.fileExtension,
       mimeType: intent.metadata.mimeType,
-      sizeBytes: intent.metadata.sizeBytes,
-      source: intent.metadata.source
+      sizeBytes: intent.metadata.sizeBytes
     });
 
-    if (creationResult.status !== 'success') {
+    if (creationResult.status !== 'success' || !creationResult.attachment) {
       setDropState('error');
-      setErrorMessage(creationResult.reason);
+      setErrorMessage(creationResult.reason || 'Error desconocido');
       setTimeout(() => setDropState('idle'), 3000);
       return;
     }
@@ -118,7 +117,7 @@ export function useChatAttachmentDrop(
 
     if (assocResult.status !== 'success') {
       setDropState('error');
-      setErrorMessage(assocResult.reason);
+      setErrorMessage(assocResult.reason || 'Error en asociación');
       setTimeout(() => setDropState('idle'), 3000);
       return;
     }
@@ -126,7 +125,7 @@ export function useChatAttachmentDrop(
     const persistResult = persistAttachmentRecordsFlow([attachment]);
     if (persistResult.status !== 'success') {
       setDropState('error');
-      setErrorMessage(persistResult.reason);
+      setErrorMessage(persistResult.reason || 'Error de persistencia');
       setTimeout(() => setDropState('idle'), 3000);
       return;
     }

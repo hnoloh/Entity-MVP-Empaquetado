@@ -1,4 +1,4 @@
-import React from 'react';
+
 import type { AttachmentDropState } from './useChatAttachmentDrop';
 
 interface ChatAttachmentDropZoneProps {

@@ -6,6 +6,7 @@ import {
   associateAttachmentToGroupChatFlow, 
   persistAttachmentRecordsFlow 
 } from '../../domain/attachments';
+import { attachmentsStore } from './attachmentsStore';
 
 export type AttachmentDropState = 'idle' | 'dragging_valid' | 'dragging_blocked' | 'dropped' | 'error';
 
@@ -129,6 +130,8 @@ export function useChatAttachmentDrop(
       setTimeout(() => setDropState('idle'), 3000);
       return;
     }
+
+    attachmentsStore.addAttachment(attachment);
 
     setTimeout(() => setDropState('idle'), 1500);
 

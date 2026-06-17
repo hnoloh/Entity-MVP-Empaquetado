@@ -1,11 +1,14 @@
 import React, { useState, useSyncExternalStore, useRef, useEffect } from 'react';
-import { chatRepository, sendMessageToChatFlow, type Chat } from '../../domain/chat';
+import { chatRepository, sendMessageToChatFlow, type Chat, type ChatMessage } from '../../domain/chat';
 import { entiRepository } from '../../domain/enti';
 import { executeEntiFlow, receiveEntiResponseFlow, OpenAIExecutor, LocalExecutor } from '../../domain/runtime';
 import { useGroupSequenceRuntimeAdapter } from '../../ui/groupSequence/useGroupSequenceRuntimeAdapter';
 import type { Group } from '../../domain/group/Group';
 import { useChatAttachmentDrop } from './useChatAttachmentDrop';
 import { ChatAttachmentDropZone } from './ChatAttachmentDropZone';
+import { attachmentsStore } from './attachmentsStore';
+import { mapAttachmentRecordToChatAttachmentViewModel } from './attachmentViewModel';
+import { ChatAttachmentMessage } from './ChatAttachmentMessage';
 import './ChatView.css';
 
 interface ChatViewProps {
@@ -28,9 +31,26 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
     () => chatRepository.getSnapshot(chatId)
   );
 
+  const attachments = useSyncExternalStore(
+    attachmentsStore.subscribe,
+    () => attachmentsStore.getAttachmentsForChat(chatId)
+  );
+
   const chat: Chat | null = foundChat || null;
   let error: string | null = null;
   const history = chat ? chat.history : [];
+
+  const sortedItems = React.useMemo(() => {
+    const items: Array<{ type: 'message', data: ChatMessage, time: number } | { type: 'attachment', data: any, time: number }> = [];
+    
+    history.forEach(msg => items.push({ type: 'message', data: msg, time: msg.timestamp }));
+    attachments.forEach(att => {
+      const time = att.receivedAt ? new Date(att.receivedAt).getTime() : 0;
+      items.push({ type: 'attachment', data: att, time });
+    });
+
+    return items.sort((a, b) => a.time - b.time);
+  }, [history, attachments]);
 
   if (!chat) {
     error = `Chat con id ${chatId} no encontrado`;
@@ -54,7 +74,6 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
     chatId
   );
 
-  // La reactividad está delegada a useSyncExternalStore
   React.useEffect(() => {
     if (isGroup && !groupAdapter.isExecuting) {
       if (groupAdapter.uiState === 'sequence_initialized' || groupAdapter.uiState === 'advanced') {
@@ -67,7 +86,7 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
     if (messagesEndRef.current && typeof messagesEndRef.current.scrollIntoView === 'function') {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [history.length, isSending]);
+  }, [sortedItems.length, isSending]);
 
   useEffect(() => {
     if (!isGroup) return;
@@ -94,7 +113,7 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
     const targetEnti = entiRepository.getById(chat.owner.id);
     if (targetEnti && targetEnti.name) ownerName = targetEnti.name;
   } else if (chat.owner.type === 'grupo') {
-    ownerName = 'Grupo'; // Placeholder for group chat implementation
+    ownerName = 'Grupo';
   }
 
   let currentExecutingEntiName = 'Grupo';
@@ -154,8 +173,6 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
         responseText: result.responseText
       };
       receiveEntiResponseFlow(recReq, targetEnti, tChat);
-      
-      // Reactividad delegada al repositorio al completarse el flujo
     } else {
       setRuntimeError(result.error || 'Error desconocido');
     }
@@ -183,14 +200,11 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
 
     if (isGroup) {
       if (groupAdapter.uiState === 'slot_executed') {
-        // Enviar la corrección al siguiente Enti saltándose la respuesta del actual
         groupAdapter.actions.macroAdvanceWithCorrection(messageToSend);
       } else if (groupAdapter.uiState !== 'idle') {
-        // Re-ejecutar el slot si estaba en otro estado
         groupAdapter.actions.executeCurrentSlot();
       }
     } else {
-      // Disparar Runtime asincrónicamente solo para Entis
       await triggerRuntime(chatId);
     }
     
@@ -221,40 +235,43 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
     >
       <ChatAttachmentDropZone dropState={dropState} errorMessage={errorMessage} />
       <div data-testid="chat-view-history" className="chat-view-history">
-        {history.length === 0 ? (
-          <div data-testid="chat-view-empty" className="chat-view-empty">
-            No hay mensajes en este chat.
-          </div>
-        ) : (
-          (function() {
-            let assistantCount = 0;
-            const currentGroup = isGroup && grupos ? grupos.find(g => g.id === chat.owner.id) : null;
-            
-            return history.map((msg, idx) => {
-              let currentOwnerName = msg.role === 'assistant' ? ownerName : msg.role === 'system' ? 'Sistema' : 'Usuario';
-              if (msg.role === 'assistant') {
-                assistantCount++;
+        <div className="chat-messages">
+          {sortedItems.length === 0 ? (
+            <div data-testid="chat-view-empty" className="chat-view-empty">
+              No hay mensajes en este chat.
+            </div>
+          ) : (
+            sortedItems.map((item, index) => {
+              if (item.type === 'attachment') {
+                const vm = mapAttachmentRecordToChatAttachmentViewModel(item.data);
+                return <ChatAttachmentMessage key={vm.id} attachment={vm} />;
+              }
+              const msg = item.data as ChatMessage;
+              const isAssistant = msg.role === 'assistant';
+              let currentOwnerName = isAssistant ? ownerName : msg.role === 'system' ? 'Sistema' : 'Usuario';
+              if (isAssistant && isGroup) {
+                const currentGroup = grupos ? grupos.find(g => g.id === chat.owner.id) : null;
                 if (currentGroup && currentGroup.slots) {
-                  const slotId = assistantCount.toString();
+                  const slotId = (sortedItems.slice(0, index + 1).filter(i => i.type === 'message' && (i.data as ChatMessage).role === 'assistant').length).toString();
                   const entiId = currentGroup.slots[slotId as keyof typeof currentGroup.slots];
                   if (entiId) {
                     const enti = entiRepository.getById(entiId);
-                    if (enti && enti.name) {
-                      currentOwnerName = enti.name;
-                    }
+                    if (enti && enti.name) currentOwnerName = enti.name;
                   }
                 }
               }
 
+              const className = `chat-message role-${msg.role}`;
               return (
-                <div key={`${msg.role}-${idx}`} data-testid="chat-message" className={`chat-message role-${msg.role}`}>
+                <div key={msg.id || index} data-testid="chat-message" className={className}>
                   <span className="chat-message-role">{currentOwnerName}</span>
                   <span className="chat-message-content">{msg.content}</span>
                 </div>
               );
-            });
-          })()
-        )}
+            })
+          )}
+        </div>
+        
         {showLoadingBubble && (
           <div className="chat-message role-assistant loading-indicator">
             <span className="chat-message-role">{loadingRoleName}</span>

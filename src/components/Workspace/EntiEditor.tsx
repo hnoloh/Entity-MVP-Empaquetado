@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import type { Enti } from "../../domain/enti/Enti";
 import { deriveEntiStatus } from "../../domain/enti/entiStatus";
+import { EntiHarnessAttachmentDropZone } from "../EntiHarness/EntiHarnessAttachmentDropZone";
 import "./EntiEditor.css";
 
 interface EntiEditorProps {
@@ -413,22 +414,26 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               onExpand={() => setExpandedField({ key: "rules", label: "Normas" })}
               onChange={(val) => handleHarnessChange("rules", val)}
             />
-            <HarnessField
-              label="Conocimientos"
-              fieldKey="knowledge"
-              value={draft.harness.knowledge}
-              testId="input-knowledge"
-              onExpand={() => setExpandedField({ key: "knowledge", label: "Conocimientos" })}
-              onChange={(val) => handleHarnessChange("knowledge", val)}
-            />
-            <HarnessField
-              label="Material de Trabajo"
-              fieldKey="workMaterial"
-              value={draft.harness.workMaterial}
-              testId="input-workMaterial"
-              onExpand={() => setExpandedField({ key: "workMaterial", label: "Material de Trabajo" })}
-              onChange={(val) => handleHarnessChange("workMaterial", val)}
-            />
+            <EntiHarnessAttachmentDropZone ownerId={draft.id} scope="enti_knowledge">
+              <HarnessField
+                label="Conocimientos"
+                fieldKey="knowledge"
+                value={draft.harness.knowledge}
+                testId="input-knowledge"
+                onExpand={() => setExpandedField({ key: "knowledge", label: "Conocimientos" })}
+                onChange={(val) => handleHarnessChange("knowledge", val)}
+              />
+            </EntiHarnessAttachmentDropZone>
+            <EntiHarnessAttachmentDropZone ownerId={draft.id} scope="enti_work_material">
+              <HarnessField
+                label="Material de Trabajo"
+                fieldKey="workMaterial"
+                value={draft.harness.workMaterial}
+                testId="input-workMaterial"
+                onExpand={() => setExpandedField({ key: "workMaterial", label: "Material de Trabajo" })}
+                onChange={(val) => handleHarnessChange("workMaterial", val)}
+              />
+            </EntiHarnessAttachmentDropZone>
           </div>
         </div>
       </div>

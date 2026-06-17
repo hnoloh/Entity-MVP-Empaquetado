@@ -9,21 +9,26 @@ describe('ChatAttachmentDropZone', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('renders valid drop state', () => {
+  it('renders valid drop state background', () => {
     render(<ChatAttachmentDropZone dropState="dragging_valid" />);
     const overlay = screen.getByTestId('chat-drop-zone');
     expect(overlay).toHaveClass('valid');
-    expect(screen.getByText('Suelta el archivo para adjuntarlo')).toBeInTheDocument();
   });
 
-  it('renders blocked drop state', () => {
+  it('renders blocked drop state background', () => {
     render(<ChatAttachmentDropZone dropState="dragging_blocked" />);
     const overlay = screen.getByTestId('chat-drop-zone');
     expect(overlay).toHaveClass('blocked');
-    expect(screen.getByText('No se puede adjuntar aquí')).toBeInTheDocument();
+  });
+  
+  it('renders processing state loader', () => {
+    render(<ChatAttachmentDropZone dropState="dropped" />);
+    const overlay = screen.getByTestId('chat-drop-zone');
+    expect(overlay).toHaveClass('dropped');
+    expect(screen.getByText('Procesando adjunto')).toBeInTheDocument();
   });
 
-  it('renders error state', () => {
+  it('renders error state box', () => {
     render(<ChatAttachmentDropZone dropState="error" errorMessage="Custom error message" />);
     const overlay = screen.getByTestId('chat-drop-zone');
     expect(overlay).toHaveClass('error');

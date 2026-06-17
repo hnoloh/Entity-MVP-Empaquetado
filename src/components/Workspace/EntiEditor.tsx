@@ -22,9 +22,12 @@ interface HarnessFieldProps {
   testId: string;
   onExpand: () => void;
   onChange: (val: string | string[]) => void;
+  dropZoneScope?: "enti_knowledge" | "enti_work_material";
+  ownerId?: string;
+  onAttachmentsDropped?: (files: string[]) => void;
 }
 
-const HarnessField: React.FC<HarnessFieldProps> = ({ label, value, testId, onExpand, onChange }) => {
+const HarnessField: React.FC<HarnessFieldProps> = ({ label, value, testId, onExpand, onChange, dropZoneScope, ownerId, onAttachmentsDropped }) => {
   const displayValue = Array.isArray(value) ? value.join("\n") : value;
   
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -35,24 +38,36 @@ const HarnessField: React.FC<HarnessFieldProps> = ({ label, value, testId, onExp
     }
   };
 
+  const content = (
+    <div className="textarea-wrapper">
+      <textarea
+        data-testid={testId}
+        rows={1}
+        value={displayValue}
+        onChange={handleChange}
+      />
+      <button type="button" className="expand-btn" onClick={onExpand} title="Expandir">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+        </svg>
+      </button>
+    </div>
+  );
+
   return (
     <div className="field-group">
       <div className="field-header">
         <label>{label}</label>
       </div>
-      <div className="textarea-wrapper">
-        <textarea
-          data-testid={testId}
-          rows={1}
-          value={displayValue}
-          onChange={handleChange}
-        />
-        <button type="button" className="expand-btn" onClick={onExpand} title="Expandir">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
-          </svg>
-        </button>
-      </div>
+      {dropZoneScope && ownerId ? (
+        <EntiHarnessAttachmentDropZone
+          scope={dropZoneScope}
+          ownerId={ownerId}
+          onSuccess={onAttachmentsDropped}
+        >
+          {content}
+        </EntiHarnessAttachmentDropZone>
+      ) : content}
     </div>
   );
 };
@@ -67,6 +82,7 @@ interface ExpandedModalProps {
 }
 
 const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChange, onClose, attachments }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const displayValue = Array.isArray(value) ? value.join("\n") : value;
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -82,19 +98,43 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
       <div className="expanded-field-content" style={{ display: 'flex', flexDirection: 'column' }}>
         <div className="expanded-field-header">
           <h3>Editando: {label}</h3>
+          {attachments !== undefined && (
+            <button 
+              type="button" 
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              style={{
+                background: isSidebarOpen ? 'rgba(0, 229, 255, 0.1)' : 'transparent',
+                color: '#00ffff',
+                border: '1px solid rgba(0, 229, 255, 0.3)',
+                padding: '0.4rem 0.8rem',
+                borderRadius: '6px',
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                transition: 'all 0.2s'
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+              </svg>
+              {attachments.length} {attachments.length === 1 ? 'Adjunto' : 'Adjuntos'}
+            </button>
+          )}
         </div>
         <div className="expanded-field-body" style={{ display: 'flex', flex: 1, gap: '1rem', minHeight: 0 }}>
-          {attachments !== undefined && (
+          {attachments !== undefined && isSidebarOpen && (
             <div className="expanded-field-sidebar" style={{ width: '250px', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '4px', overflowY: 'auto' }}>
-              <h4 style={{ margin: '0 0 1rem 0', color: '#00ffff' }}>Archivos Adjuntos</h4>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#00ffff', fontSize: '0.9rem', textTransform: 'uppercase' }}>Archivos Adjuntos</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {attachments.map((name, i) => (
-                  <li key={i} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', marginBottom: '0.5rem', borderRadius: '4px', fontSize: '0.9rem', wordBreak: 'break-all' }}>
+                  <li key={i} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', marginBottom: '0.5rem', borderRadius: '4px', fontSize: '0.85rem', wordBreak: 'break-all', color: '#ccc' }}>
                     {name}
                   </li>
                 ))}
                 {attachments.length === 0 && (
-                  <li style={{ color: '#aaa', fontSize: '0.9rem' }}>No hay archivos adjuntos</li>
+                  <li style={{ color: '#aaa', fontSize: '0.85rem' }}>No hay archivos adjuntos</li>
                 )}
               </ul>
             </div>
@@ -107,7 +147,7 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
           />
         </div>
         <div className="expanded-field-actions" style={{ marginTop: '1rem' }}>
-          <button onClick={onClose}>Cerrar</button>
+          <button type="button" onClick={onClose}>Cerrar</button>
         </div>
       </div>
     </div>
@@ -437,34 +477,28 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               onExpand={() => setExpandedField({ key: "rules", label: "Normas" })}
               onChange={(val) => handleHarnessChange("rules", val)}
             />
-            <EntiHarnessAttachmentDropZone 
-              ownerId={draft.id} 
-              scope="enti_knowledge"
-              onSuccess={(files) => setSessionAttachments(prev => ({ ...prev, knowledge: [...prev.knowledge, ...files] }))}
-            >
-              <HarnessField
-                label="Conocimientos"
-                fieldKey="knowledge"
-                value={draft.harness.knowledge}
-                testId="input-knowledge"
-                onExpand={() => setExpandedField({ key: "knowledge", label: "Conocimientos" })}
-                onChange={(val) => handleHarnessChange("knowledge", val)}
-              />
-            </EntiHarnessAttachmentDropZone>
-            <EntiHarnessAttachmentDropZone 
-              ownerId={draft.id} 
-              scope="enti_work_material"
-              onSuccess={(files) => setSessionAttachments(prev => ({ ...prev, workMaterial: [...prev.workMaterial, ...files] }))}
-            >
-              <HarnessField
-                label="Material de Trabajo"
-                fieldKey="workMaterial"
-                value={draft.harness.workMaterial}
-                testId="input-workMaterial"
-                onExpand={() => setExpandedField({ key: "workMaterial", label: "Material de Trabajo" })}
-                onChange={(val) => handleHarnessChange("workMaterial", val)}
-              />
-            </EntiHarnessAttachmentDropZone>
+            <HarnessField
+              label="Conocimientos"
+              fieldKey="knowledge"
+              value={draft.harness.knowledge}
+              testId="input-knowledge"
+              onExpand={() => setExpandedField({ key: "knowledge", label: "Conocimientos" })}
+              onChange={(val) => handleHarnessChange("knowledge", val)}
+              dropZoneScope="enti_knowledge"
+              ownerId={draft.id}
+              onAttachmentsDropped={(files) => setSessionAttachments(prev => ({ ...prev, knowledge: [...prev.knowledge, ...files] }))}
+            />
+            <HarnessField
+              label="Material de Trabajo"
+              fieldKey="workMaterial"
+              value={draft.harness.workMaterial}
+              testId="input-workMaterial"
+              onExpand={() => setExpandedField({ key: "workMaterial", label: "Material de Trabajo" })}
+              onChange={(val) => handleHarnessChange("workMaterial", val)}
+              dropZoneScope="enti_work_material"
+              ownerId={draft.id}
+              onAttachmentsDropped={(files) => setSessionAttachments(prev => ({ ...prev, workMaterial: [...prev.workMaterial, ...files] }))}
+            />
           </div>
         </div>
       </div>

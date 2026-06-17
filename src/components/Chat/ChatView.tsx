@@ -45,6 +45,15 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
     entiRepository
   );
 
+  const resolvedOwnerType = isGroup ? 'group' : 'enti';
+  const resolvedOwnerId = chat?.owner.id;
+
+  const { dropState, errorMessage, handlers } = useChatAttachmentDrop(
+    resolvedOwnerType,
+    resolvedOwnerId,
+    chatId
+  );
+
   // La reactividad está delegada a useSyncExternalStore
   React.useEffect(() => {
     if (isGroup && !groupAdapter.isExecuting) {
@@ -202,15 +211,6 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
       handleSend();
     }
   };
-
-  const resolvedOwnerType = isGroup ? 'group' : 'enti';
-  const resolvedOwnerId = chat?.owner.id;
-
-  const { dropState, errorMessage, handlers } = useChatAttachmentDrop(
-    resolvedOwnerType,
-    resolvedOwnerId,
-    chatId
-  );
 
   return (
     <div 

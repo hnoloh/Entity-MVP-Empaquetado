@@ -22,3 +22,6 @@ export * from './restartGroupSequenceFlow';
 export * from './attachments/entiRuntimeAttachmentContextTypes';
 export * from './attachments/buildEntiAttachmentRuntimeContext';
 export * from './attachments/resolveEntiRuntimeAttachmentContext';
+export * from './attachments/groupRuntimeAttachmentContextTypes';
+export * from './attachments/buildGroupAttachmentRuntimeContext';
+export * from './attachments/resolveGroupRuntimeAttachmentContext';

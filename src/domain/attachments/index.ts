@@ -2,6 +2,7 @@ export * from './attachmentModel';
 export * from './createAttachmentModelFlow';
 export * from './associateAttachmentToEntiChatFlow';
 export * from './associateAttachmentToGroupChatFlow';
+export * from './associateAttachmentToEntiKnowledgeFlow';
 export type { AttachmentPersistenceRecord } from './attachmentsPersistence';
 export { persistAttachmentRecordsFlow } from './attachmentsPersistence';
 

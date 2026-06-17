@@ -18,24 +18,25 @@ export function ChatAttachmentDropZone({ dropState, errorMessage }: ChatAttachme
     case 'dragging_valid':
       overlayClass += ' valid';
       message = 'Suelta el archivo para adjuntarlo';
-      color = '#4ade80'; // verde
-      bgColor = 'rgba(20, 50, 20, 0.85)';
+      color = '#06b6d4'; // cian
+      bgColor = 'rgba(6, 182, 212, 0.15)'; // fondo tintado cian
       break;
     case 'dragging_blocked':
       overlayClass += ' blocked';
       message = 'No se puede adjuntar aquí';
-      color = '#f87171'; // rojo
-      bgColor = 'rgba(50, 20, 20, 0.85)';
+      color = '#a855f7'; // morado acianado
+      bgColor = 'rgba(168, 85, 247, 0.15)'; // fondo tintado morado
       break;
     case 'dropped':
       overlayClass += ' dropped';
       message = 'Procesando adjunto...';
-      color = '#60a5fa'; // azul
+      color = '#06b6d4'; // cian
       break;
     case 'error':
       overlayClass += ' error';
       message = errorMessage || 'Error al procesar el archivo';
-      color = '#f87171';
+      color = '#a855f7'; // morado acianado
+      bgColor = 'rgba(168, 85, 247, 0.15)'; // fondo tintado morado
       break;
   }
 

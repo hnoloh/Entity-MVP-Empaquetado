@@ -77,6 +77,7 @@ export function useChatAttachmentDrop(
     const intent = buildAttachmentDropIntent(file, ownerType as 'enti' | 'group', ownerId, chatId);
     
     const creationResult = createAttachmentModelFlow({
+      explicitUserAction: true,
       ownerType: intent.ownerType,
       ownerId: intent.ownerId,
       chatId: intent.chatId,

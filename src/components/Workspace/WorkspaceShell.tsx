@@ -353,13 +353,19 @@ export default function WorkspaceShell() {
   };
 
   const displayEntis = useMemo(() => {
-    return entis.map(e => (liveDrafts[e.id]?.draft as Enti) || unsavedEntis[e.id] || e).concat(
+    return entis.map(e => {
+      const draft = liveDrafts[e.id]?.draft as Enti | undefined;
+      return draft ? { ...draft, status: e.status } : (unsavedEntis[e.id] || e);
+    }).concat(
       Object.values(unsavedEntis).filter(draft => !entis.some(e => e.id === draft.id)).map(draft => (liveDrafts[draft.id]?.draft as Enti) || draft)
     );
   }, [entis, unsavedEntis, liveDrafts]);
 
   const displayGrupos = useMemo(() => {
-    return grupos.map(g => (liveDrafts[g.id]?.draft as Group) || unsavedGrupos[g.id] || g).concat(
+    return grupos.map(g => {
+      const draft = liveDrafts[g.id]?.draft as Group | undefined;
+      return draft ? { ...draft } : (unsavedGrupos[g.id] || g);
+    }).concat(
       Object.values(unsavedGrupos).filter(draft => !grupos.some(g => g.id === draft.id)).map(draft => (liveDrafts[draft.id]?.draft as Group) || draft)
     );
   }, [grupos, unsavedGrupos, liveDrafts]);

@@ -7,7 +7,7 @@ import type { HarnessDestinationScope } from './buildHarnessAttachmentDropIntent
 
 export type HarnessAttachmentDropState = 'idle' | 'dragging_valid' | 'dragging_blocked' | 'dropped' | 'error';
 
-export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDestinationScope) {
+export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDestinationScope, onSuccess?: (fileNames: string[]) => void) {
   const [dropState, setDropState] = useState<HarnessAttachmentDropState>('idle');
 
   const onDragEnter = useCallback((e: React.DragEvent) => {
@@ -48,6 +48,7 @@ export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDest
     
     // Simulate domain operations strictly following the domain rules
     let hasError = false;
+    const processedFiles: string[] = [];
     for (const file of intent.files) {
        const parts = file.name.split('.');
        const extension = parts.length > 1 ? parts[parts.length - 1].toLowerCase() : '';
@@ -77,13 +78,21 @@ export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDest
           const result = associateAttachmentToEntiWorkMaterialFlow({ attachment: model, ownerId, ownerType: 'enti' });
           if (result.status !== 'success') hasError = true;
        }
+       
+       if (!hasError) {
+         processedFiles.push(file.name);
+       }
     }
 
     if (hasError) {
       setDropState('error');
+    } else {
+      if (onSuccess && processedFiles.length > 0) {
+        onSuccess(processedFiles);
+      }
     }
     setTimeout(() => setDropState('idle'), 2000);
-  }, [ownerId, scope]);
+  }, [ownerId, scope, onSuccess]);
 
   return {
     dropState,

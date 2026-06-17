@@ -63,9 +63,10 @@ interface ExpandedModalProps {
   value: string | string[];
   onChange: (val: string | string[]) => void;
   onClose: () => void;
+  attachments?: string[];
 }
 
-const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChange, onClose }) => {
+const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChange, onClose, attachments }) => {
   const displayValue = Array.isArray(value) ? value.join("\n") : value;
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -78,16 +79,34 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
 
   return (
     <div className="expanded-field-overlay" data-testid="expanded-field-modal">
-      <div className="expanded-field-content">
+      <div className="expanded-field-content" style={{ display: 'flex', flexDirection: 'column' }}>
         <div className="expanded-field-header">
           <h3>Editando: {label}</h3>
         </div>
-        <textarea
-          className="expanded-textarea"
-          value={displayValue}
-          onChange={handleChange}
-        />
-        <div className="expanded-field-actions">
+        <div className="expanded-field-body" style={{ display: 'flex', flex: 1, gap: '1rem', minHeight: 0 }}>
+          {attachments !== undefined && (
+            <div className="expanded-field-sidebar" style={{ width: '250px', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '4px', overflowY: 'auto' }}>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#00ffff' }}>Archivos Adjuntos</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {attachments.map((name, i) => (
+                  <li key={i} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', marginBottom: '0.5rem', borderRadius: '4px', fontSize: '0.9rem', wordBreak: 'break-all' }}>
+                    {name}
+                  </li>
+                ))}
+                {attachments.length === 0 && (
+                  <li style={{ color: '#aaa', fontSize: '0.9rem' }}>No hay archivos adjuntos</li>
+                )}
+              </ul>
+            </div>
+          )}
+          <textarea
+            className="expanded-textarea"
+            style={{ flex: 1, resize: 'none' }}
+            value={displayValue}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="expanded-field-actions" style={{ marginTop: '1rem' }}>
           <button onClick={onClose}>Cerrar</button>
         </div>
       </div>
@@ -107,6 +126,10 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
   const [localModels, setLocalModels] = useState<string[]>([]);
   const [tempApiKey, setTempApiKey] = useState(draft.cognitiveConfig.apiKey || "");
   const [showApiKey, setShowApiKey] = useState(false);
+  const [sessionAttachments, setSessionAttachments] = useState<{ knowledge: string[], workMaterial: string[] }>({
+    knowledge: [],
+    workMaterial: []
+  });
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -414,7 +437,11 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               onExpand={() => setExpandedField({ key: "rules", label: "Normas" })}
               onChange={(val) => handleHarnessChange("rules", val)}
             />
-            <EntiHarnessAttachmentDropZone ownerId={draft.id} scope="enti_knowledge">
+            <EntiHarnessAttachmentDropZone 
+              ownerId={draft.id} 
+              scope="enti_knowledge"
+              onSuccess={(files) => setSessionAttachments(prev => ({ ...prev, knowledge: [...prev.knowledge, ...files] }))}
+            >
               <HarnessField
                 label="Conocimientos"
                 fieldKey="knowledge"
@@ -424,7 +451,11 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
                 onChange={(val) => handleHarnessChange("knowledge", val)}
               />
             </EntiHarnessAttachmentDropZone>
-            <EntiHarnessAttachmentDropZone ownerId={draft.id} scope="enti_work_material">
+            <EntiHarnessAttachmentDropZone 
+              ownerId={draft.id} 
+              scope="enti_work_material"
+              onSuccess={(files) => setSessionAttachments(prev => ({ ...prev, workMaterial: [...prev.workMaterial, ...files] }))}
+            >
               <HarnessField
                 label="Material de Trabajo"
                 fieldKey="workMaterial"
@@ -445,6 +476,10 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
           value={draft.harness[expandedField.key]}
           onChange={(val) => handleHarnessChange(expandedField.key, val)}
           onClose={() => setExpandedField(null)}
+          attachments={
+             expandedField.key === "knowledge" ? sessionAttachments.knowledge :
+             expandedField.key === "workMaterial" ? sessionAttachments.workMaterial : undefined
+          }
         />
       )}
     </div>

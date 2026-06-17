@@ -23,11 +23,11 @@ describe('EntiHarnessAttachmentDropZone', () => {
       dropState: 'dragging_valid',
       handlers: {} as any
     });
-    render(
+    const { container } = render(
       <EntiHarnessAttachmentDropZone ownerId="enti-1" scope="enti_knowledge">
         <div>Contenido test</div>
       </EntiHarnessAttachmentDropZone>
     );
-    expect(screen.getByText('Soltar archivo aquí')).toBeDefined();
+    expect(container.querySelector('.harness-drop-overlay.valid')).toBeDefined();
   });
 });

@@ -7,16 +7,21 @@ interface Props {
   ownerId: string;
   scope: HarnessDestinationScope;
   children: React.ReactNode;
+  onSuccess?: (fileNames: string[]) => void;
 }
 
-export const EntiHarnessAttachmentDropZone: React.FC<Props> = ({ ownerId, scope, children }) => {
-  const { dropState, handlers } = useEntiHarnessAttachmentDrop(ownerId, scope);
+export const EntiHarnessAttachmentDropZone: React.FC<Props> = ({ ownerId, scope, children, onSuccess }) => {
+  const { dropState, handlers } = useEntiHarnessAttachmentDrop(ownerId, scope, onSuccess);
 
   let overlayContent = null;
-  if (dropState === 'dragging_valid') overlayContent = <div className="harness-drop-overlay valid">Soltar archivo aquí</div>;
-  if (dropState === 'dragging_blocked') overlayContent = <div className="harness-drop-overlay blocked">Archivo no soportado</div>;
-  if (dropState === 'dropped') overlayContent = <div className="harness-drop-overlay success">¡Archivo asociado!</div>;
-  if (dropState === 'error') overlayContent = <div className="harness-drop-overlay error">Error al procesar</div>;
+  if (dropState === 'dragging_valid') overlayContent = <div className="harness-drop-overlay valid" />;
+  if (dropState === 'dragging_blocked') overlayContent = <div className="harness-drop-overlay blocked" />;
+  if (dropState === 'dropped') overlayContent = (
+    <div className="harness-drop-overlay success">
+      <div className="spinner-dashed"></div>
+    </div>
+  );
+  if (dropState === 'error') overlayContent = <div className="harness-drop-overlay error" />;
 
   return (
     <div 

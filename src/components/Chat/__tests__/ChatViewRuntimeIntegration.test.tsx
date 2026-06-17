@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ChatView } from '../ChatView';
@@ -31,7 +31,7 @@ describe('ChatView Runtime Integration', () => {
   });
 
   it('TEST-FIA006-01: Chat input explícito dispara Runtime una sola vez', async () => {
-    const enti = createEntiFlow('Test Enti');
+    const enti = createEntiFlow();
     enti.cognitiveConfig = { mode: 'local', provider: 'ollama', model: 'llama3' };
     entiRepository.save(enti);
 
@@ -52,7 +52,7 @@ describe('ChatView Runtime Integration', () => {
   });
 
   it('TEST-FIA006-02: Renderizar ChatView no dispara Runtime', () => {
-    const enti = createEntiFlow('Test Enti');
+    const enti = createEntiFlow();
     enti.cognitiveConfig = { mode: 'local', provider: 'ollama', model: 'llama3' };
     entiRepository.save(enti);
 

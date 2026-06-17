@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { executeCurrentGroupSlotFlow } from '../executeCurrentGroupSlotFlow';
-import { Group } from '../../group/Group';
-import { Enti } from '../../enti/Enti';
-import { Chat } from '../../chat/Chat';
-import { GroupSequenceInitializationResult } from '../RuntimeExecutionResult';
-import { GroupSlotExecutionRequest } from '../RuntimeExecutionRequest';
+import type { Group } from '../../group/Group';
+import type { Enti } from '../../enti/Enti';
+import type { Chat } from '../../chat/Chat';
+import type { GroupSequenceInitializationResult } from '../RuntimeExecutionResult';
+import type { GroupSlotExecutionRequest } from '../RuntimeExecutionRequest';
 import type { ProviderBridge } from '../provider/ProviderBridge';
 import * as chatModule from '../../chat/receiveResponseToChatFlow';
 import fs from 'fs';
@@ -35,27 +35,24 @@ describe('executeCurrentGroupSlotFlow', () => {
         id: 'enti-1',
         type: 'enti',
         name: 'Enti 1',
-        cognitiveConfig: { provider: 'local', model: 'llama' },
-        harness: { function: 'Mock function', rules: [] },
-        createdAt: 0,
-        updatedAt: 0
+        status: 'complete',
+        cognitiveConfig: { mode: 'local', provider: 'local', model: 'llama' },
+        harness: { function: 'Mock function', rules: [], workMaterial: '', knowledge: '' }
       },
       {
         id: 'enti-2',
         type: 'enti',
         name: 'Enti 2',
-        harness: { function: 'Mock function 2', rules: [] },
-        createdAt: 0,
-        updatedAt: 0
+        status: 'incomplete',
+        cognitiveConfig: { mode: 'unconfigured' },
+        harness: { function: 'Mock function 2', rules: [], workMaterial: '', knowledge: '' }
       }
     ];
 
     mockGroupChat = {
       id: 'chat-1',
-      owner: { type: 'group', id: 'group-1' },
-      history: [],
-      createdAt: 0,
-      updatedAt: 0
+      owner: { type: 'grupo', id: 'group-1' },
+      history: []
     };
 
     mockProvider = {
@@ -72,7 +69,7 @@ describe('executeCurrentGroupSlotFlow', () => {
       completedSlotIds: []
     };
 
-    vi.spyOn(chatModule, 'receiveResponseToChatFlow').mockImplementation(() => {});
+    vi.spyOn(chatModule, 'receiveResponseToChatFlow').mockImplementation(() => ({} as Chat));
   });
 
   it('TEST-FIA007-01: executeCurrentGroupSlotFlow ejecuta el Enti de currentSlotId cuando la secuencia está inicializada', async () => {

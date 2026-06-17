@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createChatWindowRegistry, type ChatWindowRegistry } from '../ChatWindowRegistry';
-import { createChatWindow } from '../ChatWindow';
+import { createChatWindow, type ChatWindow } from '../ChatWindow';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -35,10 +35,8 @@ describe('ChatWindowRegistry Model - RV-04/FIA-002', () => {
 
   it('TEST-FIA002-04: rechaza windowId o chatId vacío', () => {
     const geom = { x: 0, y: 0, width: 100, height: 100 };
-    // @ts-expect-error - probando invalidación
-    expect(() => registry.register({ windowId: '', chatId: 'c1', state: 'visible', geometry: geom })).toThrow(/windowId is required/);
-    // @ts-expect-error - probando invalidación
-    expect(() => registry.register({ windowId: 'w1', chatId: '', state: 'visible', geometry: geom })).toThrow(/chatId is required/);
+    expect(() => registry.register({ windowId: '', chatId: 'c1', state: 'visible', geometry: geom } as unknown as ChatWindow)).toThrow(/windowId is required/);
+    expect(() => registry.register({ windowId: 'w1', chatId: '', state: 'visible', geometry: geom } as unknown as ChatWindow)).toThrow(/chatId is required/);
   });
 
   it('TEST-FIA002-05: findByChatId() devuelve solo las ventanas asociadas a ese chatId', () => {

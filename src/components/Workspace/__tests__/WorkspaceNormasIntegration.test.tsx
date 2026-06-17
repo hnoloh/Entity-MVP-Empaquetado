@@ -28,14 +28,14 @@ describe("Workspace Normas Integration (FIA-010)", () => {
   });
 
   it("TEST-FIA010-01: Normas visible dentro de Harness Base para Enti seleccionado", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const rulesInput = screen.getByTestId("input-rules");
     expect(rulesInput).toBeInTheDocument();
     expect(rulesInput).toHaveValue("Regla 1\nRegla 2");
   });
 
   it("TEST-FIA010-02: edición textual de Normas activa dirty sin autosave", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const rulesInput = screen.getByTestId("input-rules");
     
     // Act
@@ -53,7 +53,7 @@ describe("Workspace Normas Integration (FIA-010)", () => {
   });
 
   it("TEST-FIA010-03: Guardar persiste Normas por EntiRepository", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const rulesInput = screen.getByTestId("input-rules");
     
     fireEvent.change(rulesInput, { target: { value: "Nueva regla\nOtra regla" } });
@@ -71,7 +71,7 @@ describe("Workspace Normas Integration (FIA-010)", () => {
   });
 
   it("TEST-FIA010-04: Descartar preserva el valor guardado previo", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const rulesInput = screen.getByTestId("input-rules");
     
     fireEvent.change(rulesInput, { target: { value: "Nueva regla" } });
@@ -85,7 +85,7 @@ describe("Workspace Normas Integration (FIA-010)", () => {
   });
 
   it("TEST-FIA010-05: Cancelar mantiene editor abierto y draft vivo", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const rulesInput = screen.getByTestId("input-rules");
     
     fireEvent.change(rulesInput, { target: { value: "Nueva regla" } });
@@ -100,7 +100,7 @@ describe("Workspace Normas Integration (FIA-010)", () => {
   });
 
   it("TEST-FIA010-06: cambiar de Enti no arrastra Normas del anterior", () => {
-    const { rerender } = render(<EntiEditor key={mockEnti.id} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    const { rerender } = render(<EntiEditor isActive={true} key={mockEnti.id} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     
     const enti2: Enti = {
       ...mockEnti,
@@ -108,14 +108,14 @@ describe("Workspace Normas Integration (FIA-010)", () => {
       harness: { ...mockEnti.harness, rules: ["Norma Enti 2"] }
     };
 
-    rerender(<EntiEditor key={enti2.id} enti={enti2} onSave={mockOnSave} onClose={mockOnClose} />);
+    rerender(<EntiEditor isActive={true} key={enti2.id} enti={enti2} onSave={mockOnSave} onClose={mockOnClose} />);
     
     const rulesInput = screen.getByTestId("input-rules");
     expect(rulesInput).toHaveValue("Norma Enti 2");
   });
 
   it("TEST-FIA010-08: Función permanece intacta al editar Normas", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const rulesInput = screen.getByTestId("input-rules");
     const functionInput = screen.getByTestId("input-function");
     

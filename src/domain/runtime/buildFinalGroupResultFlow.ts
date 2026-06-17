@@ -1,5 +1,5 @@
-import { FinalGroupResultRequest } from './RuntimeExecutionRequest';
-import { FinalGroupResult } from './RuntimeExecutionResult';
+import type { FinalGroupResultRequest } from './RuntimeExecutionRequest';
+import type { FinalGroupResult } from './RuntimeExecutionResult';
 
 export function buildFinalGroupResultFlow(
   request: FinalGroupResultRequest

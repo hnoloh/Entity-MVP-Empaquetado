@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { advanceGroupSequenceFlow } from '../advanceGroupSequenceFlow';
-import { GroupSequenceAdvanceRequest } from '../RuntimeExecutionRequest';
-import { GroupSequenceInitializationResult, ValidatedIntermediateGroupResultSendResult } from '../RuntimeExecutionResult';
+import type { GroupSequenceAdvanceRequest } from '../RuntimeExecutionRequest';
+import type { GroupSequenceInitializationResult, ValidatedIntermediateGroupResultSendResult } from '../RuntimeExecutionResult';
 import fs from 'fs';
 import path from 'path';
 

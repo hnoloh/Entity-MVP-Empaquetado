@@ -28,14 +28,14 @@ describe("Workspace Material de Trabajo Integration (FIA-011)", () => {
   });
 
   it("TEST-FIA011-01: Material de Trabajo visible dentro de Harness Base para Enti seleccionado", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const materialInput = screen.getByTestId("input-workMaterial");
     expect(materialInput).toBeInTheDocument();
     expect(materialInput).toHaveValue("Material inicial");
   });
 
   it("TEST-FIA011-02: editar Material de Trabajo actualiza draft y activa dirty", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const materialInput = screen.getByTestId("input-workMaterial");
     
     // Act
@@ -53,7 +53,7 @@ describe("Workspace Material de Trabajo Integration (FIA-011)", () => {
   });
 
   it("TEST-FIA011-03: Guardar persiste Material de Trabajo mediante EntiRepository existente", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const materialInput = screen.getByTestId("input-workMaterial");
     
     fireEvent.change(materialInput, { target: { value: "Nuevo material" } });
@@ -71,7 +71,7 @@ describe("Workspace Material de Trabajo Integration (FIA-011)", () => {
   });
 
   it("TEST-FIA011-04: Descartar preserva el valor guardado previo", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const materialInput = screen.getByTestId("input-workMaterial");
     
     fireEvent.change(materialInput, { target: { value: "Nuevo material" } });
@@ -85,7 +85,7 @@ describe("Workspace Material de Trabajo Integration (FIA-011)", () => {
   });
 
   it("TEST-FIA011-05: Cancelar mantiene editor abierto con draft pendiente", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const materialInput = screen.getByTestId("input-workMaterial");
     
     fireEvent.change(materialInput, { target: { value: "Nuevo material" } });
@@ -100,7 +100,7 @@ describe("Workspace Material de Trabajo Integration (FIA-011)", () => {
   });
 
   it("TEST-FIA011-06: cambio de Enti refresca Material de Trabajo sin arrastre residual", () => {
-    const { rerender } = render(<EntiEditor key={mockEnti.id} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    const { rerender } = render(<EntiEditor isActive={true} key={mockEnti.id} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     
     const enti2: Enti = {
       ...mockEnti,
@@ -108,14 +108,14 @@ describe("Workspace Material de Trabajo Integration (FIA-011)", () => {
       harness: { ...mockEnti.harness, workMaterial: "Material de Enti 2" }
     };
 
-    rerender(<EntiEditor key={enti2.id} enti={enti2} onSave={mockOnSave} onClose={mockOnClose} />);
+    rerender(<EntiEditor isActive={true} key={enti2.id} enti={enti2} onSave={mockOnSave} onClose={mockOnClose} />);
     
     const materialInput = screen.getByTestId("input-workMaterial");
     expect(materialInput).toHaveValue("Material de Enti 2");
   });
 
   it("TEST-FIA011-08: Función y Normas permanecen intactas al editar Material de Trabajo", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const materialInput = screen.getByTestId("input-workMaterial");
     const functionInput = screen.getByTestId("input-function");
     const rulesInput = screen.getByTestId("input-rules");

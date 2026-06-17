@@ -34,7 +34,7 @@ describe("Workspace API Key OpenAI Integration (FIA-015 modificado)", () => {
   });
 
   it("TEST-FIA015-01: el campo API Key OpenAI aparece en el submenú al seleccionar IA Cloud/OpenAI", () => {
-    render(<EntiEditor enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
     expect(screen.queryByTestId("input-openai-api-key")).not.toBeInTheDocument();
     
     openApiKeyInput();
@@ -45,7 +45,7 @@ describe("Workspace API Key OpenAI Integration (FIA-015 modificado)", () => {
   });
 
   it("TEST-FIA015-02: editar API Key y Aceptar activa dirty sin invocar autosave ni red", () => {
-    render(<EntiEditor enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
     
     openApiKeyInput();
     const apiKeyInput = screen.getByTestId("input-openai-api-key");
@@ -61,7 +61,7 @@ describe("Workspace API Key OpenAI Integration (FIA-015 modificado)", () => {
   });
 
   it("TEST-FIA015-03: Guardar persiste el valor modificado por EntiRepository en memoria", () => {
-    render(<EntiEditor enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
     
     openApiKeyInput();
     fireEvent.change(screen.getByTestId("input-openai-api-key"), { target: { value: "sk-new-key-123" } });
@@ -82,7 +82,7 @@ describe("Workspace API Key OpenAI Integration (FIA-015 modificado)", () => {
   });
 
   it("TEST-FIA015-04: Descartar conserva el valor previo guardado", () => {
-    render(<EntiEditor enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
     
     openApiKeyInput();
     fireEvent.change(screen.getByTestId("input-openai-api-key"), { target: { value: "sk-discarded-key" } });
@@ -96,7 +96,7 @@ describe("Workspace API Key OpenAI Integration (FIA-015 modificado)", () => {
   });
 
   it("TEST-FIA015-05: Cancelar mantiene editor abierto y draft pendiente", () => {
-    render(<EntiEditor enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
     
     openApiKeyInput();
     fireEvent.change(screen.getByTestId("input-openai-api-key"), { target: { value: "sk-pending-key" } });
@@ -113,7 +113,7 @@ describe("Workspace API Key OpenAI Integration (FIA-015 modificado)", () => {
   });
 
   it("TEST-FIA015-06: cambiar de Enti resincroniza el campo sin arrastre residual", () => {
-    const { rerender } = render(<EntiEditor key={mockEntiBase.id} enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
+    const { rerender } = render(<EntiEditor isActive={true} key={mockEntiBase.id} enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
     openApiKeyInput();
     fireEvent.change(screen.getByTestId("input-openai-api-key"), { target: { value: "sk-dirty-key" } });
     fireEvent.click(screen.getByTestId("btn-accept-api-key"));
@@ -127,7 +127,7 @@ describe("Workspace API Key OpenAI Integration (FIA-015 modificado)", () => {
       },
     };
 
-    rerender(<EntiEditor key={newEnti.id} enti={newEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    rerender(<EntiEditor isActive={true} key={newEnti.id} enti={newEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     
     openApiKeyInput();
     expect(screen.getByTestId("input-openai-api-key")).toHaveValue("sk-another-key");
@@ -141,14 +141,14 @@ describe("Workspace API Key OpenAI Integration (FIA-015 modificado)", () => {
         model: "llama-3",
       },
     };
-    render(<EntiEditor enti={localEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={localEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     
     expect(screen.queryByTestId("input-openai-api-key")).not.toBeInTheDocument();
   });
 
   it("TEST-FIA015-08: forbidden-units scan", () => {
     // Asserting we have no visual buttons to 'validate' or 'chat'
-    render(<EntiEditor enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
     
     expect(screen.queryByText(/validar/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/conectar/i)).not.toBeInTheDocument();
@@ -156,7 +156,7 @@ describe("Workspace API Key OpenAI Integration (FIA-015 modificado)", () => {
   });
 
   it("TEST-UI: el ojo alterna la visibilidad de la contraseña", () => {
-    render(<EntiEditor enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEntiBase} onSave={mockOnSave} onClose={mockOnClose} />);
     openApiKeyInput();
 
     const input = screen.getByTestId("input-openai-api-key");

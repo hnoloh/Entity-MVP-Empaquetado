@@ -43,26 +43,23 @@ describe("FIA-006 Workspace Entis List Integration", () => {
     expect(screen.getByText("Enti Two")).toBeInTheDocument();
   });
 
-  it("TEST-FIA003-02: 'crear Enti' abre el editor y al guardar añade un ítem a la lista", () => {
+  it("TEST-FIA003-02: 'crear Enti' abre el editor y añade un ítem a la lista (borrador)", () => {
     render(<WorkspaceShell />);
     const createBtn = screen.getByTestId("btn-create-enti");
     
-    // Al hacer click, NO se añade directamente
+    // Al hacer click, se añade a la lista como borrador
     fireEvent.click(createBtn);
-    expect(screen.queryByTestId(/enti-item-/)).not.toBeInTheDocument();
+    expect(screen.getByTestId(/enti-item-/)).toBeInTheDocument();
+    expect(screen.getByTestId(/enti-item-/)).toHaveTextContent("Sin nombre");
     
-    // Pero se abre el editor
+    // Y se abre el editor
     expect(screen.getByTestId("enti-editor")).toBeInTheDocument();
     
-    // Cambiamos el nombre para ensuciarlo
+    // Cambiamos el nombre
     const inputName = screen.getByTestId("input-name");
     fireEvent.change(inputName, { target: { value: "Mi Nuevo Enti" } });
     
-    // Intentamos cerrar y guardamos
-    fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
-    fireEvent.click(screen.getByTestId("btn-dialog-guardar"));
-    
-    // AHORA sí debe aparecer en la lista
+    // El listado lateral refleja el cambio inmediatamente
     const items = screen.getAllByTestId(/enti-item-/);
     expect(items.length).toBe(1);
     expect(items[0]).toHaveTextContent("Mi Nuevo Enti");

@@ -1,7 +1,13 @@
 import type { ProviderBridge, ProviderExecutionInput, ProviderExecutionOutput } from './ProviderBridge';
 
 export class LocalExecutor implements ProviderBridge {
-  constructor(private model: string, private endpoint: string = 'http://localhost:11434/api/chat') {}
+  private model: string;
+  private endpoint: string;
+
+  constructor(model: string, endpoint: string = 'http://localhost:11434/api/chat') {
+    this.model = model;
+    this.endpoint = endpoint;
+  }
 
   async execute(input: ProviderExecutionInput): Promise<ProviderExecutionOutput> {
     if (process.env.NODE_ENV === 'test') {

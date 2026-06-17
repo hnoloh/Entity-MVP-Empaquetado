@@ -6,15 +6,15 @@ import type { Enti } from '../../../domain/enti/Enti';
 
 describe('GroupEditor', () => {
   const mockEntis: Enti[] = [
-    { id: 'e1', name: 'Enti 1', type: 'enti', status: 'complete', harness: { function: '', rules: [], workMaterial: '', knowledge: '' }, cognitiveConfig: { mode: 'unconfigured' }, capabilities: [] },
-    { id: 'e2', name: 'Enti 2', type: 'enti', status: 'complete', harness: { function: '', rules: [], workMaterial: '', knowledge: '' }, cognitiveConfig: { mode: 'unconfigured' }, capabilities: [] }
+    { id: 'e1', name: 'Enti 1', type: 'enti', status: 'complete', harness: { function: '', rules: [], workMaterial: '', knowledge: '' }, cognitiveConfig: { mode: 'unconfigured' } },
+    { id: 'e2', name: 'Enti 2', type: 'enti', status: 'complete', harness: { function: '', rules: [], workMaterial: '', knowledge: '' }, cognitiveConfig: { mode: 'unconfigured' } }
   ];
 
   const mockGroup: Group = {
     id: 'g1',
     name: 'Grupo 1',
     function: 'Hacer cosas',
-    type: 'grupo',
+    type: 'group',
     slots: {
       '1': 'e1',
       '2': 'e2'

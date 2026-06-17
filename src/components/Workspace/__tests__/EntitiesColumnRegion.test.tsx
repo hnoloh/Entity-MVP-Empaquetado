@@ -62,7 +62,7 @@ describe("EntitiesColumnRegion - FIA-003", () => {
 
   it("renders fixture items as purely presentational elements", () => {
     const mockEntis = [{ id: "e1", name: "Enti 1" }];
-    const mockGrupos = [{ id: "g1", name: "Grupo 1" }];
+    const mockGrupos = [{ id: "g1", name: "Grupo 1", type: "group" as const, role: "assistant", config: { members: [] } }];
 
     render(<EntitiesColumnRegion entis={mockEntis} grupos={mockGrupos} />);
 

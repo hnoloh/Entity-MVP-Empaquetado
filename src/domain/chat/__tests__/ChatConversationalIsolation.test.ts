@@ -120,7 +120,7 @@ describe('ChatConversationalIsolation', () => {
     sendMessageToChatFlow(chat.id, 'A');
     
     const hist = getChatHistoryFlow(chat.id);
-    hist.push({ role: 'assistant', content: 'hack', timestamp: Date.now() });
+    hist.push({ id: 'm1', role: 'assistant', content: 'hack', timestamp: Date.now() });
     
     const realHist = getChatHistoryFlow(chat.id);
     expect(realHist).toHaveLength(1);

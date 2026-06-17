@@ -1,5 +1,5 @@
-import { GroupSequenceAdvanceRequest } from './RuntimeExecutionRequest';
-import { GroupSequenceAdvanceResult } from './RuntimeExecutionResult';
+import type { GroupSequenceAdvanceRequest } from './RuntimeExecutionRequest';
+import type { GroupSequenceAdvanceResult } from './RuntimeExecutionResult';
 
 export function advanceGroupSequenceFlow(
   request: GroupSequenceAdvanceRequest

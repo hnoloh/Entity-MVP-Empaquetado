@@ -19,8 +19,8 @@ describe('ChatViewClearHistoryIntegration - RV-03/FIA-012', () => {
     
     expect(screen.getByText('Un mensaje para borrar')).toBeInTheDocument();
 
-    clearChatHistoryFlow(chat.id);
     act(() => {
+      clearChatHistoryFlow(chat.id);
       window.dispatchEvent(new CustomEvent('chat-history-cleared', { detail: { chatId: chat.id } }));
     });
     

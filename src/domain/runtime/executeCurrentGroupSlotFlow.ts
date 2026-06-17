@@ -1,6 +1,6 @@
-import { Group } from '../group/Group';
-import { GroupSlotExecutionRequest } from './RuntimeExecutionRequest';
-import { GroupSlotExecutionResult } from './RuntimeExecutionResult';
+import type { Group } from '../group/Group';
+import type { GroupSlotExecutionRequest } from './RuntimeExecutionRequest';
+import type { GroupSlotExecutionResult } from './RuntimeExecutionResult';
 import { executeEntiFlow } from './executeEntiFlow';
 import { receiveEntiResponseFlow } from './receiveEntiResponseFlow';
 import type { Enti } from '../enti/Enti';

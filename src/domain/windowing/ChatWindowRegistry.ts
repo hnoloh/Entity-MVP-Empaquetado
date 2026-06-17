@@ -89,7 +89,9 @@ export function createChatWindowRegistry(): ChatWindowRegistry {
     },
 
     focus(windowId: string) {
-      if (registry.has(windowId)) {
+      const win = registry.get(windowId);
+      if (win) {
+        win.lastFocusedAt = Date.now();
         focusedWindowId = windowId;
       }
     },

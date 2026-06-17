@@ -24,12 +24,12 @@
 }
 
 .chat-window-header {
-  height: 32px;
+  height: 44px;
   background: rgba(2, 6, 23, 0.9);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px;
+  padding: 0 16px;
   user-select: none;
   cursor: grab;
   border-bottom: 1px solid rgba(0, 229, 255, 0.1);
@@ -41,7 +41,7 @@
 }
 
 .chat-window-title {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   color: #00e5ff;
   letter-spacing: 0.5px;

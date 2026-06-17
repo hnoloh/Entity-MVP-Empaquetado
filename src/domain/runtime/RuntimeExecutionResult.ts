@@ -113,3 +113,9 @@ export interface FinalGroupResult {
   chatId?: string;
   results?: ValidatedIntermediateGroupResultSendResult[];
 }
+
+export interface GroupSequenceRestartResult {
+  status: 'restarted' | 'blocked' | 'controlled_error';
+  error?: string;
+  groupId?: string;
+}

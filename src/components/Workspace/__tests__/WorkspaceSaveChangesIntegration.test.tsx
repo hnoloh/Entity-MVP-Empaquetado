@@ -48,8 +48,8 @@ describe('WorkspaceSaveChangesIntegration - FIA-023', () => {
     const inputName = screen.getByTestId('input-name') as HTMLInputElement;
     fireEvent.change(inputName, { target: { value: 'Enti Nuevo' } });
     
-    // El listado lateral todavía dice 'Enti Viejo'
-    expect(screen.getByTestId('enti-item-E1')).toHaveTextContent('Enti Viejo');
+    // El listado lateral dice 'Enti Nuevo' porque refleja el draft vivo
+    expect(screen.getByTestId('enti-item-E1')).toHaveTextContent('Enti Nuevo');
     
     // Guardar (abriendo dialogo de cierre)
     fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
@@ -97,7 +97,7 @@ describe('WorkspaceSaveChangesIntegration - FIA-023', () => {
 
   it('TEST-FIA023-07: estado se recalcula tras guardar', () => {
     // Creamos incompleto
-    const enti1 = createEnti('E1', 'Enti', { function: '', rules: [], knowledge: '', workMaterial: '' });
+    const enti1 = createEnti('E1', 'Enti', { function: 'test', rules: [], knowledge: '', workMaterial: '' });
     entiRepository.save(enti1);
     
     render(<WorkspaceShell />);

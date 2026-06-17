@@ -1,56 +1,74 @@
-import React, { useState } from 'react';
-import { chatRepository, getChatHistoryFlow, sendMessageToChatFlow, type Chat } from '../../domain/chat';
+import React, { useState, useSyncExternalStore, useRef, useEffect } from 'react';
+import { chatRepository, sendMessageToChatFlow, type Chat } from '../../domain/chat';
 import { entiRepository } from '../../domain/enti';
 import { executeEntiFlow, receiveEntiResponseFlow, OpenAIExecutor, LocalExecutor } from '../../domain/runtime';
+import { useGroupSequenceRuntimeAdapter } from '../../ui/groupSequence/useGroupSequenceRuntimeAdapter';
+import type { Group } from '../../domain/group/Group';
 import './ChatView.css';
 
 interface ChatViewProps {
   chatId: string;
   onCloseRequest?: () => void;
+  grupos?: Group[];
 }
 
-export function ChatView({ chatId }: ChatViewProps) {
+export function ChatView({ chatId, grupos }: ChatViewProps) {
   const [draft, setDraft] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [entiStatusText, setEntiStatusText] = useState('Escribiendo...');
   const [runtimeError, setRuntimeError] = useState<string | null>(null);
-  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
-  const messagesEndRef = React.useRef<HTMLDivElement>(null);
-  const [, setRefreshKey] = useState(0);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
-    const handleClearEvent = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail.chatId === chatId) {
-        setRefreshKey(prev => prev + 1);
-      }
-    };
-    window.addEventListener('chat-history-cleared', handleClearEvent);
-    return () => window.removeEventListener('chat-history-cleared', handleClearEvent);
-  }, [chatId]);
+  const foundChat = useSyncExternalStore(
+    chatRepository.subscribe,
+    () => chatRepository.getSnapshot(chatId)
+  );
 
-  let chat: Chat | null = null;
+  const chat: Chat | null = foundChat || null;
   let error: string | null = null;
-  let history: ChatMessage[] = [];
+  const history = chat ? chat.history : [];
 
-  try {
-    const found = chatRepository.getById(chatId);
-    if (!found) {
-      error = `Chat con id ${chatId} no encontrado`;
-    } else {
-      chat = found;
-      history = getChatHistoryFlow(chatId);
-    }
-  } catch (e) {
-    error = e instanceof Error ? e.message : String(e);
+  if (!chat) {
+    error = `Chat con id ${chatId} no encontrado`;
   }
 
+  const isGroup = chat ? (chat.owner.type === 'grupo') : false;
+  const groupAdapter = useGroupSequenceRuntimeAdapter(
+    isGroup && chat ? chat.owner.id : '',
+    chatId,
+    grupos || [],
+    chatRepository,
+    entiRepository
+  );
+
+  // La reactividad está delegada a useSyncExternalStore
   React.useEffect(() => {
+    if (isGroup && !groupAdapter.isExecuting) {
+      if (groupAdapter.uiState === 'sequence_initialized' || groupAdapter.uiState === 'advanced') {
+        groupAdapter.actions.executeCurrentSlot();
+      }
+    }
+  }, [isGroup, groupAdapter.uiState, groupAdapter.isExecuting, groupAdapter.actions]);
+
+  useEffect(() => {
     if (messagesEndRef.current && typeof messagesEndRef.current.scrollIntoView === 'function') {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [history.length, isSending]);
+
+  useEffect(() => {
+    if (!isGroup) return;
+    const handleResetRequest = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail.chatId === chatId) {
+        groupAdapter.actions.reset();
+      }
+    };
+    window.addEventListener('request-group-reset', handleResetRequest);
+    return () => window.removeEventListener('request-group-reset', handleResetRequest);
+  }, [chatId, isGroup, groupAdapter.actions]);
 
   if (error) {
     return <div data-testid="chat-view-error" className="chat-view-error">{error}</div>;
@@ -64,9 +82,27 @@ export function ChatView({ chatId }: ChatViewProps) {
   if (chat.owner.type === 'enti') {
     const targetEnti = entiRepository.getById(chat.owner.id);
     if (targetEnti && targetEnti.name) ownerName = targetEnti.name;
-  } else if (chat.owner.type === 'group') {
-    ownerName = 'group'; // Placeholder for group chat implementation
+  } else if (chat.owner.type === 'grupo') {
+    ownerName = 'Grupo'; // Placeholder for group chat implementation
   }
+
+  let currentExecutingEntiName = 'Grupo';
+  if (isGroup && groupAdapter.isExecuting && groupAdapter.sequenceState?.currentSlotId) {
+    const currentGroup = grupos ? grupos.find(g => g.id === chat.owner.id) : null;
+    if (currentGroup && currentGroup.slots) {
+      const entiId = currentGroup.slots[groupAdapter.sequenceState.currentSlotId as keyof typeof currentGroup.slots];
+      if (entiId) {
+        const enti = entiRepository.getById(entiId);
+        if (enti && enti.name) {
+          currentExecutingEntiName = enti.name;
+        }
+      }
+    }
+  }
+  
+  const showLoadingBubble = isSending || (isGroup && groupAdapter.isExecuting);
+  const loadingRoleName = (isGroup && groupAdapter.isExecuting) ? currentExecutingEntiName : ownerName;
+  const loadingStatusText = (isGroup && groupAdapter.isExecuting) ? 'Procesando...' : entiStatusText;
 
   const triggerRuntime = async (targetChatId: string) => {
     const tChat = chatRepository.getById(targetChatId);
@@ -108,8 +144,7 @@ export function ChatView({ chatId }: ChatViewProps) {
       };
       receiveEntiResponseFlow(recReq, targetEnti, tChat);
       
-      const event = new CustomEvent('chat-history-cleared', { detail: { chatId: targetChatId } });
-      window.dispatchEvent(event);
+      // Reactividad delegada al repositorio al completarse el flujo
     } else {
       setRuntimeError(result.error || 'Error desconocido');
     }
@@ -120,17 +155,33 @@ export function ChatView({ chatId }: ChatViewProps) {
     
     setRuntimeError(null);
     setIsSending(true);
-    sendMessageToChatFlow(chatId, draft.trim());
+
+    const messageToSend = draft.trim();
+
+    if (isGroup && groupAdapter.uiState === 'idle') {
+      groupAdapter.actions.initialize();
+    }
+
+    sendMessageToChatFlow(chatId, messageToSend);
     setDraft('');
     setIsExpanded(false);
-    setRefreshKey(prev => prev + 1);
     
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
 
-    // Disparar Runtime asincrónicamente
-    await triggerRuntime(chatId);
+    if (isGroup) {
+      if (groupAdapter.uiState === 'slot_executed') {
+        // Enviar la corrección al siguiente Enti saltándose la respuesta del actual
+        groupAdapter.actions.macroAdvanceWithCorrection(messageToSend);
+      } else if (groupAdapter.uiState !== 'idle') {
+        // Re-ejecutar el slot si estaba en otro estado
+        groupAdapter.actions.executeCurrentSlot();
+      }
+    } else {
+      // Disparar Runtime asincrónicamente solo para Entis
+      await triggerRuntime(chatId);
+    }
     
     setIsSending(false);
   };
@@ -158,17 +209,39 @@ export function ChatView({ chatId }: ChatViewProps) {
             No hay mensajes en este chat.
           </div>
         ) : (
-          history.map((msg, idx) => (
-            <div key={`${msg.role}-${idx}`} data-testid="chat-message" className={`chat-message role-${msg.role}`}>
-              <span className="chat-message-role">{msg.role === 'assistant' ? ownerName : 'Usuario'}</span>
-              <span className="chat-message-content">{msg.content}</span>
-            </div>
-          ))
+          (function() {
+            let assistantCount = 0;
+            const currentGroup = isGroup && grupos ? grupos.find(g => g.id === chat.owner.id) : null;
+            
+            return history.map((msg, idx) => {
+              let currentOwnerName = msg.role === 'assistant' ? ownerName : msg.role === 'system' ? 'Sistema' : 'Usuario';
+              if (msg.role === 'assistant') {
+                assistantCount++;
+                if (currentGroup && currentGroup.slots) {
+                  const slotId = assistantCount.toString();
+                  const entiId = currentGroup.slots[slotId as keyof typeof currentGroup.slots];
+                  if (entiId) {
+                    const enti = entiRepository.getById(entiId);
+                    if (enti && enti.name) {
+                      currentOwnerName = enti.name;
+                    }
+                  }
+                }
+              }
+
+              return (
+                <div key={`${msg.role}-${idx}`} data-testid="chat-message" className={`chat-message role-${msg.role}`}>
+                  <span className="chat-message-role">{currentOwnerName}</span>
+                  <span className="chat-message-content">{msg.content}</span>
+                </div>
+              );
+            });
+          })()
         )}
-        {isSending && (
+        {showLoadingBubble && (
           <div className="chat-message role-assistant loading-indicator">
-            <span className="chat-message-role">{ownerName}</span>
-            <span className="chat-message-content typing">{entiStatusText}</span>
+            <span className="chat-message-role">{loadingRoleName}</span>
+            <span className="chat-message-content typing">{loadingStatusText}</span>
           </div>
         )}
         {runtimeError && (
@@ -181,6 +254,11 @@ export function ChatView({ chatId }: ChatViewProps) {
       </div>
 
       <div className="chat-view-composer" data-testid="chat-view-composer">
+        {isGroup && groupAdapter.error && (
+          <div data-testid="group-sequence-error" style={{ width: '100%', color: '#ff5757', marginBottom: '4px', fontSize: '12px', background: 'rgba(255, 87, 87, 0.1)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255, 87, 87, 0.2)' }}>
+            Error: {groupAdapter.error}
+          </div>
+        )}
         <div className="chat-composer-input-wrapper">
           <textarea
             ref={textareaRef}
@@ -204,14 +282,22 @@ export function ChatView({ chatId }: ChatViewProps) {
             </svg>
           </button>
         </div>
-        <button 
-          className="chat-composer-send" 
-          onClick={handleSend}
-          data-testid="chat-composer-send"
-          disabled={draft.trim() === '' || isSending}
-        >
-          Enviar
-        </button>
+        <div className="chat-composer-actions">
+          {isGroup && groupAdapter.uiState === 'slot_executed' && (
+            <button className="chat-composer-validate-btn" onClick={groupAdapter.actions.macroValidateAndAdvance} data-testid="btn-validar-macro">Validar</button>
+          )}
+          {isGroup && groupAdapter.uiState === 'completed' && (
+            <button className="chat-composer-validate-btn" disabled style={{ opacity: 0.5 }} data-testid="btn-validar-macro-opaco">Validar</button>
+          )}
+          <button 
+            className="chat-composer-send" 
+            onClick={handleSend}
+            data-testid="chat-composer-send"
+            disabled={draft.trim() === '' || isSending}
+          >
+            Enviar
+          </button>
+        </div>
       </div>
 
       {isExpanded && (

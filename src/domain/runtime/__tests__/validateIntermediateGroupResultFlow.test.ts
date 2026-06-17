@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { validateIntermediateGroupResultFlow } from '../validateIntermediateGroupResultFlow';
-import { IntermediateGroupValidationRequest } from '../RuntimeExecutionRequest';
-import { IntermediateGroupResult } from '../RuntimeExecutionResult';
+import type { IntermediateGroupValidationRequest } from '../RuntimeExecutionRequest';
+import type { IntermediateGroupResult } from '../RuntimeExecutionResult';
 import fs from 'fs';
 import path from 'path';
 

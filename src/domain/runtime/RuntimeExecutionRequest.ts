@@ -1,4 +1,4 @@
-import { GroupSequenceInitializationResult, GroupSlotExecutionResult, IntermediateGroupResult, IntermediateGroupValidationResult, GroupSequenceAdvanceResult, ValidatedIntermediateGroupResultSendResult } from './RuntimeExecutionResult';
+import type { GroupSequenceInitializationResult, GroupSlotExecutionResult, IntermediateGroupResult, IntermediateGroupValidationResult, GroupSequenceAdvanceResult, ValidatedIntermediateGroupResultSendResult } from './RuntimeExecutionResult';
 
 export interface RuntimeExecutionRequest {
   entiId: string;
@@ -68,4 +68,10 @@ export interface FinalGroupResultRequest {
   chatId: string;
   advanceResult: GroupSequenceAdvanceResult;
   sentResults: ValidatedIntermediateGroupResultSendResult[];
+}
+
+export interface GroupSequenceRestartRequest {
+  explicitUserAction: boolean;
+  groupId: string;
+  targetSequenceState?: GroupSequenceInitializationResult;
 }

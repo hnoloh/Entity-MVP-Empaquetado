@@ -1,5 +1,5 @@
-import { IntermediateGroupResultRequest } from './RuntimeExecutionRequest';
-import { IntermediateGroupResult } from './RuntimeExecutionResult';
+import type { IntermediateGroupResultRequest } from './RuntimeExecutionRequest';
+import type { IntermediateGroupResult } from './RuntimeExecutionResult';
 
 export function buildIntermediateGroupResultFlow(
   request: IntermediateGroupResultRequest

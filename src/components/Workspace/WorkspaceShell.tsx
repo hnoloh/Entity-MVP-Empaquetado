@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { WorkspaceState } from "../../types/WorkspaceState";
 import WorkbenchRegion from "./WorkbenchRegion";
 import { HubRegion } from "./HubRegion";
@@ -14,9 +14,13 @@ import { focusChatWindowFlow } from "../../domain/windowing/focusChatWindowFlow"
 import { createChatFlow, chatRepository } from "../../domain/chat";
 import { ChatWindowHost } from "../ChatWindow/ChatWindowHost";
 import { GroupEditor } from "../Group/GroupEditor";
+import { useAutosave } from "./useAutosave";
 import "./WorkspaceShell.css";
 
+import { startEntityLifecycleFlow, minimizeEntityLifecycleFlow, restoreEntityLifecycleFlow, closeEntityLifecycleFlow } from "../../domain/lifecycle";
+
 export default function WorkspaceShell() {
+  const [startupStatus, setStartupStatus] = useState<'pending' | 'success' | 'controlled_error' | 'blocked'>('pending');
   const [state, setState] = useState<WorkspaceState>("visible");
   const registry = useMemo(() => createChatWindowRegistry(), []);
   const [entis, setEntis] = useState<Enti[]>(() => entiRepository.list());
@@ -26,13 +30,28 @@ export default function WorkspaceShell() {
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [unsavedEntis, setUnsavedEntis] = useState<Record<string, Enti>>({});
   const [unsavedGrupos, setUnsavedGrupos] = useState<Record<string, Group>>({});
-  const [liveDrafts, setLiveDrafts] = useState<Record<string, { name: string }>>({});
+  const [liveDrafts, setLiveDrafts] = useState<Record<string, { name: string, draft?: Enti | Group }>>({});
   
   // For visual selection in the Hub
   const [focusedEntiId, setFocusedEntiId] = useState<string | null>(null);
   
   // Track open windows to highlight owners in Hub
   const [activeWindowOwnerIds, setActiveWindowOwnerIds] = useState<string[]>([]);
+  const [triggerSave, setTriggerSave] = useState(0);
+
+  // Hook de autosave
+  useAutosave(entis, grupos, setGrupos, setEntis, triggerSave, startupStatus === 'success');
+
+  useEffect(() => {
+    // RV-08/FIA-001: Arranque Entity
+    const result = startEntityLifecycleFlow({
+      explicitApplicationAction: true,
+      storageAvailable: true, // We assume true for now, error handling will naturally fall to controlled_error if IDB fails.
+      workspaceShellMounted: true
+    });
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setStartupStatus(result.status);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -50,6 +69,14 @@ export default function WorkspaceShell() {
     }, 200);
     return () => clearInterval(interval);
   }, [registry]);
+
+  useEffect(() => {
+    const unsub = chatRepository.subscribe(() => {
+      // Forzar un render o tick para el autosave al cambiar un chat
+      setTriggerSave(prev => prev + 1);
+    });
+    return unsub;
+  }, []);
 
   const handleCreateEnti = () => {
     const id = `enti-${Date.now()}`;
@@ -80,6 +107,7 @@ export default function WorkspaceShell() {
       return prev;
     });
     setActiveTabId(id);
+    setFocusedEntiId(id);
   };
 
   const handleOpenChat = (id: string, type: 'enti' | 'grupo') => {
@@ -113,6 +141,7 @@ export default function WorkspaceShell() {
       return prev;
     });
     setActiveTabId(id);
+    setFocusedEntiId(id);
     handleOpenChat(id, 'grupo');
   };
 
@@ -161,6 +190,14 @@ export default function WorkspaceShell() {
     if (focusedEntiId === id) {
       setFocusedEntiId(null);
     }
+    setLiveDrafts(prev => {
+      if (prev[id]) {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      }
+      return prev;
+    });
   };
 
   const handleDeleteEnti = (id: string) => {
@@ -242,7 +279,7 @@ export default function WorkspaceShell() {
           isActive={activeTabId === enti.id}
           onSave={handleSaveEnti}
           onClose={() => handleCloseEditor(enti.id)}
-          onNameChange={(name) => setLiveDrafts(prev => ({ ...prev, [enti.id]: { name } }))}
+          onDraftChange={(draft) => setLiveDrafts(prev => ({ ...prev, [enti.id]: { name: draft.name, draft } }))}
         />
       );
     } else {
@@ -255,7 +292,7 @@ export default function WorkspaceShell() {
           onSave={handleSaveGrupo}
           onClose={() => handleCloseEditor(grupo.id)}
           availableEntis={entis}
-          onNameChange={(name) => setLiveDrafts(prev => ({ ...prev, [grupo.id]: { name } }))}
+          onDraftChange={(draft) => setLiveDrafts(prev => ({ ...prev, [grupo.id]: { name: draft.name, draft } }))}
         />
       );
     }
@@ -269,30 +306,115 @@ export default function WorkspaceShell() {
     });
   };
 
+  const handleMinimizeApp = () => {
+    if (state === 'minimizado') {
+      const restoreResult = restoreEntityLifecycleFlow({
+        explicitApplicationAction: true,
+        workspaceShellMounted: true,
+        currentWorkspaceState: state
+      });
+      
+      if (restoreResult.status === 'success') {
+        setState('visible');
+      } else {
+        console.error('Failed to restore application:', restoreResult.error);
+      }
+      return;
+    }
+
+    const result = minimizeEntityLifecycleFlow({
+      explicitApplicationAction: true,
+      workspaceShellMounted: true,
+      currentStartupStatus: startupStatus
+    });
+
+    if (result.status === 'success') {
+      setState('minimizado');
+    } else {
+      console.error('Failed to minimize application:', result.error);
+    }
+  };
+
+  const handleCloseApp = () => {
+    const result = closeEntityLifecycleFlow({
+      explicitUserAction: true,
+      platformCloseEvent: false,
+      workspaceShellMounted: true,
+      currentStartupStatus: startupStatus
+    });
+
+    if (result.status === 'success') {
+      // Temporary CLOSE for browser testing
+      setState('cerrado' as WorkspaceState);
+      console.log("App closed safely via lifecycle flow");
+    } else {
+      console.error('Failed to close application:', result.error);
+    }
+  };
+
+  const displayEntis = useMemo(() => {
+    return entis.map(e => (liveDrafts[e.id]?.draft as Enti) || unsavedEntis[e.id] || e).concat(
+      Object.values(unsavedEntis).filter(draft => !entis.some(e => e.id === draft.id)).map(draft => (liveDrafts[draft.id]?.draft as Enti) || draft)
+    );
+  }, [entis, unsavedEntis, liveDrafts]);
+
+  const displayGrupos = useMemo(() => {
+    return grupos.map(g => (liveDrafts[g.id]?.draft as Group) || unsavedGrupos[g.id] || g).concat(
+      Object.values(unsavedGrupos).filter(draft => !grupos.some(g => g.id === draft.id)).map(draft => (liveDrafts[draft.id]?.draft as Group) || draft)
+    );
+  }, [grupos, unsavedGrupos, liveDrafts]);
+
+  if (startupStatus === 'pending') {
+    return <div className="workspace-shell-loading">Iniciando Entity...</div>;
+  }
+
+  if (state === 'cerrado') {
+    return null;
+  }
+
+  if (startupStatus === 'controlled_error') {
+    return <div className="workspace-shell-error">Error controlado durante el arranque.</div>;
+  }
+
+  if (startupStatus === 'blocked') {
+    return <div className="workspace-shell-blocked">Arranque bloqueado.</div>;
+  }
+
   return (
     <div
       data-testid="workspace-shell"
       data-state={state}
       className={`workspace-shell state-${state}`}
     >
-      {/* Top Bar Placeholder - Anteriormente malinterpretado como HubRegion */}
-      <div
-        className="top-bar-placeholder"
-        style={{ height: "40px", flexShrink: 0 }}
-      ></div>
+      {/* Controles de ventana nativa (Top-Right, Windows style) */}
+      <div className="window-controls">
+        <button 
+          onClick={handleMinimizeApp}
+          className="window-btn minimize-btn"
+          title={state === 'minimizado' ? "Restaurar" : "Minimizar"}
+        >
+          {state === 'minimizado' ? "□" : "—"}
+        </button>
+        <button 
+          onClick={handleCloseApp}
+          className="window-btn close-btn"
+          title="Cerrar"
+        >
+          ✕
+        </button>
+      </div>
 
       <div className="workspace-content">
         <HubRegion 
-           entis={entis} 
+           entis={displayEntis} 
            openEntiIds={Array.from(new Set([...openedEditorIds, ...activeWindowOwnerIds]))}
            onCreateEnti={handleCreateEnti} 
            onSelectEnti={handleSelectEnti}
            onDeleteEnti={handleDeleteEnti}
-           grupos={grupos}
+           grupos={displayGrupos}
            onCreateGrupo={handleCreateGrupo}
            onSelectGrupo={handleSelectGrupo}
            onDeleteGrupo={handleDeleteGrupo}
-           onOpenChat={handleOpenChat}
         />
         <WorkbenchRegion 
            editorStubs={editorStubs}

@@ -100,8 +100,8 @@ describe('WorkspaceDiscardChangesIntegration - FIA-024', () => {
     const inputName = screen.getByTestId('input-name') as HTMLInputElement;
     fireEvent.change(inputName, { target: { value: 'Enti Dirty' } });
     
-    // Sidebar todavía dice 'Enti Clean' (el guardado)
-    expect(screen.getByTestId('enti-item-E1')).toHaveTextContent('Enti Clean');
+    // Sidebar dice 'Enti Dirty' por el borrador
+    expect(screen.getByTestId('enti-item-E1')).toHaveTextContent('Enti Dirty');
     
     // Descartar
     fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { ChatWindowRegistry } from '../../domain/windowing/ChatWindowRegistry';
 import { ChatWindowView } from './ChatWindowView';
 import './ChatWindow.css';

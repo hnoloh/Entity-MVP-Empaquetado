@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { initializeGroupSequenceFlow } from '../initializeGroupSequenceFlow';
-import { Group } from '../../group/Group';
+import type { Group } from '../../group/Group';
 import type { ChatRepository } from '../../chat/chatRepository';
-import { Chat } from '../../chat/Chat';
-import { GroupSequenceInitializationRequest } from '../RuntimeExecutionRequest';
+import type { Chat } from '../../chat/Chat';
+import type { GroupSequenceInitializationRequest } from '../RuntimeExecutionRequest';
 import fs from 'fs';
 import path from 'path';
 
@@ -56,21 +56,18 @@ describe('initializeGroupSequenceFlow', () => {
     const chats: Record<string, Chat> = {
       'chat-1': {
         id: 'chat-1',
-        owner: { type: 'group', id: 'group-1' },
-        createdAt: 0,
-        updatedAt: 0
+        owner: { type: 'grupo', id: 'group-1' },
+        history: []
       },
       'chat-4': {
         id: 'chat-4',
-        owner: { type: 'group', id: 'group-4' },
-        createdAt: 0,
-        updatedAt: 0
+        owner: { type: 'grupo', id: 'group-4' },
+        history: []
       },
       'chat-invalid': {
         id: 'chat-invalid',
         owner: { type: 'enti', id: 'enti-1' },
-        createdAt: 0,
-        updatedAt: 0
+        history: []
       }
     };
 
@@ -187,7 +184,7 @@ describe('initializeGroupSequenceFlow', () => {
     // We mock chat-3 directly in getById
     const localMockChatRepo = {
       ...mockChatRepo,
-      getById: vi.fn(() => ({ id: 'chat-3', owner: { type: 'group', id: 'group-3' } }))
+      getById: vi.fn(() => ({ id: 'chat-3', owner: { type: 'grupo', id: 'group-3' }, history: [] }))
     } as unknown as ChatRepository;
 
     const result = initializeGroupSequenceFlow(request, mockGroups, localMockChatRepo);
@@ -206,7 +203,7 @@ describe('initializeGroupSequenceFlow', () => {
 
     const localMockChatRepo = {
       ...mockChatRepo,
-      getById: vi.fn(() => ({ id: 'chat-2', owner: { type: 'group', id: 'group-2' } }))
+      getById: vi.fn(() => ({ id: 'chat-2', owner: { type: 'grupo', id: 'group-2' }, history: [] }))
     } as unknown as ChatRepository;
 
     const result = initializeGroupSequenceFlow(request, mockGroups, localMockChatRepo);

@@ -3,7 +3,7 @@ import { associateChatEntiFlow } from '../associateChatEntiFlow';
 import { createChatFlow } from '../createChatFlow';
 import { chatRepository } from '../chatRepository';
 import { entiRepository } from '../../enti/entiRepository';
-import { Enti } from '../../enti/Enti';
+import type { Enti } from '../../enti/Enti';
 import { sendMessageToChatFlow } from '../sendMessageToChatFlow';
 import { receiveResponseToChatFlow } from '../receiveResponseToChatFlow';
 import * as fs from 'fs';

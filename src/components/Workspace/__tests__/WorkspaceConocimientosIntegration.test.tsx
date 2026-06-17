@@ -28,14 +28,14 @@ describe("Workspace Conocimientos Integration (FIA-012)", () => {
   });
 
   it("TEST-FIA012-01: Conocimientos visible dentro de Harness Base para Enti seleccionado", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const knowledgeInput = screen.getByTestId("input-knowledge");
     expect(knowledgeInput).toBeInTheDocument();
     expect(knowledgeInput).toHaveValue("Conocimientos iniciales");
   });
 
   it("TEST-FIA012-02: edición de Conocimientos activa dirty sin invocar autosave", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const knowledgeInput = screen.getByTestId("input-knowledge");
     
     // Act
@@ -53,7 +53,7 @@ describe("Workspace Conocimientos Integration (FIA-012)", () => {
   });
 
   it("TEST-FIA012-03: Guardar persiste Conocimientos mediante EntiRepository existente", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const knowledgeInput = screen.getByTestId("input-knowledge");
     
     fireEvent.change(knowledgeInput, { target: { value: "Nuevos conocimientos" } });
@@ -71,7 +71,7 @@ describe("Workspace Conocimientos Integration (FIA-012)", () => {
   });
 
   it("TEST-FIA012-04: Descartar conserva el valor guardado previo", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const knowledgeInput = screen.getByTestId("input-knowledge");
     
     fireEvent.change(knowledgeInput, { target: { value: "Nuevos conocimientos" } });
@@ -85,7 +85,7 @@ describe("Workspace Conocimientos Integration (FIA-012)", () => {
   });
 
   it("TEST-FIA012-05: Cancelar mantiene editor abierto con draft pendiente", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const knowledgeInput = screen.getByTestId("input-knowledge");
     
     fireEvent.change(knowledgeInput, { target: { value: "Nuevos conocimientos" } });
@@ -100,7 +100,7 @@ describe("Workspace Conocimientos Integration (FIA-012)", () => {
   });
 
   it("TEST-FIA012-06: cambio de Enti refresca Conocimientos sin carryover", () => {
-    const { rerender } = render(<EntiEditor key={mockEnti.id} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    const { rerender } = render(<EntiEditor isActive={true} key={mockEnti.id} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     
     const enti2: Enti = {
       ...mockEnti,
@@ -108,14 +108,14 @@ describe("Workspace Conocimientos Integration (FIA-012)", () => {
       harness: { ...mockEnti.harness, knowledge: "Conocimientos de Enti 2" }
     };
 
-    rerender(<EntiEditor key={enti2.id} enti={enti2} onSave={mockOnSave} onClose={mockOnClose} />);
+    rerender(<EntiEditor isActive={true} key={enti2.id} enti={enti2} onSave={mockOnSave} onClose={mockOnClose} />);
     
     const knowledgeInput = screen.getByTestId("input-knowledge");
     expect(knowledgeInput).toHaveValue("Conocimientos de Enti 2");
   });
 
   it("TEST-FIA012-08: editar Conocimientos no altera Función, Normas ni Material de Trabajo", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const knowledgeInput = screen.getByTestId("input-knowledge");
     const functionInput = screen.getByTestId("input-function");
     const rulesInput = screen.getByTestId("input-rules");

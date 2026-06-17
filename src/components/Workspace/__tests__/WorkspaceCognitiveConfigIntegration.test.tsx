@@ -29,14 +29,14 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
   });
 
   it("TEST-FIA016-01: abrir Enti seleccionado muestra Configuración Cognitiva sin errores", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     expect(screen.getByTestId("cognitive-config-section")).toBeInTheDocument();
     expect(screen.getByText("Configuración Cognitiva")).toBeInTheDocument();
     expect(screen.getByTestId("input-cognitive-mode")).toBeInTheDocument();
   });
 
   it("TEST-FIA016-02: configuración local pasiva/mock no muestra controles operativos cloud", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     
     fireEvent.click(trigger);
@@ -49,7 +49,7 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
   });
 
   it("TEST-FIA016-03: configuración cloud/openai muestra apiKey opcional como dato sensible/inert", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     
     fireEvent.click(trigger);
@@ -61,7 +61,7 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
   });
 
   it("TEST-FIA016-04: editar cualquier dato cognitivo permitido actualiza draft y activa dirty", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     
     fireEvent.click(trigger);
@@ -77,7 +77,7 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
   });
 
   it("TEST-FIA016-05: Guardar persiste cognitiveConfig mediante EntiRepository en memoria", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     
     fireEvent.click(trigger);
@@ -100,7 +100,7 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
   });
 
   it("TEST-FIA016-06: Descartar preserva configuración previa", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     
     fireEvent.click(trigger);
@@ -118,7 +118,7 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
   });
 
   it("TEST-FIA016-07: Cancelar mantiene editor abierto con draft pendiente", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     
     fireEvent.click(trigger);
@@ -136,7 +136,7 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
   });
 
   it("TEST-FIA016-08: cambio de selectedEntiId resincroniza cognitiveConfig sin carryover", () => {
-    const { rerender } = render(<EntiEditor key={mockEnti.id} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    const { rerender } = render(<EntiEditor isActive={true} key={mockEnti.id} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     
     const trigger = screen.getByTestId("input-cognitive-mode");
     fireEvent.click(trigger);
@@ -151,7 +151,7 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
       cognitiveConfig: { mode: "local", model: "Llama-3-8B-Instruct" }
     };
 
-    rerender(<EntiEditor key={enti2.id} enti={enti2} onSave={mockOnSave} onClose={mockOnClose} />);
+    rerender(<EntiEditor isActive={true} key={enti2.id} enti={enti2} onSave={mockOnSave} onClose={mockOnClose} />);
     
     const newTrigger = screen.getByTestId("input-cognitive-mode");
     expect(newTrigger).toHaveTextContent("IA Local: Llama-3-8B-Instruct");
@@ -162,7 +162,7 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
       ...mockEnti,
       cognitiveConfig: { mode: "cloud" }
     };
-    render(<EntiEditor enti={emptyEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={emptyEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     expect(trigger).toHaveTextContent("IA Cloud/OpenAI");
     fireEvent.click(trigger);
@@ -183,7 +183,7 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
 
   it("TEST-FIA016-11: no-secret scan: apiKey no aparece en logs, snapshots, errores ni consola", () => {
     const spy = vi.spyOn(console, "log");
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     
     fireEvent.click(trigger);

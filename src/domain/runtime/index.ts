@@ -16,3 +16,4 @@ export * from './buildFinalGroupResultFlow';
 export * from './provider/ProviderBridge';
 export * from './provider/LocalExecutor';
 export * from './provider/OpenAIExecutor';
+export * from './restartGroupSequenceFlow';

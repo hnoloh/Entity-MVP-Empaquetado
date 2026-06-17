@@ -28,14 +28,14 @@ describe("Workspace Función Integration (FIA-009)", () => {
   });
 
   it("TEST-FIA009-01: Campo Función visible dentro de Harness Base", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const functionInput = screen.getByTestId("input-function");
     expect(functionInput).toBeInTheDocument();
     expect(functionInput).toHaveValue("Función original");
   });
 
   it("TEST-FIA009-02: Modificación de Función actualiza draft local y activa dirty", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const functionInput = screen.getByTestId("input-function");
     
     // Act
@@ -53,7 +53,7 @@ describe("Workspace Función Integration (FIA-009)", () => {
   });
 
   it("TEST-FIA009-03: Guardar persiste Función en EntiRepository mediante flujo existente", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const functionInput = screen.getByTestId("input-function");
     
     fireEvent.change(functionInput, { target: { value: "Nueva función" } });
@@ -71,7 +71,7 @@ describe("Workspace Función Integration (FIA-009)", () => {
   });
 
   it("TEST-FIA009-04: Descartar preserva el valor previamente guardado", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const functionInput = screen.getByTestId("input-function");
     
     fireEvent.change(functionInput, { target: { value: "Nueva función" } });
@@ -85,7 +85,7 @@ describe("Workspace Función Integration (FIA-009)", () => {
   });
 
   it("TEST-FIA009-05: Cancelar mantiene editor abierto y draft vivo", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const functionInput = screen.getByTestId("input-function");
     
     fireEvent.change(functionInput, { target: { value: "Nueva función" } });
@@ -100,7 +100,7 @@ describe("Workspace Función Integration (FIA-009)", () => {
   });
 
   it("TEST-FIA009-06: Cambiar selección no mezcla Función entre Entis", () => {
-    const { rerender } = render(<EntiEditor key={mockEnti.id} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    const { rerender } = render(<EntiEditor isActive={true} key={mockEnti.id} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     
     const enti2: Enti = {
       ...mockEnti,
@@ -108,7 +108,7 @@ describe("Workspace Función Integration (FIA-009)", () => {
       harness: { ...mockEnti.harness, function: "Función de Enti 2" }
     };
 
-    rerender(<EntiEditor key={enti2.id} enti={enti2} onSave={mockOnSave} onClose={mockOnClose} />);
+    rerender(<EntiEditor isActive={true} key={enti2.id} enti={enti2} onSave={mockOnSave} onClose={mockOnClose} />);
     
     const functionInput = screen.getByTestId("input-function");
     expect(functionInput).toHaveValue("Función de Enti 2");

@@ -1,5 +1,5 @@
-import { ValidatedIntermediateGroupResultSendRequest } from './RuntimeExecutionRequest';
-import { ValidatedIntermediateGroupResultSendResult } from './RuntimeExecutionResult';
+import type { ValidatedIntermediateGroupResultSendRequest } from './RuntimeExecutionRequest';
+import type { ValidatedIntermediateGroupResultSendResult } from './RuntimeExecutionResult';
 
 export function sendValidatedIntermediateGroupResultFlow(
   request: ValidatedIntermediateGroupResultSendRequest

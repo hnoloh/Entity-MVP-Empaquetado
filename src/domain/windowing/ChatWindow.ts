@@ -12,6 +12,7 @@ export interface ChatWindow {
   chatId: string;
   state: ChatWindowState;
   geometry: ChatWindowGeometry;
+  lastFocusedAt?: number;
 }
 
 export function createChatWindow(
@@ -34,6 +35,7 @@ export function createChatWindow(
     windowId,
     chatId,
     state,
-    geometry: { ...geometry }
+    geometry: { ...geometry },
+    lastFocusedAt: Date.now()
   };
 }

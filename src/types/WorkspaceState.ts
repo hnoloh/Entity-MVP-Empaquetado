@@ -1,1 +1,1 @@
-export type WorkspaceState = 'visible' | 'minimizado' | 'restaurado';
+export type WorkspaceState = 'visible' | 'minimizado' | 'restaurado' | 'cerrado';

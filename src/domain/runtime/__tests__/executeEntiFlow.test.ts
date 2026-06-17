@@ -28,7 +28,7 @@ describe('executeEntiFlow (Regularized)', () => {
     cognitiveConfig: { mode: 'local', provider: 'ollama', model: 'llama3' }
   };
 
-  const fakeProvider = new LocalExecutor();
+  const fakeProvider = new LocalExecutor('llama3');
 
   it('Ejecuta exitosamente devolviendo responseText con provider inyectado', async () => {
     const result = await executeEntiFlow(validRequest, validEnti, validChat, fakeProvider);

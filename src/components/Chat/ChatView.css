@@ -151,7 +151,7 @@
 }
 
 .chat-message.role-assistant .chat-message-role {
-  color: #a78bfa;
+  color: #00e5ff;
 }
 
 .chat-view-error {
@@ -170,7 +170,7 @@
   background: rgba(15, 23, 42, 0.8);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   gap: 12px;
-  align-items: center;
+  align-items: flex-end;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -239,29 +239,62 @@
   background: rgba(0, 229, 255, 0.1);
 }
 
-.chat-composer-send {
-  padding: 10px 20px;
-  background: #00e5ff;
-  color: #020617;
+.chat-composer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: stretch;
+  min-width: 85px;
+}
+
+.chat-composer-send,
+.chat-composer-validate-btn {
+  padding: 6px 12px;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 11px;
   border: none;
-  border-radius: 24px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
   letter-spacing: 0.5px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
 }
 
-.chat-composer-send:hover:not(:disabled) {
+/* Inactive/Ghost State */
+.chat-composer-send:disabled,
+.chat-composer-validate-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.3);
+  box-shadow: none;
+}
+
+.chat-composer-send:disabled {
+  cursor: default;
+}
+
+/* Active State */
+.chat-composer-send:not(:disabled) {
+  background: #00e5ff;
+  color: #020617;
+}
+
+/* Hover State */
+.chat-composer-send:hover:not(:disabled),
+.chat-composer-validate-btn:hover:not(:disabled) {
   background: #00c8e6;
+  color: #020617;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 229, 255, 0.3);
 }
 
-.chat-composer-send:disabled {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.3);
+.chat-composer-validate-btn:disabled {
+  opacity: 0.5;
   cursor: default;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .chat-view-loading {

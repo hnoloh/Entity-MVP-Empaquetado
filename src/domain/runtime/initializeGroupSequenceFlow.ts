@@ -1,10 +1,10 @@
-import { Group } from '../group/Group';
+import type { Group } from '../group/Group';
 import { validateGroupCardinalityFlow } from '../group/validateGroupCardinalityFlow';
 import { validateGroupGapsFlow } from '../group/validateGroupGapsFlow';
 import { getGroupSequenceFlow } from '../group/getGroupSequenceFlow';
 import type { ChatRepository } from '../chat/chatRepository';
-import { GroupSequenceInitializationRequest } from './RuntimeExecutionRequest';
-import { GroupSequenceInitializationResult } from './RuntimeExecutionResult';
+import type { GroupSequenceInitializationRequest } from './RuntimeExecutionRequest';
+import type { GroupSequenceInitializationResult } from './RuntimeExecutionResult';
 
 export function initializeGroupSequenceFlow(
   request: GroupSequenceInitializationRequest,
@@ -29,7 +29,7 @@ export function initializeGroupSequenceFlow(
   }
 
   const chat = chatRepo.getById(request.groupChatId);
-  if (!chat || chat.owner.type !== 'group' || chat.owner.id !== request.groupId) {
+  if (!chat || chat.owner.type !== 'grupo' || chat.owner.id !== request.groupId) {
     return { status: 'controlled_error', error: 'Chat de Grupo ausente o inconsistente' };
   }
 

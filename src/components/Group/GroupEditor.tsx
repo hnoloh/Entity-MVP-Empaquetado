@@ -41,10 +41,10 @@ interface GroupEditorProps {
   onSave: (draft: Group) => void;
   onClose: () => void;
   availableEntis: Enti[];
-  onNameChange?: (name: string) => void;
+  onDraftChange?: (draft: Group) => void;
 }
 
-export const GroupEditor: React.FC<GroupEditorProps> = ({ group, isActive, onSave, onClose, availableEntis, onNameChange }) => {
+export const GroupEditor: React.FC<GroupEditorProps> = ({ group, isActive, onSave, onClose, availableEntis, onDraftChange }) => {
   const [draft, setDraft] = useState<Group>(group);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [expandedField, setExpandedField] = useState<{ key: string; label: string } | null>(null);
@@ -105,22 +105,34 @@ export const GroupEditor: React.FC<GroupEditorProps> = ({ group, isActive, onSav
   };
 
   const handleChangeName = (name: string) => {
-    setDraft(prev => ({ ...prev, name }));
-    onNameChange?.(name);
+    setDraft(prev => {
+      const next = { ...prev, name };
+      onDraftChange?.(next);
+      return next;
+    });
   };
 
   const handleChangeFunction = (func: string) => {
     const updated = editGroupFlow([draft], draft.id, { function: func })[0];
-    if (updated) setDraft(updated);
+    if (updated) {
+      setDraft(updated);
+      onDraftChange?.(updated);
+    }
   };
 
   const handleAddEntiToSlot = (slotId: string, entiId: string) => {
     if (!entiId) {
        const updated = removeEntiFromGroupSlotFlow([draft], draft.id, slotId)[0];
-       if (updated) setDraft(updated);
+       if (updated) {
+         setDraft(updated);
+         onDraftChange?.(updated);
+       }
     } else {
        const updated = addEntiToGroupSlotFlow([draft], availableEntis, draft.id, entiId, slotId)[0];
-       if (updated) setDraft(updated);
+       if (updated) {
+         setDraft(updated);
+         onDraftChange?.(updated);
+       }
     }
   };
 
@@ -182,17 +194,21 @@ export const GroupEditor: React.FC<GroupEditorProps> = ({ group, isActive, onSav
           <div className="field-group">
             <div className="field-header">
               <label>Función del Grupo</label>
+            </div>
+            <div className="textarea-wrapper">
+              <textarea 
+                rows={1}
+                data-testid="input-group-function" 
+                value={draft.function || ""} 
+                onChange={e => handleChangeFunction(e.target.value)} 
+                className="harness-input" 
+              />
               <button type="button" className="expand-btn" onClick={() => setExpandedField({ key: "function", label: "Función del Grupo" })} title="Expandir">
-                ⛶
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                </svg>
               </button>
             </div>
-            <textarea 
-              rows={1}
-              data-testid="input-group-function" 
-              value={draft.function || ""} 
-              onChange={e => handleChangeFunction(e.target.value)} 
-              className="harness-input" 
-            />
           </div>
         </div>
 

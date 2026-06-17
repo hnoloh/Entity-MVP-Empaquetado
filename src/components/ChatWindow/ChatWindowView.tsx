@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import type { ChatWindow } from '../../domain/windowing/ChatWindow';
 import { closeChatWindowFlow } from '../../domain/windowing/closeChatWindowFlow';
@@ -21,6 +21,7 @@ export function ChatWindowView({ windowState, registry, onStateChange, grupos = 
   const externalWindow = useRef<Window | null>(null);
   const isProgrammaticClose = useRef(false);
 
+
   useEffect(() => {
     if (windowState.state === 'closed') {
       if (externalWindow.current && !externalWindow.current.closed) {
@@ -38,8 +39,23 @@ export function ChatWindowView({ windowState, registry, onStateChange, grupos = 
       externalWindow.current = window.open('', `chat-${windowState.windowId}`, features);
 
       if (externalWindow.current) {
+        let initialTitle = `Chat: ${windowState.chatId}`;
+        try {
+          const chat = chatRepository.getById(windowState.chatId);
+          if (chat) {
+            if (chat.owner.type === 'enti') {
+              const enti = entiRepository.getById(chat.owner.id);
+              if (enti) initialTitle = enti.name || 'Entidad sin nombre';
+            } else {
+              const grupo = grupos.find(g => g.id === chat.owner.id);
+              if (grupo) initialTitle = grupo.name || 'Nuevo Grupo';
+              else initialTitle = chat.owner.id;
+            }
+          }
+        } catch (e) { console.debug(e); }
+        
         const doc = externalWindow.current.document;
-        doc.title = `Chat: ${windowState.chatId}`;
+        doc.title = initialTitle;
 
         // Limpiar por si es un remount de StrictMode que reusa la ventana
         doc.body.innerHTML = '';
@@ -83,6 +99,7 @@ export function ChatWindowView({ windowState, registry, onStateChange, grupos = 
         }
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [windowState.state, windowState.windowId, windowState.geometry, registry, onStateChange, windowState.chatId]);
 
   useEffect(() => {
@@ -96,12 +113,34 @@ export function ChatWindowView({ windowState, registry, onStateChange, grupos = 
     return () => window.removeEventListener('request-focus-window', handleFocusRequest);
   }, [windowState.windowId]);
 
+  useEffect(() => {
+    let currentTitle = `Chat: ${windowState.chatId}`;
+    try {
+      const chat = chatRepository.getById(windowState.chatId);
+      if (chat) {
+        if (chat.owner.type === 'enti') {
+          const enti = entiRepository.getById(chat.owner.id);
+          if (enti) currentTitle = enti.name || 'Entidad sin nombre';
+        } else {
+          const grupo = grupos.find(g => g.id === chat.owner.id);
+          if (grupo) currentTitle = grupo.name || 'Nuevo Grupo';
+          else currentTitle = chat.owner.id;
+        }
+      }
+    } catch (e) { console.debug(e); }
+
+    if (externalWindow.current && !externalWindow.current.closed) {
+      externalWindow.current.document.title = currentTitle;
+    }
+  }, [windowState.chatId, grupos]);
+
   // Si no hay contenedor, la ventana fue bloqueada o está cerrada
   if (!container || windowState.state === 'closed') {
     return null;
   }
 
   let title = `Chat: ${windowState.chatId}`;
+  let isGroupChat = false;
   try {
     const chat = chatRepository.getById(windowState.chatId);
     if (chat) {
@@ -109,6 +148,7 @@ export function ChatWindowView({ windowState, registry, onStateChange, grupos = 
         const enti = entiRepository.getById(chat.owner.id);
         if (enti) title = enti.name || 'Entidad sin nombre';
       } else {
+        isGroupChat = true;
         const grupo = grupos.find(g => g.id === chat.owner.id);
         if (grupo) {
           title = grupo.name || 'Nuevo Grupo';
@@ -117,28 +157,46 @@ export function ChatWindowView({ windowState, registry, onStateChange, grupos = 
         }
       }
     }
-  } catch {
+  } catch (e) {
     // Ignorar si el propietario fue eliminado pero la ventana no se ha desmontado aún
+    console.debug(e);
   }
-
   return createPortal(
     <>
       <div className="chat-window-header" style={{ cursor: 'default' }} data-testid={`chat-window-header-${windowState.windowId}`}>
-        <span className="chat-window-title">{title}</span>
+        <div className="chat-window-header-info">
+          <span className="chat-window-title">{title}</span>
+        </div>
         <div className="chat-window-controls">
-          <button 
-            className="chat-window-btn clear" 
-            title="Vaciar historial"
-            onClick={() => {
-              clearChatHistoryFlow(windowState.chatId);
-              window.dispatchEvent(new CustomEvent('chat-history-cleared', { detail: { chatId: windowState.chatId } }));
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            </svg>
-          </button>
+          {!isGroupChat && (
+            <button 
+              className="chat-window-btn clear" 
+              title="Vaciar historial"
+              onClick={() => {
+                clearChatHistoryFlow(windowState.chatId);
+                window.dispatchEvent(new CustomEvent('chat-history-cleared', { detail: { chatId: windowState.chatId } }));
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          )}
+          {isGroupChat && (
+            <button 
+              className="chat-window-btn reset" 
+              title="Reiniciar Secuencia de Grupo"
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent('request-group-reset', { detail: { chatId: windowState.chatId } }));
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+            </button>
+          )}
           <button 
             className="chat-window-btn close" 
             data-testid={`close-btn-${windowState.windowId}`}
@@ -151,6 +209,7 @@ export function ChatWindowView({ windowState, registry, onStateChange, grupos = 
       <div className="chat-window-body">
         <ChatView 
           chatId={windowState.chatId} 
+          grupos={grupos}
           onCloseRequest={() => {
             if (externalWindow.current) externalWindow.current.close();
           }}

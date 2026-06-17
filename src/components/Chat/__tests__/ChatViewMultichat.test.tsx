@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { ChatView } from '../ChatView';

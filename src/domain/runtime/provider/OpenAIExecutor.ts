@@ -2,7 +2,13 @@ import OpenAI from 'openai';
 import type { ProviderBridge, ProviderExecutionInput, ProviderExecutionOutput } from './ProviderBridge';
 
 export class OpenAIExecutor implements ProviderBridge {
-  constructor(private apiKey: string, private model: string = 'gpt-4o') {}
+  private apiKey: string;
+  private model: string;
+
+  constructor(apiKey: string, model: string = 'gpt-4o') {
+    this.apiKey = apiKey;
+    this.model = model;
+  }
 
   async execute(input: ProviderExecutionInput): Promise<ProviderExecutionOutput> {
     if (process.env.NODE_ENV === 'test') {

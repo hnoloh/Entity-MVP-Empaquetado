@@ -34,7 +34,7 @@ describe('Real Enti Execution Regularization - Integration', () => {
   });
 
   it('Orquesta la cadena completa desde ejecución hasta mutación del chat', async () => {
-    const provider = new OpenAIExecutor();
+    const provider = new OpenAIExecutor('test-api-key');
 
     // 1. Ejecución
     const execReq: EntiExecutionRequest = {

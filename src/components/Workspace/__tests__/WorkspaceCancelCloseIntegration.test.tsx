@@ -63,8 +63,8 @@ describe('WorkspaceCancelCloseIntegration - FIA-025', () => {
     fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     fireEvent.click(screen.getByTestId('btn-dialog-cancelar'));
     
-    // Sidebar todavía dice 'Enti Clean'
-    expect(screen.getByTestId('enti-item-E1')).toHaveTextContent('Enti Clean');
+    // Sidebar muestra 'Enti Dirty' porque refleja el draft vivo
+    expect(screen.getByTestId('enti-item-E1')).toHaveTextContent('Enti Dirty');
   });
 
   it('TEST-FIA025-07: multi-editor: Cancelar en un editor no afecta otros drafts', () => {

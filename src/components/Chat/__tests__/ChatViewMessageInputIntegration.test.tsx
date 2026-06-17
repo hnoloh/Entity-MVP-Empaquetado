@@ -31,7 +31,7 @@ describe('ChatViewMessageInputIntegration - RV-03/FIA-011', () => {
   });
 
   it('TEST-FIA011-04: envío válido con historial previo agrega al final preservando orden, roles y contenido', () => {
-    const chat = createChatFlow('grupo', 'G1');
+    const chat = createChatFlow('enti', 'E1');
     sendMessageToChatFlow(chat.id, 'Hola primero');
     
     render(<ChatView chatId={chat.id} />);
@@ -42,6 +42,7 @@ describe('ChatViewMessageInputIntegration - RV-03/FIA-011', () => {
     fireEvent.change(input, { target: { value: 'Hola segundo' } });
     fireEvent.click(sendBtn);
     
+
     const messages = screen.getAllByTestId('chat-message');
     expect(messages).toHaveLength(2);
     expect(messages[0]).toHaveTextContent('Hola primero');

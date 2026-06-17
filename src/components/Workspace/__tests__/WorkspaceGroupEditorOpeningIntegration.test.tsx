@@ -7,7 +7,7 @@ describe('WorkspaceGroupEditorOpeningIntegration - FIA-013', () => {
     vi.clearAllMocks();
   });
 
-  it('TEST-FIA013-01: Crear grupo abre automáticamente el editor en estado borrador sin añadir a la columna', () => {
+  it('TEST-FIA013-01: Crear grupo abre automáticamente el editor y se añade a la columna', () => {
     render(<WorkspaceShell />);
     
     expect(screen.queryByTestId('group-editor')).not.toBeInTheDocument();
@@ -15,8 +15,8 @@ describe('WorkspaceGroupEditorOpeningIntegration - FIA-013', () => {
     const btnCreateGrupo = screen.getByTestId('btn-create-grupo');
     fireEvent.click(btnCreateGrupo);
     
-    // No debe aparecer en la columna lateral
-    expect(screen.queryByTestId(/^grupo-item-/)).not.toBeInTheDocument();
+    // Ahora debe aparecer en la columna lateral como borrador
+    expect(screen.getByTestId(/^grupo-item-/)).toBeInTheDocument();
     
     // El editor debe estar abierto
     expect(screen.getByTestId('group-editor')).toBeInTheDocument();

@@ -28,7 +28,7 @@ describe("Workspace Tipo de Brain Integration (FIA-013)", () => {
   });
 
   it("TEST-FIA013-01: renderiza Tipo de Brain en EntiEditor", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const modeSelect = screen.getByTestId("input-cognitive-mode");
     expect(modeSelect).toBeInTheDocument();
     
@@ -37,7 +37,7 @@ describe("Workspace Tipo de Brain Integration (FIA-013)", () => {
   });
 
   it("TEST-FIA013-02: muestra solo IA Local e IA Cloud/OpenAI (además del unconfigured placeholder)", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     fireEvent.click(trigger);
 
@@ -50,7 +50,7 @@ describe("Workspace Tipo de Brain Integration (FIA-013)", () => {
   });
 
   it("TEST-FIA013-03: Local activa dirty sin autosave", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     
     fireEvent.click(trigger);
@@ -65,7 +65,7 @@ describe("Workspace Tipo de Brain Integration (FIA-013)", () => {
   });
 
   it("TEST-FIA013-04: Cloud/OpenAI activa dirty sin pedir ni validar API Key", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     
     fireEvent.click(trigger);
@@ -79,7 +79,7 @@ describe("Workspace Tipo de Brain Integration (FIA-013)", () => {
   });
 
   it("TEST-FIA013-05: Guardar persiste modalidad en el Enti correcto", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     
     fireEvent.click(trigger);
@@ -95,7 +95,7 @@ describe("Workspace Tipo de Brain Integration (FIA-013)", () => {
   });
 
   it("TEST-FIA013-06: Descartar conserva valor previo", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     
     fireEvent.click(trigger);
@@ -110,7 +110,7 @@ describe("Workspace Tipo de Brain Integration (FIA-013)", () => {
   });
 
   it("TEST-FIA013-07: Cancelar mantiene editor abierto con draft pendiente", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     
     fireEvent.click(trigger);
@@ -126,7 +126,7 @@ describe("Workspace Tipo de Brain Integration (FIA-013)", () => {
   });
 
   it("TEST-FIA013-08: cambio de selectedEntiId resincroniza sin carryover", () => {
-    const { rerender } = render(<EntiEditor key={mockEnti.id} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    const { rerender } = render(<EntiEditor isActive={true} key={mockEnti.id} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     
     fireEvent.click(trigger);
@@ -139,14 +139,14 @@ describe("Workspace Tipo de Brain Integration (FIA-013)", () => {
       cognitiveConfig: { ...mockEnti.cognitiveConfig, mode: "local" }
     };
 
-    rerender(<EntiEditor key={enti2.id} enti={enti2} onSave={mockOnSave} onClose={mockOnClose} />);
+    rerender(<EntiEditor isActive={true} key={enti2.id} enti={enti2} onSave={mockOnSave} onClose={mockOnClose} />);
     
     const newTrigger = screen.getByTestId("input-cognitive-mode");
     expect(newTrigger).toHaveTextContent("IA Local");
   });
 
   it("TEST-FIA013-11: Harness textual intacto al cambiar Tipo de Brain", () => {
-    render(<EntiEditor enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
+    render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     const trigger = screen.getByTestId("input-cognitive-mode");
     const functionInput = screen.getByTestId("input-function");
     

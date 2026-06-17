@@ -9,7 +9,7 @@ interface EntiEditorProps {
   onSave: (draft: Enti) => void;
   onClose: () => void;
   isActive: boolean;
-  onNameChange?: (name: string) => void;
+  onDraftChange?: (draft: Enti) => void;
 }
 
 // --- Subcomponentes para mantener el código limpio (Clean Code) ---
@@ -38,16 +38,20 @@ const HarnessField: React.FC<HarnessFieldProps> = ({ label, value, testId, onExp
     <div className="field-group">
       <div className="field-header">
         <label>{label}</label>
+      </div>
+      <div className="textarea-wrapper">
+        <textarea
+          data-testid={testId}
+          rows={1}
+          value={displayValue}
+          onChange={handleChange}
+        />
         <button type="button" className="expand-btn" onClick={onExpand} title="Expandir">
-          ⛶
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+          </svg>
         </button>
       </div>
-      <textarea
-        data-testid={testId}
-        rows={1}
-        value={displayValue}
-        onChange={handleChange}
-      />
     </div>
   );
 };
@@ -92,7 +96,7 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
 
 // --- Componente Principal ---
 
-export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, isActive, onNameChange }) => {
+export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, isActive, onDraftChange }) => {
   const [draft, setDraft] = useState<Enti>(enti);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [expandedField, setExpandedField] = useState<{ key: keyof Enti["harness"]; label: string } | null>(null);
@@ -176,18 +180,21 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
     setShowCloseDialog(false);
   };
 
+  const updateDraft = (newDraft: Enti) => {
+    const draftWithStatus = { ...newDraft, status: deriveEntiStatus(newDraft) };
+    setDraft(draftWithStatus);
+    onDraftChange?.(draftWithStatus);
+  };
+
   const handleChange = (field: keyof Enti, value: string) => {
-    setDraft((prev) => ({ ...prev, [field]: value }));
-    if (field === "name") {
-      onNameChange?.(value);
-    }
+    updateDraft({ ...draft, [field]: value });
   };
 
   const handleHarnessChange = (field: keyof Enti["harness"], value: string | string[]) => {
-    setDraft((prev) => ({
-      ...prev,
-      harness: { ...prev.harness, [field]: value },
-    }));
+    updateDraft({
+      ...draft,
+      harness: { ...draft.harness, [field]: value },
+    });
   };
 
   const currentStatus = deriveEntiStatus(draft);
@@ -288,7 +295,8 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
                   {brainSelectStep === "main" && (
                     <>
                       <li data-testid="option-local" onClick={() => {
-                        setDraft({ ...draft, cognitiveConfig: { ...draft.cognitiveConfig, mode: "local" } });
+                        const next = { ...draft, cognitiveConfig: { ...draft.cognitiveConfig, mode: "local" as const } };
+                        updateDraft(next);
                         setLocalDetectionState("detecting");
                         setBrainSelectStep("local_models");
                       }}>
@@ -317,7 +325,8 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
                           ) : (
                             localModels.map(modelName => (
                               <li key={modelName} data-testid="local-model-item" onClick={() => {
-                                setDraft({ ...draft, cognitiveConfig: { ...draft.cognitiveConfig, mode: "local", provider: "ollama", model: modelName } });
+                                const next = { ...draft, cognitiveConfig: { ...draft.cognitiveConfig, mode: "local" as const, provider: "ollama", model: modelName } };
+                                updateDraft(next);
                                 setIsBrainSelectOpen(false);
                               }}>
                                 🤖 {modelName}
@@ -368,7 +377,8 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
                           className="btn-accept" 
                           onClick={(e) => {
                             e.stopPropagation();
-                            setDraft({ ...draft, cognitiveConfig: { ...draft.cognitiveConfig, mode: "cloud", provider: "openai", model: undefined, apiKey: tempApiKey } });
+                            const next = { ...draft, cognitiveConfig: { ...draft.cognitiveConfig, mode: "cloud" as const, provider: "openai" as const, model: undefined, apiKey: tempApiKey } };
+                            updateDraft(next);
                             setIsBrainSelectOpen(false);
                           }}
                           data-testid="btn-accept-api-key"

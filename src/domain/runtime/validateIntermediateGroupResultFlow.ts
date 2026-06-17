@@ -1,5 +1,5 @@
-import { IntermediateGroupValidationRequest } from './RuntimeExecutionRequest';
-import { IntermediateGroupValidationResult } from './RuntimeExecutionResult';
+import type { IntermediateGroupValidationRequest } from './RuntimeExecutionRequest';
+import type { IntermediateGroupValidationResult } from './RuntimeExecutionResult';
 
 export function validateIntermediateGroupResultFlow(
   request: IntermediateGroupValidationRequest

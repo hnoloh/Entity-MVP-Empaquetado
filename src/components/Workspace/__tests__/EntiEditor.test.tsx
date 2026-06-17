@@ -22,7 +22,7 @@ const getMockEnti = (): Enti => ({
 describe("FIA-004 EntiEditor Component", () => {
   it("Carga datos existentes", () => {
     const enti = getMockEnti();
-    render(<EntiEditor enti={enti} onSave={() => {}} onClose={() => {}} />);
+    render(<EntiEditor isActive={true} enti={enti} onSave={() => {}} onClose={() => {}} />);
     
     expect(screen.getByTestId<HTMLInputElement>("input-name").value).toBe(enti.name);
     expect(screen.getByTestId<HTMLTextAreaElement>("input-function").value).toBe(enti.harness.function);
@@ -32,7 +32,7 @@ describe("FIA-004 EntiEditor Component", () => {
   it("Permite modificar campos de draft sin invocar onSave inmediatamente", () => {
     const enti = getMockEnti();
     const onSave = vi.fn();
-    render(<EntiEditor enti={enti} onSave={onSave} onClose={() => {}} />);
+    render(<EntiEditor isActive={true} enti={enti} onSave={onSave} onClose={() => {}} />);
     
     const inputName = screen.getByTestId<HTMLInputElement>("input-name");
     fireEvent.change(inputName, { target: { value: "New Name" } });
@@ -43,7 +43,7 @@ describe("FIA-004 EntiEditor Component", () => {
 
   it("Cierra directo si no hay cambios", () => {
     const onClose = vi.fn();
-    render(<EntiEditor enti={getMockEnti()} onSave={() => {}} onClose={onClose} />);
+    render(<EntiEditor isActive={true} enti={getMockEnti()} onSave={() => {}} onClose={onClose} />);
     
     fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
     
@@ -52,7 +52,7 @@ describe("FIA-004 EntiEditor Component", () => {
   });
 
   it("Muestra diálogo Guardar/Descartar/Cancelar si hay cambios", () => {
-    render(<EntiEditor enti={getMockEnti()} onSave={() => {}} onClose={() => {}} />);
+    render(<EntiEditor isActive={true} enti={getMockEnti()} onSave={() => {}} onClose={() => {}} />);
     
     fireEvent.change(screen.getByTestId("input-name"), { target: { value: "Dirty Name" } });
     fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
@@ -66,7 +66,7 @@ describe("FIA-004 EntiEditor Component", () => {
   it("Guardar invoca onSave y onClose", () => {
     const onSave = vi.fn();
     const onClose = vi.fn();
-    render(<EntiEditor enti={getMockEnti()} onSave={onSave} onClose={onClose} />);
+    render(<EntiEditor isActive={true} enti={getMockEnti()} onSave={onSave} onClose={onClose} />);
     
     fireEvent.change(screen.getByTestId("input-name"), { target: { value: "Dirty Name" } });
     fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
@@ -79,7 +79,7 @@ describe("FIA-004 EntiEditor Component", () => {
   it("Descartar cierra sin invocar onSave", () => {
     const onSave = vi.fn();
     const onClose = vi.fn();
-    render(<EntiEditor enti={getMockEnti()} onSave={onSave} onClose={onClose} />);
+    render(<EntiEditor isActive={true} enti={getMockEnti()} onSave={onSave} onClose={onClose} />);
     
     fireEvent.change(screen.getByTestId("input-name"), { target: { value: "Dirty Name" } });
     fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);
@@ -92,7 +92,7 @@ describe("FIA-004 EntiEditor Component", () => {
   it("Cancelar aborta cierre y mantiene el draft vivo", () => {
     const onSave = vi.fn();
     const onClose = vi.fn();
-    render(<EntiEditor enti={getMockEnti()} onSave={onSave} onClose={onClose} />);
+    render(<EntiEditor isActive={true} enti={getMockEnti()} onSave={onSave} onClose={onClose} />);
     
     fireEvent.change(screen.getByTestId("input-name"), { target: { value: "Dirty Name" } });
     fireEvent.click(screen.getAllByTestId('btn-close-editor')[0]);

@@ -22,10 +22,12 @@ export function buildHarnessAttachmentDropIntent(
 
   const files: File[] = [];
   let blocked = false;
+  let hasFiles = false;
   
   for (let i = 0; i < dataTransfer.items.length; i++) {
     const item = dataTransfer.items[i];
     if (item.kind === 'file') {
+      hasFiles = true;
       const file = item.getAsFile();
       if (file) {
         files.push(file);
@@ -35,7 +37,9 @@ export function buildHarnessAttachmentDropIntent(
     }
   }
 
-  if (blocked || files.length === 0) {
+  // During dragover, getAsFile() returns null, so files array will be empty
+  // but hasFiles will be true. We only block if there are NO files detected.
+  if (blocked || !hasFiles) {
     return { status: 'blocked', scope, reason: 'Contenido inválido en Drop', files: [] };
   }
 

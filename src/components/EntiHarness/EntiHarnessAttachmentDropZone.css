@@ -16,10 +16,11 @@
   pointer-events: none;
 }
 
-/* Solo borde cian */
+/* Leve resaltado difuminado de tono cian */
 .harness-drop-overlay.valid {
-  border: 2px dashed #00ffff;
-  background: rgba(0, 255, 255, 0.05);
+  background: rgba(0, 255, 255, 0.08);
+  box-shadow: inset 0 0 15px rgba(0, 255, 255, 0.3);
+  border: none;
 }
 
 .harness-drop-overlay.blocked {
@@ -27,13 +28,20 @@
   background: rgba(248, 113, 113, 0.1);
 }
 
-/* Spinner animado */
+/* Spinner animado con guiones paralelos (radiantes) */
 .spinner-dashed {
-  width: 40px;
-  height: 40px;
-  border: 4px dashed #00ffff;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  animation: spin 2s linear infinite;
+  background: repeating-conic-gradient(
+    #00ffff 0deg,
+    #00ffff 6deg,
+    transparent 6deg,
+    transparent 30deg
+  );
+  -webkit-mask: radial-gradient(transparent 50%, black 55%);
+  mask: radial-gradient(transparent 50%, black 55%);
+  animation: spin 1.2s steps(12) infinite;
 }
 
 @keyframes spin {
@@ -41,8 +49,17 @@
   100% { transform: rotate(360deg); }
 }
 
+/* Centrado en el editor usando fixed relativo al contenedor transformado */
 .harness-drop-overlay.success {
-  background: rgba(0, 0, 0, 0.3);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 1000;
 }
 
 .harness-drop-overlay.error {

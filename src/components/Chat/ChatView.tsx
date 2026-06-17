@@ -4,6 +4,8 @@ import { entiRepository } from '../../domain/enti';
 import { executeEntiFlow, receiveEntiResponseFlow, OpenAIExecutor, LocalExecutor } from '../../domain/runtime';
 import { useGroupSequenceRuntimeAdapter } from '../../ui/groupSequence/useGroupSequenceRuntimeAdapter';
 import type { Group } from '../../domain/group/Group';
+import { useChatAttachmentDrop } from './useChatAttachmentDrop';
+import { ChatAttachmentDropZone } from './ChatAttachmentDropZone';
 import './ChatView.css';
 
 interface ChatViewProps {
@@ -201,8 +203,23 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
     }
   };
 
+  const resolvedOwnerType = isGroup ? 'group' : 'enti';
+  const resolvedOwnerId = chat?.owner.id;
+
+  const { dropState, errorMessage, handlers } = useChatAttachmentDrop(
+    resolvedOwnerType,
+    resolvedOwnerId,
+    chatId
+  );
+
   return (
-    <div data-testid={`chat-view-${chat.id}`} className="chat-view-container">
+    <div 
+      data-testid={`chat-view-${chat.id}`} 
+      className="chat-view-container"
+      style={{ position: 'relative' }}
+      {...handlers}
+    >
+      <ChatAttachmentDropZone dropState={dropState} errorMessage={errorMessage} />
       <div data-testid="chat-view-history" className="chat-view-history">
         {history.length === 0 ? (
           <div data-testid="chat-view-empty" className="chat-view-empty">

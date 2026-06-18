@@ -5,7 +5,7 @@
   border: 1px solid rgba(0, 229, 255, 0.15);
   border-radius: 12px;
   padding: 0.8rem 1rem;
-  width: calc(100% - 32px); /* Respeta el padding de 16px de la región huésped */
+  width: calc(100% - 32px);
   max-width: 950px;
   max-height: 90%;
   margin: auto;
@@ -17,13 +17,12 @@
   transition: background 0.3s ease, box-shadow 0.3s ease;
   min-height: 300px;
   position: absolute;
-  top: 16px; /* Deja margen por arriba */
+  top: 16px;
   left: 0;
   right: 0;
-  bottom: 16px; /* Deja margen por abajo */
-  height: fit-content;
+  bottom: 16px;
   pointer-events: auto;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .enti-editor:not(.hidden) {

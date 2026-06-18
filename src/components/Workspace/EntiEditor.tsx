@@ -101,9 +101,10 @@ interface ExpandedModalProps {
   dropZoneScope?: "enti_knowledge" | "enti_work_material";
   ownerId?: string;
   onAttachmentsDropped?: (files: string[]) => void;
+  onRemoveAttachment?: (file: string) => void;
 }
 
-const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChange, onClose, attachments, dropZoneScope, ownerId, onAttachmentsDropped }) => {
+const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChange, onClose, attachments, dropZoneScope, ownerId, onAttachmentsDropped, onRemoveAttachment }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const displayValue = Array.isArray(value) ? value.join("\n") : value;
 
@@ -150,8 +151,32 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
               <h4 style={{ margin: '0 0 1rem 0', color: '#00ffff', fontSize: '0.9rem', textTransform: 'uppercase' }}>Archivos Adjuntos</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {attachments.map((name, i) => (
-                  <li key={i} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', marginBottom: '0.5rem', borderRadius: '4px', fontSize: '0.85rem', wordBreak: 'break-all', color: '#ccc' }}>
-                    {name}
+                  <li key={i} className="attachment-item" style={{ position: 'relative', padding: '0.5rem', background: 'rgba(255,255,255,0.05)', marginBottom: '0.5rem', borderRadius: '4px', fontSize: '0.85rem', wordBreak: 'break-all', color: '#ccc', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                    <span style={{ flex: 1 }}>{name}</span>
+                    {onRemoveAttachment && (
+                      <button 
+                        className="btn-remove-attachment"
+                        onClick={(e) => { e.stopPropagation(); onRemoveAttachment(name); }}
+                        title="Eliminar adjunto"
+                        style={{
+                          background: 'rgba(255, 68, 68, 0.1)',
+                          border: 'none',
+                          color: '#ff4444',
+                          borderRadius: '4px',
+                          padding: '4px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0
+                        }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </button>
+                    )}
                   </li>
                 ))}
                 {attachments.length === 0 && (
@@ -553,7 +578,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
         <ExpandedFieldModal
           label={expandedField.label}
           fieldKey={expandedField.key}
-          value={draft.harness[expandedField.key]}
+          value={expandedField.key === "rules" ? draft.harness.rules : draft.harness[expandedField.key as "knowledge" | "workMaterial"]}
           onChange={(val) => handleHarnessChange(expandedField.key, val)}
           onClose={() => setExpandedField(null)}
           attachments={
@@ -565,10 +590,14 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
             expandedField.key === "workMaterial" ? "enti_work_material" : undefined
           }
           ownerId={draft.id}
-          onAttachmentsDropped={
-            expandedField.key === "knowledge" ? (files) => setSessionAttachments(prev => ({ ...prev, knowledge: [...prev.knowledge, ...files] })) :
-            expandedField.key === "workMaterial" ? (files) => setSessionAttachments(prev => ({ ...prev, workMaterial: [...prev.workMaterial, ...files] })) : undefined
-          }
+          onAttachmentsDropped={handleAttachmentsDropped}
+          onRemoveAttachment={(file) => {
+            if (expandedField.key === "knowledge") {
+              setSessionAttachments(prev => ({ ...prev, knowledge: prev.knowledge.filter(f => f !== file) }));
+            } else if (expandedField.key === "workMaterial") {
+              setSessionAttachments(prev => ({ ...prev, workMaterial: prev.workMaterial.filter(f => f !== file) }));
+            }
+          }}
         />
       )}
     </div>

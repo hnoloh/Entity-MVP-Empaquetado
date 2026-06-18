@@ -308,6 +308,20 @@
   color: #ff4444;
 }
 
+.attachment-item .btn-remove-attachment {
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.attachment-item:hover .btn-remove-attachment {
+  opacity: 1;
+}
+
+.attachment-item .btn-remove-attachment:hover {
+  transform: scale(1.1);
+  background: rgba(255, 68, 68, 0.2) !important;
+}
+
 .expanded-textarea {
   flex: 1;
   background: #020617;

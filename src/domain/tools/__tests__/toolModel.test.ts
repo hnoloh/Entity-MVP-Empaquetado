@@ -1,6 +1,6 @@
 
-import { EntiToolDefinition } from '../entiToolDefinition';
-import { EntiToolAuthorization } from '../entiToolAuthorization';
+import type { EntiToolDefinition } from '../entiToolDefinition';
+import type { EntiToolAuthorization } from '../entiToolAuthorization';
 import { isToolAuthorized, validateToolOwnership } from '../toolPolicy';
 import * as fs from 'fs';
 import * as path from 'path';

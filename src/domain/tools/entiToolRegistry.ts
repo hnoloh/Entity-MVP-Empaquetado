@@ -1,6 +1,6 @@
-import { EntiToolDefinition } from './entiToolDefinition';
-import { EntiToolAuthorization } from './entiToolAuthorization';
-import { ToolId } from './toolTypes';
+import type { EntiToolDefinition } from './entiToolDefinition';
+import type { EntiToolAuthorization } from './entiToolAuthorization';
+import type { ToolId } from './toolTypes';
 
 export interface EntiToolRegistry {
   definitions: Record<ToolId, EntiToolDefinition>;

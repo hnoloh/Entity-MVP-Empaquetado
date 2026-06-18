@@ -1,5 +1,5 @@
 import { buildEntiToolBeltViewModel } from '../buildEntiToolBeltViewModel';
-import { EntiToolDefinition, EntiToolAuthorization } from '../../../domain/tools';
+import type { EntiToolDefinition, EntiToolAuthorization } from '../../../domain/tools';
 
 describe('buildEntiToolBeltViewModel', () => {
   const mockDefs: Record<string, EntiToolDefinition> = {

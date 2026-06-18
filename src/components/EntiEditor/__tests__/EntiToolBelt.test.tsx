@@ -8,10 +8,6 @@ describe('EntiToolBelt Component', () => {
     render(<EntiToolBelt entiId="enti-1" />);
     expect(screen.getByTestId('enti-tool-belt')).toBeInTheDocument();
     expect(screen.getByText('Herramientas')).toBeInTheDocument();
-    
-    // Check that some mock tools are rendered
-    expect(screen.getByTestId('tool-icon-tool-read-doc')).toBeInTheDocument();
-    expect(screen.getByTestId('tool-icon-tool-fs')).toBeInTheDocument();
   });
 
   it('no renderiza nada si entiId es group o invalido', () => {

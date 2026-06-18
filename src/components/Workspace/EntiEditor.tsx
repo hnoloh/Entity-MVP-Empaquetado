@@ -475,7 +475,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
         </div>
 
         <div className="harness-base-section horizontal-harness" data-testid="harness-base-section">
-          <h3>Harness Base</h3>
           <div className="harness-fields-row">
             <HarnessField
               label="Función"
@@ -515,10 +514,9 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               ownerId={draft.id}
               onAttachmentsDropped={(files) => setSessionAttachments(prev => ({ ...prev, workMaterial: [...prev.workMaterial, ...files] }))}
             />
+            <EntiToolBelt entiId={draft.id} />
           </div>
         </div>
-        
-        <EntiToolBelt entiId={draft.id} />
       </div>
 
       {expandedField && (

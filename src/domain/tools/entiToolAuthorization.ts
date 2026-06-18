@@ -1,4 +1,4 @@
-import { ToolId, ToolState } from './toolTypes';
+import type { ToolId, ToolState } from './toolTypes';
 
 export interface EntiToolAuthorization {
   entiId: string;

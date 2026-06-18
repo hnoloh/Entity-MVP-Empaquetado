@@ -1,5 +1,5 @@
-import { EntiToolAuthorization } from './entiToolAuthorization';
-import { ToolId, ToolBlockedReason } from './toolTypes';
+import type { EntiToolAuthorization } from './entiToolAuthorization';
+import type { ToolId, ToolBlockedReason } from './toolTypes';
 
 export function isToolAuthorized(entiId: string, toolId: ToolId, authorizations: EntiToolAuthorization[]): boolean {
   return authorizations.some(auth => auth.entiId === entiId && auth.toolId === toolId && auth.state === 'authorized');

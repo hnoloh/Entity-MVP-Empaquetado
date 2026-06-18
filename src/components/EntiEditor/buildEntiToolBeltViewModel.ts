@@ -1,5 +1,5 @@
-import { EntiToolDefinition, EntiToolAuthorization } from '../../domain/tools';
-import { ToolBlockedReason, ToolState } from '../../domain/tools/toolTypes';
+import type { EntiToolDefinition, EntiToolAuthorization } from '../../domain/tools';
+import type { ToolBlockedReason, ToolState } from '../../domain/tools/toolTypes';
 
 export interface EntiToolBeltItemViewModel {
   id: string;

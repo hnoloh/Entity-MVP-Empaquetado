@@ -118,7 +118,7 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
   const innerContent = (
       <div className="expanded-field-content" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div className="expanded-field-header">
-          <h3>Editando: {label}</h3>
+          <h3 style={{ margin: 0, color: '#00e5ff', fontSize: '1.1rem' }}>{label}</h3>
           {attachments !== undefined && (
             <button 
               type="button" 
@@ -173,7 +173,7 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
       </div>
   );
 
-  return createPortal(
+  return (
     <div className="expanded-field-overlay" data-testid="expanded-field-modal">
       {dropZoneScope && ownerId ? (
         <EntiHarnessAttachmentDropZone
@@ -184,8 +184,7 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
           {innerContent}
         </EntiHarnessAttachmentDropZone>
       ) : innerContent}
-    </div>,
-    document.body
+    </div>
   );
 };
 

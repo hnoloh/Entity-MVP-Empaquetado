@@ -24,8 +24,8 @@ export const EntiToolBelt: React.FC<Props> = ({ entiId }) => {
   };
 
   return (
-    <div className="field-group" data-testid="enti-tool-belt">
-      <div className="field-header" style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'flex-start', position: 'relative' }}>
+    <div className="field-group" data-testid="enti-tool-belt" style={{ position: 'relative' }}>
+      <div className="field-header" style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'flex-start' }}>
         <label 
           style={{ margin: 0 }}
           className="clickable-label"
@@ -34,37 +34,37 @@ export const EntiToolBelt: React.FC<Props> = ({ entiId }) => {
         >
           Herramientas
         </label>
-        {isOpen && (
-          <ul className="custom-select-options tool-belt-options" style={{ position: 'absolute', bottom: '100%', top: 'auto', left: '0', marginBottom: '4px', minWidth: '180px', margin: 0, zIndex: 100 }}>
-            {tools.map(tool => {
-              const isSelected = selectedTools.some(t => t.id === tool.id);
-              return (
-                <li 
-                  key={tool.id} 
-                  onClick={(e) => { e.stopPropagation(); toggleTool(tool); setIsOpen(false); }}
-                  style={{ display: 'flex', justifyContent: 'space-between', opacity: isSelected ? 0.5 : 1, padding: '6px 12px' }}
-                >
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <EntiToolIcon item={tool} />
-                    {tool.name}
-                  </span>
-                  {tool.state === 'blocked' && <span style={{ color: 'red', fontSize: '0.8rem' }}>Bloqueada</span>}
-                </li>
-              );
-            })}
-          </ul>
+        {selectedTools.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}>
+            {selectedTools.map(tool => (
+              <EntiToolIcon 
+                key={tool.id} 
+                item={tool} 
+                onRemove={() => toggleTool(tool)}
+              />
+            ))}
+          </div>
         )}
       </div>
-      {selectedTools.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
-          {selectedTools.map(tool => (
-            <EntiToolIcon 
-              key={tool.id} 
-              item={tool} 
-              onRemove={() => toggleTool(tool)}
-            />
-          ))}
-        </div>
+      {isOpen && (
+        <ul className="custom-select-options" style={{ position: 'absolute', bottom: '100%', top: 'auto', left: '0', marginBottom: '8px', minWidth: '160px', margin: 0, zIndex: 100 }}>
+          {tools.map(tool => {
+            const isSelected = selectedTools.some(t => t.id === tool.id);
+            return (
+              <li 
+                key={tool.id} 
+                onClick={(e) => { e.stopPropagation(); toggleTool(tool); setIsOpen(false); }}
+                style={{ display: 'flex', justifyContent: 'space-between', opacity: isSelected ? 0.5 : 1 }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <EntiToolIcon item={tool} />
+                  {tool.name}
+                </span>
+                {tool.state === 'blocked' && <span style={{ color: 'red', fontSize: '0.8rem' }}>Bloqueada</span>}
+              </li>
+            );
+          })}
+        </ul>
       )}
     </div>
   );

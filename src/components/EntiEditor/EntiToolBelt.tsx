@@ -35,7 +35,7 @@ export const EntiToolBelt: React.FC<Props> = ({ entiId }) => {
           Herramientas
         </label>
         {isOpen && (
-          <ul className="custom-select-options tool-belt-options" style={{ position: 'absolute', bottom: '100%', left: '0', marginBottom: '4px', minWidth: '180px', margin: 0 }}>
+          <ul className="custom-select-options tool-belt-options" style={{ position: 'absolute', bottom: '100%', top: 'auto', left: '0', marginBottom: '4px', minWidth: '180px', margin: 0, zIndex: 100 }}>
             {tools.map(tool => {
               const isSelected = selectedTools.some(t => t.id === tool.id);
               return (

@@ -40,11 +40,12 @@ export async function readAttachmentAsContextFlow(
      return { status: 'controlled_error', error: policyCheck.error!, reason: policyCheck.reason! };
   }
 
-  let text: string | null = null;
+  let text: string | null;
   try {
     text = await adapter(attachment.attachmentId);
-  } catch (err: any) {
-    return { status: 'controlled_error', error: 'unavailable_file', reason: err.message || 'Error del adaptador al extraer texto' };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Error del adaptador al extraer texto';
+    return { status: 'controlled_error', error: 'unavailable_file', reason: message };
   }
 
   if (text === null) {

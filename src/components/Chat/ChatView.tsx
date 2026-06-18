@@ -38,19 +38,20 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
 
   const chat: Chat | null = foundChat || null;
   let error: string | null = null;
-  const history = chat ? chat.history : [];
 
   const sortedItems = React.useMemo(() => {
-    const items: Array<{ type: 'message', data: ChatMessage, time: number } | { type: 'attachment', data: any, time: number }> = [];
+    const items: Array<{ type: 'message', data: ChatMessage, time: number } | { type: 'attachment', data: Record<string, unknown>, time: number }> = [];
     
-    history.forEach(msg => items.push({ type: 'message', data: msg, time: msg.timestamp }));
+    const currentHistory = chat?.history || [];
+    currentHistory.forEach(msg => items.push({ type: 'message', data: msg, time: msg.timestamp }));
+    
     attachments.forEach(att => {
       const time = att.receivedAt ? new Date(att.receivedAt).getTime() : 0;
-      items.push({ type: 'attachment', data: att, time });
+      items.push({ type: 'attachment', data: att as unknown as Record<string, unknown>, time });
     });
 
     return items.sort((a, b) => a.time - b.time);
-  }, [history, attachments]);
+  }, [chat?.history, attachments]);
 
   if (!chat) {
     error = `Chat con id ${chatId} no encontrado`;

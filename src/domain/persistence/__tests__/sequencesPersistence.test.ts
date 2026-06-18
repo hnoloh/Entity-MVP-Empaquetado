@@ -82,7 +82,7 @@ describe('Sequences Functional Persistence', () => {
     const payload: SequencePersistencePayload = {
       root: 'sequences',
       version: '1.0',
-      data: [{ ...validSeq, apiKey: 'secret' } as any] // eslint-disable-line @typescript-eslint/no-explicit-any
+      data: [{ ...validSeq, apiKey: 'secret' } as unknown]  
     };
     const request: RestoreSequencesRequest = { explicitUserAction: true, payload };
     const result = restoreSequencesFlow(request);
@@ -94,7 +94,7 @@ describe('Sequences Functional Persistence', () => {
     const payload: SequencePersistencePayload = {
       root: 'sequences',
       version: '1.0',
-      data: [{ ...validSeq, providerState: { active: true } } as any] // eslint-disable-line @typescript-eslint/no-explicit-any
+      data: [{ ...validSeq, providerState: { active: true } } as unknown]  
     };
     const request: RestoreSequencesRequest = { explicitUserAction: true, payload };
     const result = restoreSequencesFlow(request);

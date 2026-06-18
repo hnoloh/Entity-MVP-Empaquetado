@@ -9,7 +9,7 @@ describe('buildHarnessAttachmentDropIntent', () => {
           kind,
           getAsFile: () => kind === 'file' ? new File(['test'], 'test.txt') : null
         }
-      ] as any
+      ] as unknown
     } as DataTransfer;
   };
 

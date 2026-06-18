@@ -30,7 +30,7 @@ describe('attachmentReadPolicy', () => {
 
   it('bloquea extensiones no soportadas', () => {
     const exeAttachment = { ...baseAttachment, fileExtension: 'exe', mimeType: 'application/x-msdownload' };
-    const result = validateAttachmentReadPolicy(exeAttachment as any);
+    const result = validateAttachmentReadPolicy(exeAttachment as unknown);
     expect(result.isReadable).toBe(false);
     expect(result.error).toBe('unsupported_type');
   });
@@ -44,7 +44,7 @@ describe('attachmentReadPolicy', () => {
 
   it('permite leer mediante mimeType aunque no tenga extension', () => {
     const noExtAttachment = { ...baseAttachment, fileExtension: undefined, mimeType: 'text/plain' };
-    const result = validateAttachmentReadPolicy(noExtAttachment as any);
+    const result = validateAttachmentReadPolicy(noExtAttachment as unknown);
     expect(result.isReadable).toBe(true);
   });
 });

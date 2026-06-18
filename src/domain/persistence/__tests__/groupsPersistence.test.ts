@@ -89,7 +89,7 @@ describe('Groups Functional Persistence', () => {
   });
 
   it('returns controlled_error when slot id is out of range', () => {
-    const invalidGroup = { ...validGroup, slots: { '6': 'enti-6' } } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const invalidGroup = { ...validGroup, slots: { '6': 'enti-6' } } as unknown;  
     const payload: GroupPersistencePayload = {
       root: 'groups',
       version: '1.0',
@@ -101,7 +101,7 @@ describe('Groups Functional Persistence', () => {
   });
 
   it('returns controlled_error when forbidden fields are present', () => {
-    const invalidGroup = { ...validGroup, extra: 123 } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const invalidGroup = { ...validGroup, extra: 123 } as unknown;  
     const payload: GroupPersistencePayload = {
       root: 'groups',
       version: '1.0',

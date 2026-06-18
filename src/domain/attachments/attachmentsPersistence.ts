@@ -1,4 +1,8 @@
 import type { Attachment } from './attachmentModel';
+import type { AttachmentContentPersistenceRecord } from './attachmentContentPersistenceTypes';
+import { attachmentContentRepository } from './attachmentContentRepository';
+import { serializeAttachmentContentRepositorySnapshot } from './attachmentContentPersistenceSerializer';
+import { restoreAttachmentContentRepositorySnapshot } from './restoreAttachmentContentRepositorySnapshot';
 
 export interface AttachmentPersistenceRecord {
   attachmentId: string;
@@ -16,6 +20,7 @@ export interface AttachmentPersistenceRecord {
 
 export interface AttachmentPersistencePayload {
   records: AttachmentPersistenceRecord[];
+  contentRecords?: AttachmentContentPersistenceRecord[];
 }
 
 export type AttachmentPersistenceResult =
@@ -74,14 +79,16 @@ export function persistAttachmentRecordsFlow(
     records.push(record);
   }
 
+  const contentRecords = serializeAttachmentContentRepositorySnapshot(attachmentContentRepository.snapshot());
+
   return {
     status: 'success',
-    payload: { records }
+    payload: { records, contentRecords }
   };
 }
 
 export function restoreAttachmentRecordsFlow(
-  payload: AttachmentPersistencePayload | any
+  payload: AttachmentPersistencePayload | Record<string, unknown>
 ): RestoreAttachmentPersistenceResult {
   if (!payload || !Array.isArray(payload.records)) {
     return { status: 'controlled_error', reason: 'Invalid payload format' };
@@ -119,6 +126,10 @@ export function restoreAttachmentRecordsFlow(
     if (record.source) attachment.source = record.source;
 
     attachments.push(attachment);
+  }
+
+  if (payload.contentRecords && Array.isArray(payload.contentRecords)) {
+    restoreAttachmentContentRepositorySnapshot(payload.contentRecords);
   }
 
   return {

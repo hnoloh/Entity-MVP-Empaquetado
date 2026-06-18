@@ -49,7 +49,7 @@ describe('attachmentViewModel', () => {
       fileExtension: 'txt', // Fake extension for test
       mimeType: 'application/octet-stream',
       receivedAt: new Date().toISOString(),
-      status: 'unsupported',
+      status: 'unsupported' as unknown as Attachment['status'],
       source: 'user_upload'
     };
     

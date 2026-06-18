@@ -89,7 +89,7 @@ describe('Chat Histories Functional Persistence', () => {
         { id: 'msg-dup', role: 'user', content: 'A', timestamp: 1 },
         { id: 'msg-dup', role: 'assistant', content: 'B', timestamp: 2 }
       ]
-    } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    } as unknown;  
     const request: ChatHistoriesPersistenceRequest = { explicitUserAction: true, chats: [invalidChat] };
     const result = persistChatHistoriesFlow(request);
     expect(result.status).toBe('controlled_error');
@@ -109,7 +109,7 @@ describe('Chat Histories Functional Persistence', () => {
       history: [
         { id: 'msg-only', role: 'user' } // Missing content and timestamp
       ]
-    } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    } as unknown;  
     const request: ChatHistoriesPersistenceRequest = { explicitUserAction: true, chats: [invalidChat] };
     const result = persistChatHistoriesFlow(request);
     expect(result.status).toBe('controlled_error');
@@ -120,7 +120,7 @@ describe('Chat Histories Functional Persistence', () => {
     const payload: ChatHistoriesPersistencePayload = {
       root: 'chats',
       version: '1.0',
-      data: [{ ...validChat, visualState: 'open' } as any] // eslint-disable-line @typescript-eslint/no-explicit-any
+      data: [{ ...validChat, visualState: 'open' } as unknown]  
     };
     const request: ChatHistoriesRestoreRequest = { explicitUserAction: true, payload };
     const result = restoreChatHistoriesFlow(request);
@@ -137,7 +137,7 @@ describe('Chat Histories Functional Persistence', () => {
         history: [
           { id: 'msg-1', role: 'user', content: 'Hello', timestamp: 1000, apiKey: 'leak' }
         ]
-      } as any] // eslint-disable-line @typescript-eslint/no-explicit-any
+      } as unknown]  
     };
     const request: ChatHistoriesRestoreRequest = { explicitUserAction: true, payload };
     const result = restoreChatHistoriesFlow(request);

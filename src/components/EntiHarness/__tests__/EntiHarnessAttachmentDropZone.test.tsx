@@ -7,7 +7,7 @@ describe('EntiHarnessAttachmentDropZone', () => {
   it('renderiza el contenido base sin overlay en estado idle', () => {
     vi.spyOn(HookModule, 'useEntiHarnessAttachmentDrop').mockReturnValue({
       dropState: 'idle',
-      handlers: {} as any
+      handlers: {} as unknown
     });
     render(
       <EntiHarnessAttachmentDropZone ownerId="enti-1" scope="enti_knowledge">
@@ -21,7 +21,7 @@ describe('EntiHarnessAttachmentDropZone', () => {
   it('renderiza valid overlay en dragging_valid', () => {
     vi.spyOn(HookModule, 'useEntiHarnessAttachmentDrop').mockReturnValue({
       dropState: 'dragging_valid',
-      handlers: {} as any
+      handlers: {} as unknown
     });
     const { container } = render(
       <EntiHarnessAttachmentDropZone ownerId="enti-1" scope="enti_knowledge">

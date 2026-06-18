@@ -66,8 +66,8 @@ describe('validateGroupGapsFlow (RV05-FIA-016)', () => {
   it('Debería considerar inválida una estructura con slots fuera de rango', () => {
     const group: Group = {
       id: 'g-1', type: 'group', name: 'Test',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      slots: { '1': 'e-1', '6': 'e-6' } as any
+       
+      slots: { '1': 'e-1', '6': 'e-6' } as unknown
     };
     const result = validateGroupGapsFlow(group);
     expect(result.valid).toBe(false);

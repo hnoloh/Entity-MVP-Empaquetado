@@ -7,6 +7,8 @@ import {
   persistAttachmentRecordsFlow 
 } from '../../domain/attachments';
 import { attachmentsStore } from './attachmentsStore';
+import { readAttachmentPhysicalTextContent } from '../../domain/attachments/readAttachmentPhysicalTextContent';
+import { attachmentContentRepository } from '../../domain/attachments/attachmentContentRepository';
 
 export type AttachmentDropState = 'idle' | 'dragging_valid' | 'dragging_blocked' | 'dropped' | 'error';
 
@@ -56,7 +58,7 @@ export function useChatAttachmentDrop(
     }
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -96,8 +98,27 @@ export function useChatAttachmentDrop(
     }
 
     const attachment = creationResult.attachment;
-    let assocResult;
 
+    // Puente UI -> Lectura Física
+    const readResult = await readAttachmentPhysicalTextContent({
+      attachmentId: attachment.attachmentId,
+      ownerType: attachment.ownerType as 'enti' | 'group',
+      ownerId: attachment.ownerId,
+      chatId: attachment.chatId,
+      scope: ownerType === 'enti' ? 'enti_chat' : 'group_chat',
+      fileName: attachment.fileName,
+      fileExtension: attachment.fileExtension,
+      mimeType: attachment.mimeType
+    }, file);
+
+    if (readResult.readStatus !== 'success') {
+      setDropState('error');
+      setErrorMessage(readResult.errorMessage || 'Error de lectura');
+      setTimeout(() => setDropState('idle'), 3000);
+      return;
+    }
+
+    let assocResult;
     if (ownerType === 'enti') {
       assocResult = associateAttachmentToEntiChatFlow({
         explicitUserAction: true,
@@ -121,6 +142,18 @@ export function useChatAttachmentDrop(
       setTimeout(() => setDropState('idle'), 3000);
       return;
     }
+
+    // Upsert to repository
+    attachmentContentRepository.upsert({
+      attachmentId: readResult.attachmentId,
+      ownerType: readResult.ownerType,
+      ownerId: readResult.ownerId,
+      chatId: readResult.chatId,
+      scope: readResult.scope as 'enti_chat' | 'group_chat',
+      contentText: readResult.contentText!,
+      readAt: new Date().toISOString(),
+      metadata: { fileName: readResult.fileName }
+    });
 
     const persistResult = persistAttachmentRecordsFlow([attachment]);
     if (persistResult.status !== 'success') {

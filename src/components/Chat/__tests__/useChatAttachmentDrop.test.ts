@@ -2,12 +2,17 @@ import { describe, it, expect, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useChatAttachmentDrop } from '../useChatAttachmentDrop';
 import * as attachmentsDomain from '../../../domain/attachments';
+import { readAttachmentPhysicalTextContent } from '../../../domain/attachments/readAttachmentPhysicalTextContent';
 
 vi.mock('../../../domain/attachments', () => ({
   createAttachmentModelFlow: vi.fn(),
   associateAttachmentToEntiChatFlow: vi.fn(),
   associateAttachmentToGroupChatFlow: vi.fn(),
   persistAttachmentRecordsFlow: vi.fn()
+}));
+
+vi.mock('../../../domain/attachments/readAttachmentPhysicalTextContent', () => ({
+  readAttachmentPhysicalTextContent: vi.fn()
 }));
 
 describe('useChatAttachmentDrop', () => {
@@ -38,21 +43,33 @@ describe('useChatAttachmentDrop', () => {
     expect(result.current.dropState).toBe('dragging_valid');
   });
 
-  it('processes drop and calls domain flows', () => {
-    const mockAttachment = { attachmentId: 'att1' };
-    vi.mocked(attachmentsDomain.createAttachmentModelFlow).mockReturnValue({ status: 'success', attachment: mockAttachment } as any);
-    vi.mocked(attachmentsDomain.associateAttachmentToEntiChatFlow).mockReturnValue({ status: 'success' } as any);
-    vi.mocked(attachmentsDomain.persistAttachmentRecordsFlow).mockReturnValue({ status: 'success' } as any);
+  it('processes drop and calls domain flows', async () => {
+    const mockAttachment = { attachmentId: 'att1', ownerType: 'enti', ownerId: 'e1', chatId: 'c1' };
+    vi.mocked(attachmentsDomain.createAttachmentModelFlow).mockReturnValue({ status: 'success', attachment: mockAttachment } as unknown);
+    vi.mocked(attachmentsDomain.associateAttachmentToEntiChatFlow).mockReturnValue({ status: 'success' } as unknown);
+    vi.mocked(attachmentsDomain.persistAttachmentRecordsFlow).mockReturnValue({ status: 'success' } as unknown);
+    vi.mocked(readAttachmentPhysicalTextContent).mockResolvedValue({
+      readStatus: 'success',
+      attachmentId: 'att1',
+      ownerType: 'enti',
+      ownerId: 'e1',
+      chatId: 'c1',
+      scope: 'enti_chat',
+      fileName: 'test.pdf',
+      fileExtension: 'pdf',
+      mimeType: 'application/pdf',
+      contentText: 'content'
+    } as unknown);
 
     const { result } = renderHook(() => useChatAttachmentDrop('enti', 'e1', 'c1'));
-    act(() => {
+    await act(async () => {
       const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
       const e = { 
         preventDefault: vi.fn(), 
         stopPropagation: vi.fn(), 
         dataTransfer: { files: [file] } 
       } as unknown as React.DragEvent;
-      result.current.handlers.onDrop(e);
+      await result.current.handlers.onDrop(e);
     });
 
     expect(result.current.dropState).toBe('dropped');

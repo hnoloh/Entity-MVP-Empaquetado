@@ -60,7 +60,7 @@ describe('loadPersistedOperationalStateFlow', () => {
         positionPayload: { root: 'member_positions', version: '1.0', data: [] }
       }
     };
-    vi.mocked(storage.loadSnapshot).mockResolvedValueOnce(validPayload as any);
+    vi.mocked(storage.loadSnapshot).mockResolvedValueOnce(validPayload as unknown);
 
     const request: LoadPersistedOperationalStateRequest = { lifecyclePhaseAuthorized: true };
     const result = await loadPersistedOperationalStateFlow(request);
@@ -78,7 +78,7 @@ describe('loadPersistedOperationalStateFlow', () => {
         entiPayload: { entis: [{ id: 123, type: 'invalid' }] } // invalid types
       }
     };
-    vi.mocked(storage.loadSnapshot).mockResolvedValueOnce(invalidPayload as any);
+    vi.mocked(storage.loadSnapshot).mockResolvedValueOnce(invalidPayload as unknown);
 
     const request: LoadPersistedOperationalStateRequest = { lifecyclePhaseAuthorized: true };
     const result = await loadPersistedOperationalStateFlow(request);

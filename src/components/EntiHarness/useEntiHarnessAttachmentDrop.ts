@@ -4,6 +4,8 @@ import { associateAttachmentToEntiKnowledgeFlow } from '../../domain/attachments
 import { associateAttachmentToEntiWorkMaterialFlow } from '../../domain/attachments/associateAttachmentToEntiWorkMaterialFlow';
 import { buildHarnessAttachmentDropIntent } from './buildHarnessAttachmentDropIntent';
 import type { HarnessDestinationScope } from './buildHarnessAttachmentDropIntent';
+import { readAttachmentPhysicalTextContent } from '../../domain/attachments/readAttachmentPhysicalTextContent';
+import { attachmentContentRepository } from '../../domain/attachments/attachmentContentRepository';
 
 export type HarnessAttachmentDropState = 'idle' | 'dragging_valid' | 'dragging_blocked' | 'dropped' | 'error';
 
@@ -59,7 +61,7 @@ export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDest
          ownerId: ownerId,
          chatId: 'harness_global',
          fileName: file.name,
-         fileExtension: extension as any,
+         fileExtension: extension as "md" | "txt" | "pdf" | "jpg" | "jpeg" | "png" | "gif",
          mimeType: file.type,
          sizeBytes: file.size
        });
@@ -71,6 +73,21 @@ export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDest
        
        const model = creationResult.attachment;
 
+       const readResult = await readAttachmentPhysicalTextContent({
+         attachmentId: model.attachmentId,
+         ownerType: model.ownerType as 'enti' | 'group',
+         ownerId: model.ownerId,
+         scope: scope,
+         fileName: model.fileName,
+         fileExtension: model.fileExtension,
+         mimeType: model.mimeType
+       }, file);
+
+       if (readResult.readStatus !== 'success') {
+         hasError = true;
+         continue;
+       }
+
        if (scope === 'enti_knowledge') {
           const result = associateAttachmentToEntiKnowledgeFlow({ attachment: model, ownerId, ownerType: 'enti' });
           if (result.status !== 'success') hasError = true;
@@ -80,6 +97,15 @@ export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDest
        }
        
        if (!hasError) {
+         attachmentContentRepository.upsert({
+           attachmentId: readResult.attachmentId,
+           ownerType: readResult.ownerType,
+           ownerId: readResult.ownerId,
+           scope: readResult.scope as 'enti_knowledge' | 'enti_work_material',
+           contentText: readResult.contentText!,
+           readAt: new Date().toISOString(),
+           metadata: { fileName: readResult.fileName }
+         });
          processedFiles.push(file.name);
        }
     }

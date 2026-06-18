@@ -79,9 +79,12 @@ interface ExpandedModalProps {
   onChange: (val: string | string[]) => void;
   onClose: () => void;
   attachments?: string[];
+  dropZoneScope?: "enti_knowledge" | "enti_work_material";
+  ownerId?: string;
+  onAttachmentsDropped?: (files: string[]) => void;
 }
 
-const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChange, onClose, attachments }) => {
+const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChange, onClose, attachments, dropZoneScope, ownerId, onAttachmentsDropped }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const displayValue = Array.isArray(value) ? value.join("\n") : value;
 
@@ -93,9 +96,8 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
     }
   };
 
-  return (
-    <div className="expanded-field-overlay" data-testid="expanded-field-modal">
-      <div className="expanded-field-content" style={{ display: 'flex', flexDirection: 'column' }}>
+  const innerContent = (
+      <div className="expanded-field-content" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div className="expanded-field-header">
           <h3>Editando: {label}</h3>
           {attachments !== undefined && (
@@ -150,6 +152,19 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
           <button type="button" onClick={onClose}>Cerrar</button>
         </div>
       </div>
+  );
+
+  return (
+    <div className="expanded-field-overlay" data-testid="expanded-field-modal">
+      {dropZoneScope && ownerId ? (
+        <EntiHarnessAttachmentDropZone
+          scope={dropZoneScope}
+          ownerId={ownerId}
+          onSuccess={onAttachmentsDropped}
+        >
+          {innerContent}
+        </EntiHarnessAttachmentDropZone>
+      ) : innerContent}
     </div>
   );
 };
@@ -513,6 +528,15 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
           attachments={
              expandedField.key === "knowledge" ? sessionAttachments.knowledge :
              expandedField.key === "workMaterial" ? sessionAttachments.workMaterial : undefined
+          }
+          dropZoneScope={
+            expandedField.key === "knowledge" ? "enti_knowledge" :
+            expandedField.key === "workMaterial" ? "enti_work_material" : undefined
+          }
+          ownerId={draft.id}
+          onAttachmentsDropped={
+            expandedField.key === "knowledge" ? (files) => setSessionAttachments(prev => ({ ...prev, knowledge: [...prev.knowledge, ...files] })) :
+            expandedField.key === "workMaterial" ? (files) => setSessionAttachments(prev => ({ ...prev, workMaterial: [...prev.workMaterial, ...files] })) : undefined
           }
         />
       )}

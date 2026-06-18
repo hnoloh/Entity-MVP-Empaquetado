@@ -41,7 +41,7 @@ describe('associateAttachmentToEntiKnowledgeFlow', () => {
 
   it('Rechaza attachmentId ausente', () => {
     const invalidAtt = { ...baseAttachment };
-    delete (invalidAtt as any).attachmentId;
+    delete (invalidAtt as unknown).attachmentId;
     const result = associateAttachmentToEntiKnowledgeFlow({ attachment: invalidAtt, ownerId: 'enti-1', ownerType: 'enti' });
     expect(result.status).toBe('blocked');
     if (result.status === 'blocked') expect(result.reason).toContain('Falta attachmentId');

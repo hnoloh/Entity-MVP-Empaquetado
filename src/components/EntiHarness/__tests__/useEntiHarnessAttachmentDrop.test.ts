@@ -12,6 +12,19 @@ vi.mock('../../../domain/attachments/associateAttachmentToEntiKnowledgeFlow', ()
 vi.mock('../../../domain/attachments/associateAttachmentToEntiWorkMaterialFlow', () => ({
   associateAttachmentToEntiWorkMaterialFlow: vi.fn().mockReturnValue({ status: 'success' })
 }));
+vi.mock('../../../domain/attachments/readAttachmentPhysicalTextContent', () => ({
+  readAttachmentPhysicalTextContent: vi.fn().mockResolvedValue({
+    readStatus: 'success',
+    attachmentId: 'test',
+    ownerType: 'enti',
+    ownerId: 'enti-1',
+    scope: 'enti_knowledge',
+    fileName: 'test.txt',
+    fileExtension: 'txt',
+    mimeType: 'text/plain',
+    contentText: 'content'
+  })
+}));
 
 describe('useEntiHarnessAttachmentDrop', () => {
   const createDragEvent = (kind: string) => {
@@ -21,7 +34,7 @@ describe('useEntiHarnessAttachmentDrop', () => {
       dataTransfer: {
         items: [{ kind, getAsFile: () => new File([''], 'test.txt') }]
       }
-    } as any;
+    } as unknown;
   };
 
   it('transiciona idle -> dragging_valid -> dropped', async () => {

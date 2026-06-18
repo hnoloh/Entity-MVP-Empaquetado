@@ -1,13 +1,13 @@
 import type { Attachment } from './attachmentModel';
 
 export interface AssociateAttachmentToEntiKnowledgeRequest {
-  attachment: Attachment | any; // Any to allow checking forbidden physical fields
+  attachment: Attachment | Record<string, unknown>; // Record to allow checking forbidden physical fields
   ownerId: string;
   ownerType: string;
 }
 
 export type AttachmentKnowledgeAssociationResult = 
-  | { status: 'success'; attachmentId: string; ownerType: 'enti'; ownerId: string; knowledgeScope: 'enti_knowledge'; metadata?: any }
+  | { status: 'success'; attachmentId: string; ownerType: 'enti'; ownerId: string; knowledgeScope: 'enti_knowledge'; metadata?: Record<string, unknown> }
   | { status: 'blocked'; reason: string }
   | { status: 'controlled_error'; reason: string };
 

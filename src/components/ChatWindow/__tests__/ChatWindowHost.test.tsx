@@ -48,8 +48,8 @@ describe('ChatWindowHost', () => {
           if(popupContainer) popupContainer.innerHTML = ''; 
         },
         closed: false
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any;
+         
+      } as unknown;
     });
   });
 

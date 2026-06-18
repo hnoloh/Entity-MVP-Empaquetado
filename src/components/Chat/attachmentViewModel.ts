@@ -19,7 +19,7 @@ function formatBytes(bytes: number): string {
 }
 
 export function mapAttachmentRecordToChatAttachmentViewModel(attachment: Attachment): ChatAttachmentViewModel {
-  let status: ChatAttachmentViewModel['status'] = 'renderizable';
+  let status: ChatAttachmentViewModel['status'];
   
   if (!attachment.fileName || !attachment.fileExtension) {
     status = 'unavailable_metadata';

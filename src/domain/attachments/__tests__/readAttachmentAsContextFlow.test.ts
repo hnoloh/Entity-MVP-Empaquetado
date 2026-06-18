@@ -89,7 +89,7 @@ describe('readAttachmentAsContextFlow', () => {
 
   it('controlled_error unsupported type (delegated to policy)', async () => {
     const exeAtt = { ...baseAttachment, fileExtension: 'exe' };
-    const result = await readAttachmentAsContextFlow(validRequest, exeAtt as any, mockAdapter);
+    const result = await readAttachmentAsContextFlow(validRequest, exeAtt as unknown, mockAdapter);
     expect(result.status).toBe('controlled_error');
     if (result.status === 'controlled_error') expect(result.error).toBe('unsupported_type');
   });

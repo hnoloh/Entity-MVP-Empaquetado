@@ -79,7 +79,7 @@ describe('Entis Functional Persistence', () => {
     const payload: EntiPersistencePayload = {
       root: 'entis',
       version: '1.0',
-      data: [{ ...validEnti, unexpectedField: 'bad', chatHistory: [] } as any] // eslint-disable-line @typescript-eslint/no-explicit-any
+      data: [{ ...validEnti, unexpectedField: 'bad', chatHistory: [] } as unknown]  
     };
     const result = restoreEntisFromPersistencePayload(payload);
     expect(result.status).toBe('controlled_error');
@@ -91,7 +91,7 @@ describe('Entis Functional Persistence', () => {
     const payload: EntiPersistencePayload = {
       root: 'entis',
       version: '1.0',
-      data: [invalidEnti as any] // eslint-disable-line @typescript-eslint/no-explicit-any
+      data: [invalidEnti as unknown]  
     };
     const result = restoreEntisFromPersistencePayload(payload);
     expect(result.status).toBe('controlled_error');

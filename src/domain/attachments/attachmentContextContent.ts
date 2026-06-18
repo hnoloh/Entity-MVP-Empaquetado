@@ -5,8 +5,13 @@ export interface AttachmentContextContent {
   chatId: string;
   sourceName: string;
   contentText: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
+
+export type AttachmentContextContentResult = 
+  | { status: 'success'; contentText: string; metadata?: Record<string, unknown> }
+  | { status: 'blocked'; reason: string }
+  | { status: 'controlled_error'; reason: string };
 
 export type AttachmentReadError = 
   | 'wrong_owner' 

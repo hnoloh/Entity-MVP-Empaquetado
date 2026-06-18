@@ -104,7 +104,7 @@ describe('attachmentsPersistence', () => {
       ...entiAttachment,
       sizeBytes: 1024,
       status: 'readable'
-    } as any;
+    } as unknown;
     const result = persistAttachmentRecordsFlow([att]);
     if (result.status === 'success') {
       expect(result.payload.records[0].sizeBytes).toBe(1024);
@@ -126,13 +126,13 @@ describe('attachmentsPersistence', () => {
   });
 
   it('forbidden content fields', () => {
-    const att = { ...entiAttachment, content: 'some text' } as any;
+    const att = { ...entiAttachment, content: 'some text' } as unknown;
     const result = persistAttachmentRecordsFlow([att]);
     expect(result.status).toBe('blocked');
   });
 
   it('invalid ownerType', () => {
-    const att = { ...entiAttachment, ownerType: 'invalid' } as any;
+    const att = { ...entiAttachment, ownerType: 'invalid' } as unknown;
     const result = persistAttachmentRecordsFlow([att]);
     expect(result.status).toBe('blocked');
   });

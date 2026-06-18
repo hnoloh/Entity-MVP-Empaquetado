@@ -16,12 +16,12 @@ describe('Group without Brain (RV05-FIA-015)', () => {
     expect(group.name).toBe('Grupo Test');
     
     // Verificamos que las propiedades cognitivas no se añadan por defecto
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((group as any).brainId).toBeUndefined();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((group as any).provider).toBeUndefined();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((group as any).runtimeConfig).toBeUndefined();
+     
+    expect((group as unknown).brainId).toBeUndefined();
+     
+    expect((group as unknown).provider).toBeUndefined();
+     
+    expect((group as unknown).runtimeConfig).toBeUndefined();
   });
 
   it('TEST-FIA015-02: Edición de nombre y función en Grupo sin Brain', () => {

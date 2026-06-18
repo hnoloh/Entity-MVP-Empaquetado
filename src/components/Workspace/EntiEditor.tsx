@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import type { Enti } from "../../domain/enti/Enti";
 import { deriveEntiStatus } from "../../domain/enti/entiStatus";
 import { EntiHarnessAttachmentDropZone } from "../EntiHarness/EntiHarnessAttachmentDropZone";
+import { EntiToolBelt } from "../EntiEditor/EntiToolBelt";
 import "./EntiEditor.css";
 
 interface EntiEditorProps {
@@ -516,6 +517,8 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
             />
           </div>
         </div>
+        
+        <EntiToolBelt entiId={draft.id} />
       </div>
 
       {expandedField && (

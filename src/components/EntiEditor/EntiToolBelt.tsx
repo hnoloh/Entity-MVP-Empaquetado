@@ -25,30 +25,17 @@ export const EntiToolBelt: React.FC<Props> = ({ entiId }) => {
 
   return (
     <div className="field-group" data-testid="enti-tool-belt">
-      <div className="field-header">
+      <div className="field-header" style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'flex-start', position: 'relative' }}>
         <label>Herramientas</label>
-      </div>
-      <div className="custom-select-container">
-        <div 
-          className="custom-select-trigger" 
-          onClick={() => setIsOpen(!isOpen)}
-          style={{ minHeight: '38px', display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}
+        <button 
+          type="button" 
+          onClick={() => setIsOpen(!isOpen)} 
+          style={{ background: 'transparent', border: 'none', color: '#00ffff', cursor: 'pointer', padding: '0', display: 'flex', alignItems: 'center', opacity: 0.8 }}
         >
-          {selectedTools.length === 0 ? (
-            <span style={{ color: '#aaa', fontSize: '0.85rem' }}>Seleccionar herramientas...</span>
-          ) : (
-            selectedTools.map(tool => (
-              <EntiToolIcon 
-                key={tool.id} 
-                item={tool} 
-                onRemove={() => toggleTool(tool)}
-              />
-            ))
-          )}
-          <span className="dropdown-arrow" style={{ marginLeft: 'auto' }}>▼</span>
-        </div>
+          <span className="dropdown-arrow">▼</span>
+        </button>
         {isOpen && (
-          <ul className="custom-select-options tool-belt-options" style={{ bottom: '100%', top: 'auto', marginBottom: '4px', minWidth: '150px' }}>
+          <ul className="custom-select-options tool-belt-options" style={{ position: 'absolute', bottom: '100%', left: '0', marginBottom: '4px', minWidth: '180px', margin: 0 }}>
             {tools.map(tool => {
               const isSelected = selectedTools.some(t => t.id === tool.id);
               return (
@@ -68,6 +55,17 @@ export const EntiToolBelt: React.FC<Props> = ({ entiId }) => {
           </ul>
         )}
       </div>
+      {selectedTools.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+          {selectedTools.map(tool => (
+            <EntiToolIcon 
+              key={tool.id} 
+              item={tool} 
+              onRemove={() => toggleTool(tool)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

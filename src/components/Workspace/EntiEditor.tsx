@@ -44,14 +44,20 @@ const HarnessField: React.FC<HarnessFieldProps> = ({ label, value, testId, onExp
     }
   };
 
-  const content = mode === 'modal-only' ? (
-    <button type="button" className="expand-btn modal-only-btn" onClick={onExpand} style={{ width: '100%', padding: '0.6rem', background: 'rgba(0,255,255,0.05)', border: '1px dashed rgba(0,255,255,0.3)', color: '#00ffff', borderRadius: '4px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
-      Abrir desplegable
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
-      </svg>
-    </button>
-  ) : (
+  const header = (
+    <div className="field-header" style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'flex-start' }}>
+      <label>{label}</label>
+      {mode === 'modal-only' && (
+        <button type="button" onClick={onExpand} title={`Expandir ${label}`} style={{ background: 'transparent', border: 'none', color: '#00ffff', cursor: 'pointer', padding: '0', display: 'flex', alignItems: 'center', opacity: 0.8 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+          </svg>
+        </button>
+      )}
+    </div>
+  );
+
+  const content = mode === 'modal-only' ? null : (
     <div className="textarea-wrapper">
       <textarea
         data-testid={testId}
@@ -67,22 +73,22 @@ const HarnessField: React.FC<HarnessFieldProps> = ({ label, value, testId, onExp
     </div>
   );
 
-  return (
+  const body = (
     <div className="field-group">
-      <div className="field-header">
-        <label>{label}</label>
-      </div>
-      {dropZoneScope && ownerId ? (
-        <EntiHarnessAttachmentDropZone
-          scope={dropZoneScope}
-          ownerId={ownerId}
-          onSuccess={onAttachmentsDropped}
-        >
-          {content}
-        </EntiHarnessAttachmentDropZone>
-      ) : content}
+      {header}
+      {content}
     </div>
   );
+
+  if (dropZoneScope && ownerId) {
+    return (
+      <EntiHarnessAttachmentDropZone scope={dropZoneScope} ownerId={ownerId} onSuccess={onAttachmentsDropped}>
+        {body}
+      </EntiHarnessAttachmentDropZone>
+    );
+  }
+
+  return body;
 };
 
 interface ExpandedModalProps {
@@ -339,20 +345,14 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
       )}
 
         {isBrainSelectOpen && (
-          <div 
-            className="global-transparent-overlay" 
-            onClick={handleOverlayClick} 
-            data-testid="global-transparent-overlay"
-          />
-        )}
-
-          <div className="editor-body">
-        <div className="harness-fields-row top-row-horizontal" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-          <div className="field-group name-field" style={{ flex: 1 }}>
+      <div className="editor-body">
+        <div className="harness-fields-row" style={{ display: 'flex', flexDirection: 'row', gap: '1rem', alignItems: 'flex-end', marginBottom: '0.5rem' }}>
+          <div className="field-group name-field" style={{ flex: 1, margin: 0 }}>
             <label>Nombre de Enti</label>
             <input
               type="text"
               className="harness-input"
+              style={{ height: '34px', boxSizing: 'border-box' }}
               value={draft.name}
               onChange={(e) => handleChange("name", e.target.value)}
               placeholder="Nuevo Enti"
@@ -360,11 +360,12 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
             />
           </div>
 
-          <div className="field-group cognitive-config-section" style={{ flex: 1, marginTop: 0 }} data-testid="cognitive-config-section">
+          <div className="field-group" style={{ flex: 1, margin: 0 }}>
             <label>Tipo de Brain</label>
             <div className="custom-select-container">
               <div 
                 className="custom-select-trigger"
+                style={{ height: '34px', boxSizing: 'border-box' }}
                 data-testid="input-cognitive-mode"
                 data-value={draft.cognitiveConfig.mode}
                 onClick={() => {
@@ -483,8 +484,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
           </div>
         </div>
 
-        <div className="harness-base-section horizontal-harness" data-testid="harness-base-section">
-          <div className="harness-fields-row">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
             <HarnessField
               label="Función"
               fieldKey="function"
@@ -530,7 +530,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               mode="modal-only"
             />
             <EntiToolBelt entiId={draft.id} />
-          </div>
         </div>
       </div>
 

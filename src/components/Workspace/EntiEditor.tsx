@@ -18,11 +18,10 @@ interface EntiEditorProps {
 
 interface HarnessFieldProps {
   label: string;
-  fieldKey: keyof Enti["harness"];
-  value: string | string[];
+  value: string;
   testId: string;
   onExpand: () => void;
-  onChange: (val: string | string[]) => void;
+  onChange: (val: string) => void;
   inlineValue?: string;
   onInlineChange?: (val: string) => void;
   dropZoneScope?: "enti_knowledge" | "enti_work_material";
@@ -32,13 +31,9 @@ interface HarnessFieldProps {
 }
 
 const HarnessField: React.FC<HarnessFieldProps> = ({ label, value, testId, onExpand, onChange, inlineValue, onInlineChange, dropZoneScope, ownerId, onAttachmentsDropped, mode = 'inline' }) => {
-  const displayValue = Array.isArray(value) ? value.join("\n") : value;
-  
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (inlineValue !== undefined && onInlineChange) {
       onInlineChange(e.target.value);
-    } else if (Array.isArray(value)) {
-      onChange(e.target.value.split("\n"));
     } else {
       onChange(e.target.value);
     }
@@ -62,7 +57,7 @@ const HarnessField: React.FC<HarnessFieldProps> = ({ label, value, testId, onExp
       <textarea
         data-testid={testId}
         rows={1}
-        value={inlineValue !== undefined ? inlineValue : displayValue}
+        value={inlineValue !== undefined ? inlineValue : value}
         onChange={handleChange}
       />
       <button type="button" className="expand-btn" onClick={onExpand} title="Expandir">
@@ -93,9 +88,8 @@ const HarnessField: React.FC<HarnessFieldProps> = ({ label, value, testId, onExp
 
 interface ExpandedModalProps {
   label: string;
-  fieldKey: keyof Enti["harness"];
-  value: string | string[];
-  onChange: (val: string | string[]) => void;
+  value: string;
+  onChange: (val: string) => void;
   onClose: () => void;
   attachments?: string[];
   dropZoneScope?: "enti_knowledge" | "enti_work_material";
@@ -106,14 +100,9 @@ interface ExpandedModalProps {
 
 const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChange, onClose, attachments, dropZoneScope, ownerId, onAttachmentsDropped, onRemoveAttachment }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const displayValue = Array.isArray(value) ? value.join("\n") : value;
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (Array.isArray(value)) {
-      onChange(e.target.value.split("\n"));
-    } else {
-      onChange(e.target.value);
-    }
+    onChange(e.target.value);
   };
 
   const innerContent = (
@@ -188,7 +177,7 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
           <textarea
             className="expanded-textarea"
             style={{ flex: 1, resize: 'none' }}
-            value={displayValue}
+            value={value}
             onChange={handleChange}
           />
         </div>
@@ -233,9 +222,30 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
   const [tempApiKey, setTempApiKey] = useState(draft.cognitiveConfig.apiKey || "");
   const [showApiKey, setShowApiKey] = useState(false);
   const [sessionAttachments, setSessionAttachments] = useState<{ knowledge: string[], workMaterial: string[] }>({
-    knowledge: [],
-    workMaterial: []
+    knowledge: draft.harness.knowledgeAttachments || [],
+    workMaterial: draft.harness.workMaterialAttachments || []
   });
+
+  React.useEffect(() => {
+    setDraft(prev => {
+      const currentKnowledge = prev.harness.knowledgeAttachments || [];
+      const currentWorkMaterial = prev.harness.workMaterialAttachments || [];
+      if (
+        JSON.stringify(currentKnowledge) === JSON.stringify(sessionAttachments.knowledge) &&
+        JSON.stringify(currentWorkMaterial) === JSON.stringify(sessionAttachments.workMaterial)
+      ) {
+        return prev;
+      }
+      return {
+        ...prev,
+        harness: {
+          ...prev.harness,
+          knowledgeAttachments: sessionAttachments.knowledge,
+          workMaterialAttachments: sessionAttachments.workMaterial
+        }
+      };
+    });
+  }, [sessionAttachments]);
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -530,7 +540,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
             <HarnessField
               label="Función"
-              fieldKey="function"
               value={draft.harness.function}
               inlineValue={draft.harness.shortFunction || ''}
               onInlineChange={(val) => handleHarnessChange("shortFunction" as keyof typeof draft.harness, val)}
@@ -541,7 +550,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
             />
             <HarnessField
               label="Normas"
-              fieldKey="rules"
               value={draft.harness.rules}
               testId="input-rules"
               onExpand={() => setExpandedField({ key: "rules", label: "Normas" })}
@@ -550,7 +558,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
             />
             <HarnessField
               label="Conocimientos"
-              fieldKey="knowledge"
               value={draft.harness.knowledge}
               testId="input-knowledge"
               onExpand={() => setExpandedField({ key: "knowledge", label: "Conocimientos" })}
@@ -562,7 +569,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
             />
             <HarnessField
               label="Material de Trabajo"
-              fieldKey="workMaterial"
               value={draft.harness.workMaterial}
               testId="input-workMaterial"
               onExpand={() => setExpandedField({ key: "workMaterial", label: "Material de Trabajo" })}

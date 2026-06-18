@@ -594,7 +594,13 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
             expandedField.key === "workMaterial" ? "enti_work_material" : undefined
           }
           ownerId={draft.id}
-          onAttachmentsDropped={handleAttachmentsDropped}
+          onAttachmentsDropped={(files) => {
+            if (expandedField.key === "knowledge") {
+              setSessionAttachments(prev => ({ ...prev, knowledge: [...prev.knowledge, ...files] }));
+            } else if (expandedField.key === "workMaterial") {
+              setSessionAttachments(prev => ({ ...prev, workMaterial: [...prev.workMaterial, ...files] }));
+            }
+          }}
           onRemoveAttachment={(file) => {
             if (expandedField.key === "knowledge") {
               setSessionAttachments(prev => ({ ...prev, knowledge: prev.knowledge.filter(f => f !== file) }));

@@ -181,7 +181,9 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
           ownerId={ownerId}
           onSuccess={onAttachmentsDropped}
         >
-          {innerContent}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+            {innerContent}
+          </div>
         </EntiHarnessAttachmentDropZone>
       ) : innerContent}
     </div>,
@@ -541,8 +543,10 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               onAttachmentsDropped={(files) => setSessionAttachments(prev => ({ ...prev, workMaterial: [...prev.workMaterial, ...files] }))}
               mode="modal-only"
             />
-            <EntiToolBelt entiId={draft.id} />
         </div>
+      </div>
+      <div style={{ marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+        <EntiToolBelt entiId={draft.id} />
       </div>
 
       {expandedField && (

@@ -22,7 +22,7 @@
   bottom: 0;
   height: fit-content;
   pointer-events: auto;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .enti-editor:not(.hidden) {

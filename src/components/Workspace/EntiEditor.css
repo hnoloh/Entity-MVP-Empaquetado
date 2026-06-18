@@ -253,9 +253,9 @@
 .expanded-field-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(2, 6, 23, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -265,15 +265,17 @@
 
 .expanded-field-content {
   background: #0f172a;
-  border: 1px solid rgba(0, 229, 255, 0.3);
-  border-radius: 8px;
-  width: 90vw;
-  max-width: 550px;
-  height: 85vh;
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 12px;
+  width: 600px;
+  max-width: 90vw;
+  height: 60vh;
+  min-height: 400px;
+  max-height: 600px;
   display: flex;
   flex-direction: column;
   padding: 2rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), 0 0 24px rgba(0, 229, 255, 0.05);
   gap: 1.5rem;
 }
 

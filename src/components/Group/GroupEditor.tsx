@@ -179,9 +179,9 @@ export const GroupEditor: React.FC<GroupEditorProps> = ({ group, isActive, onSav
       )}
 
       <div className="editor-body">
-        <div className="harness-fields-row top-row-horizontal">
-          <div className="field-group name-field">
-            <label>Nombre del Grupo</label>
+        <div className="harness-fields-row" style={{ display: 'flex', flexDirection: 'row', gap: '1rem', alignItems: 'flex-end', marginBottom: '1rem' }}>
+          <div className="field-group name-field" style={{ flex: 1, margin: 0, gap: '4px' }}>
+            <label style={{ margin: 0 }}>Nombre del Grupo</label>
             <input 
               type="text" 
               data-testid="input-group-name" 
@@ -189,11 +189,12 @@ export const GroupEditor: React.FC<GroupEditorProps> = ({ group, isActive, onSav
               onChange={e => handleChangeName(e.target.value)} 
               className="harness-input" 
               placeholder="Nuevo Grupo"
+              style={{ height: '34px', boxSizing: 'border-box', fontSize: '0.85rem', borderRadius: '6px', padding: '0 8px', margin: 0, border: '1px solid rgba(0, 229, 255, 0.2)', background: 'rgba(0, 0, 0, 0.3)' }}
             />
           </div>
-          <div className="field-group">
+          <div className="field-group" style={{ flex: 1, margin: 0, gap: '4px' }}>
             <div className="field-header">
-              <label>Función del Grupo</label>
+              <label style={{ margin: 0 }}>Función del Grupo</label>
             </div>
             <div className="textarea-wrapper">
               <textarea 
@@ -202,6 +203,7 @@ export const GroupEditor: React.FC<GroupEditorProps> = ({ group, isActive, onSav
                 value={draft.function || ""} 
                 onChange={e => handleChangeFunction(e.target.value)} 
                 className="harness-input" 
+                style={{ height: '34px', boxSizing: 'border-box', fontSize: '0.85rem', borderRadius: '6px', padding: '0 8px', margin: 0, border: '1px solid rgba(0, 229, 255, 0.2)', background: 'rgba(0, 0, 0, 0.3)' }}
               />
               <button type="button" className="expand-btn" onClick={() => setExpandedField({ key: "function", label: "Función del Grupo" })} title="Expandir">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -23,28 +23,40 @@ interface HarnessFieldProps {
   testId: string;
   onExpand: () => void;
   onChange: (val: string | string[]) => void;
+  inlineValue?: string;
+  onInlineChange?: (val: string) => void;
   dropZoneScope?: "enti_knowledge" | "enti_work_material";
   ownerId?: string;
   onAttachmentsDropped?: (files: string[]) => void;
+  mode?: 'inline' | 'modal-only';
 }
 
-const HarnessField: React.FC<HarnessFieldProps> = ({ label, value, testId, onExpand, onChange, dropZoneScope, ownerId, onAttachmentsDropped }) => {
+const HarnessField: React.FC<HarnessFieldProps> = ({ label, value, testId, onExpand, onChange, inlineValue, onInlineChange, dropZoneScope, ownerId, onAttachmentsDropped, mode = 'inline' }) => {
   const displayValue = Array.isArray(value) ? value.join("\n") : value;
   
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (Array.isArray(value)) {
+    if (inlineValue !== undefined && onInlineChange) {
+      onInlineChange(e.target.value);
+    } else if (Array.isArray(value)) {
       onChange(e.target.value.split("\n"));
     } else {
       onChange(e.target.value);
     }
   };
 
-  const content = (
+  const content = mode === 'modal-only' ? (
+    <button type="button" className="expand-btn modal-only-btn" onClick={onExpand} style={{ width: '100%', padding: '0.6rem', background: 'rgba(0,255,255,0.05)', border: '1px dashed rgba(0,255,255,0.3)', color: '#00ffff', borderRadius: '4px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+      Abrir desplegable
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+      </svg>
+    </button>
+  ) : (
     <div className="textarea-wrapper">
       <textarea
         data-testid={testId}
         rows={1}
-        value={displayValue}
+        value={inlineValue !== undefined ? inlineValue : displayValue}
         onChange={handleChange}
       />
       <button type="button" className="expand-btn" onClick={onExpand} title="Expandir">
@@ -335,8 +347,8 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
         )}
 
           <div className="editor-body">
-        <div className="harness-fields-row top-row-horizontal">
-          <div className="field-group name-field">
+        <div className="harness-fields-row top-row-horizontal" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+          <div className="field-group name-field" style={{ flex: 1 }}>
             <label>Nombre de Enti</label>
             <input
               type="text"
@@ -347,11 +359,8 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               data-testid="input-name"
             />
           </div>
-        </div>
 
-        <div className="cognitive-config-section" data-testid="cognitive-config-section">
-          <h3>Configuración Cognitiva</h3>
-          <div className="field-group">
+          <div className="field-group cognitive-config-section" style={{ flex: 1, marginTop: 0 }} data-testid="cognitive-config-section">
             <label>Tipo de Brain</label>
             <div className="custom-select-container">
               <div 
@@ -480,9 +489,12 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               label="Función"
               fieldKey="function"
               value={draft.harness.function}
+              inlineValue={draft.harness.shortFunction || ''}
+              onInlineChange={(val) => handleHarnessChange("shortFunction" as keyof typeof draft.harness, val)}
               testId="input-function"
-              onExpand={() => setExpandedField({ key: "function", label: "Función" })}
+              onExpand={() => setExpandedField({ key: "function", label: "Función (Extendida)" })}
               onChange={(val) => handleHarnessChange("function", val)}
+              mode="inline"
             />
             <HarnessField
               label="Normas"
@@ -491,6 +503,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               testId="input-rules"
               onExpand={() => setExpandedField({ key: "rules", label: "Normas" })}
               onChange={(val) => handleHarnessChange("rules", val)}
+              mode="modal-only"
             />
             <HarnessField
               label="Conocimientos"
@@ -502,6 +515,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               dropZoneScope="enti_knowledge"
               ownerId={draft.id}
               onAttachmentsDropped={(files) => setSessionAttachments(prev => ({ ...prev, knowledge: [...prev.knowledge, ...files] }))}
+              mode="modal-only"
             />
             <HarnessField
               label="Material de Trabajo"
@@ -513,6 +527,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               dropZoneScope="enti_work_material"
               ownerId={draft.id}
               onAttachmentsDropped={(files) => setSessionAttachments(prev => ({ ...prev, workMaterial: [...prev.workMaterial, ...files] }))}
+              mode="modal-only"
             />
             <EntiToolBelt entiId={draft.id} />
           </div>

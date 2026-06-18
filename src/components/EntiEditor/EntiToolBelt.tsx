@@ -48,14 +48,14 @@ export const EntiToolBelt: React.FC<Props> = ({ entiId }) => {
           <span className="dropdown-arrow" style={{ marginLeft: 'auto' }}>▼</span>
         </div>
         {isOpen && (
-          <ul className="custom-select-options">
+          <ul className="custom-select-options tool-belt-options" style={{ bottom: '100%', top: 'auto', marginBottom: '4px', minWidth: '150px' }}>
             {tools.map(tool => {
               const isSelected = selectedTools.some(t => t.id === tool.id);
               return (
                 <li 
                   key={tool.id} 
                   onClick={(e) => { e.stopPropagation(); toggleTool(tool); setIsOpen(false); }}
-                  style={{ display: 'flex', justifyContent: 'space-between', opacity: isSelected ? 0.5 : 1 }}
+                  style={{ display: 'flex', justifyContent: 'space-between', opacity: isSelected ? 0.5 : 1, padding: '6px 12px' }}
                 >
                   <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <EntiToolIcon item={tool} />

@@ -11,6 +11,7 @@ export interface EntiCognitiveConfig {
 
 export interface EntiHarness {
   function: string;
+  shortFunction?: string;
   rules: string[];
   workMaterial: string;
   knowledge: string;

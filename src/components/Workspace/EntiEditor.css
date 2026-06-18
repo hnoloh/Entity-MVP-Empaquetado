@@ -15,12 +15,13 @@
   z-index: 200;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05);
   transition: background 0.3s ease, box-shadow 0.3s ease;
-  min-height: 300px;
+  min-height: 200px;
   position: absolute;
   top: 16px;
   left: 0;
   right: 0;
-  bottom: 16px;
+  bottom: auto; /* Permite que se encoja al contenido */
+  height: fit-content;
   pointer-events: auto;
   overflow: hidden;
 }
@@ -250,13 +251,13 @@
 }
 
 .expanded-field-overlay {
-  position: absolute;
+  position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(15, 23, 42, 0.4);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
-  z-index: 100;
-  border-radius: 12px;
+  z-index: 9999;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -267,14 +268,13 @@
   background: #0f172a;
   border: 1px solid rgba(0, 229, 255, 0.2);
   border-radius: 12px;
-  width: 600px;
+  width: 550px;
   max-width: 90vw;
-  height: 60vh;
-  min-height: 400px;
-  max-height: 600px;
+  height: 400px;
+  max-height: 60vh;
   display: flex;
   flex-direction: column;
-  padding: 2rem;
+  padding: 1.5rem 2rem;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), 0 0 24px rgba(0, 229, 255, 0.05);
   gap: 1.5rem;
 }

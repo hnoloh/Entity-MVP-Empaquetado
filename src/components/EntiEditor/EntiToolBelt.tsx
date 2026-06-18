@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useEntiToolBelt } from './useEntiToolBelt';
 import { EntiToolIcon } from './EntiToolIcon';
 import type { EntiToolBeltItemViewModel } from './buildEntiToolBeltViewModel';
@@ -12,6 +12,19 @@ export const EntiToolBelt: React.FC<Props> = ({ entiId }) => {
   const { tools } = useEntiToolBelt(entiId);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedTools, setSelectedTools] = useState<EntiToolBeltItemViewModel[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
   
   if (!entiId || entiId === 'group' || tools.length === 0) return null;
 
@@ -24,7 +37,7 @@ export const EntiToolBelt: React.FC<Props> = ({ entiId }) => {
   };
 
   return (
-    <div className="field-group" data-testid="enti-tool-belt" style={{ position: 'relative' }}>
+    <div className="field-group" data-testid="enti-tool-belt" style={{ position: 'relative' }} ref={containerRef}>
       <div className="field-header" style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'flex-start' }}>
         <label 
           style={{ margin: 0 }}
@@ -47,14 +60,14 @@ export const EntiToolBelt: React.FC<Props> = ({ entiId }) => {
         )}
       </div>
       {isOpen && (
-        <ul className="custom-select-options" style={{ position: 'absolute', bottom: '100%', top: 'auto', left: '0', marginBottom: '8px', minWidth: '160px', margin: 0, zIndex: 100 }}>
+        <ul className="custom-select-options" style={{ position: 'absolute', bottom: '100%', top: 'auto', left: '0', marginBottom: '8px', minWidth: '140px', margin: 0, zIndex: 100, padding: '4px 0' }}>
           {tools.map(tool => {
             const isSelected = selectedTools.some(t => t.id === tool.id);
             return (
               <li 
                 key={tool.id} 
                 onClick={(e) => { e.stopPropagation(); toggleTool(tool); setIsOpen(false); }}
-                style={{ display: 'flex', justifyContent: 'space-between', opacity: isSelected ? 0.5 : 1 }}
+                style={{ display: 'flex', justifyContent: 'space-between', opacity: isSelected ? 0.5 : 1, padding: '4px 10px', fontSize: '0.75rem' }}
               >
                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <EntiToolIcon item={tool} />

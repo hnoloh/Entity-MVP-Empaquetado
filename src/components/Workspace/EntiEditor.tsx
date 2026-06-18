@@ -117,7 +117,7 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
   };
 
   const innerContent = (
-      <div className="expanded-field-content" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div className="expanded-field-content" style={{ display: 'flex', flexDirection: 'column' }}>
         <div className="expanded-field-header">
           <h3 style={{ margin: 0, color: '#00e5ff', fontSize: '1.1rem' }}>{label}</h3>
           {attachments !== undefined && (
@@ -198,22 +198,26 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
       </div>
   );
 
-  return createPortal(
+  const overlayContent = (
     <div className="expanded-field-overlay" data-testid="expanded-field-modal">
-      {dropZoneScope && ownerId ? (
-        <EntiHarnessAttachmentDropZone
-          scope={dropZoneScope}
-          ownerId={ownerId}
-          onSuccess={onAttachmentsDropped}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-            {innerContent}
-          </div>
-        </EntiHarnessAttachmentDropZone>
-      ) : innerContent}
-    </div>,
-    document.body
+      {innerContent}
+    </div>
   );
+
+  if (dropZoneScope && ownerId) {
+    return createPortal(
+      <EntiHarnessAttachmentDropZone
+        scope={dropZoneScope}
+        ownerId={ownerId}
+        onSuccess={onAttachmentsDropped}
+      >
+        {overlayContent}
+      </EntiHarnessAttachmentDropZone>,
+      document.body
+    );
+  }
+
+  return createPortal(overlayContent, document.body);
 };
 
 // --- Componente Principal ---

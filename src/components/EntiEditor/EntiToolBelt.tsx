@@ -26,14 +26,14 @@ export const EntiToolBelt: React.FC<Props> = ({ entiId }) => {
   return (
     <div className="field-group" data-testid="enti-tool-belt">
       <div className="field-header" style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'flex-start', position: 'relative' }}>
-        <label>Herramientas</label>
-        <button 
-          type="button" 
-          onClick={() => setIsOpen(!isOpen)} 
-          style={{ background: 'transparent', border: 'none', color: '#00ffff', cursor: 'pointer', padding: '0', display: 'flex', alignItems: 'center', opacity: 0.8 }}
+        <label 
+          style={{ margin: 0 }}
+          className="clickable-label"
+          onClick={() => setIsOpen(!isOpen)}
+          title="Abrir herramientas"
         >
-          <span className="dropdown-arrow">▼</span>
-        </button>
+          Herramientas
+        </label>
         {isOpen && (
           <ul className="custom-select-options tool-belt-options" style={{ position: 'absolute', bottom: '100%', left: '0', marginBottom: '4px', minWidth: '180px', margin: 0 }}>
             {tools.map(tool => {

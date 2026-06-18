@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import type { Enti } from "../../domain/enti/Enti";
 import { deriveEntiStatus } from "../../domain/enti/entiStatus";
@@ -46,14 +46,14 @@ const HarnessField: React.FC<HarnessFieldProps> = ({ label, value, testId, onExp
 
   const header = (
     <div className="field-header" style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'flex-start' }}>
-      <label>{label}</label>
-      {mode === 'modal-only' && (
-        <button type="button" onClick={onExpand} title={`Expandir ${label}`} style={{ background: 'transparent', border: 'none', color: '#00ffff', cursor: 'pointer', padding: '0', display: 'flex', alignItems: 'center', opacity: 0.8 }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
-          </svg>
-        </button>
-      )}
+      <label 
+        style={{ margin: 0 }} 
+        className={mode === 'modal-only' ? 'clickable-label' : ''}
+        onClick={mode === 'modal-only' ? onExpand : undefined}
+        title={mode === 'modal-only' ? `Editar ${label}` : undefined}
+      >
+        {label}
+      </label>
     </div>
   );
 
@@ -173,7 +173,7 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
       </div>
   );
 
-  return (
+  return createPortal(
     <div className="expanded-field-overlay" data-testid="expanded-field-modal">
       {dropZoneScope && ownerId ? (
         <EntiHarnessAttachmentDropZone
@@ -184,7 +184,8 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
           {innerContent}
         </EntiHarnessAttachmentDropZone>
       ) : innerContent}
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -344,15 +345,22 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
         document.body
       )}
 
-        {isBrainSelectOpen && (
+      {isBrainSelectOpen && (
+        <div 
+          className="global-transparent-overlay" 
+          onClick={() => setIsBrainSelectOpen(false)} 
+          data-testid="global-transparent-overlay"
+        />
+      )}
+
       <div className="editor-body">
-        <div className="harness-fields-row" style={{ display: 'flex', flexDirection: 'row', gap: '1rem', alignItems: 'flex-end', marginBottom: '0.5rem' }}>
-          <div className="field-group name-field" style={{ flex: 1, margin: 0 }}>
-            <label>Nombre de Enti</label>
+        <div className="harness-fields-row" style={{ display: 'flex', flexDirection: 'row', gap: '1rem', alignItems: 'flex-end', marginBottom: '1rem' }}>
+          <div className="field-group name-field" style={{ flex: 1, margin: 0, gap: '4px' }}>
+            <label style={{ margin: 0 }}>Nombre de Enti</label>
             <input
               type="text"
               className="harness-input"
-              style={{ height: '34px', boxSizing: 'border-box' }}
+              style={{ height: '34px', boxSizing: 'border-box', fontSize: '0.85rem', borderRadius: '6px', padding: '0 8px', margin: 0, border: '1px solid rgba(0, 229, 255, 0.2)', background: 'rgba(0, 0, 0, 0.3)' }}
               value={draft.name}
               onChange={(e) => handleChange("name", e.target.value)}
               placeholder="Nuevo Enti"
@@ -360,12 +368,12 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
             />
           </div>
 
-          <div className="field-group" style={{ flex: 1, margin: 0 }}>
-            <label>Tipo de Brain</label>
+          <div className="field-group" style={{ flex: 1, margin: 0, gap: '4px' }}>
+            <label style={{ margin: 0 }}>Tipo de Brain</label>
             <div className="custom-select-container">
               <div 
                 className="custom-select-trigger"
-                style={{ height: '34px', boxSizing: 'border-box' }}
+                style={{ height: '34px', boxSizing: 'border-box', fontSize: '0.85rem', borderRadius: '6px', padding: '0 8px', margin: 0, border: '1px solid rgba(0, 229, 255, 0.2)', background: 'rgba(0, 0, 0, 0.3)', display: 'flex', alignItems: 'center' }}
                 data-testid="input-cognitive-mode"
                 data-value={draft.cognitiveConfig.mode}
                 onClick={() => {
@@ -378,7 +386,11 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
                   : draft.cognitiveConfig.mode === "local" 
                     ? (draft.cognitiveConfig.model ? `IA Local: ${draft.cognitiveConfig.model}` : "IA Local") 
                     : "IA Cloud/OpenAI"}
-                <span className="dropdown-arrow">▼</span>
+                <span className="dropdown-arrow" style={{ display: 'flex', alignItems: 'center' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </span>
               </div>
               {isBrainSelectOpen && (
                 <ul className="custom-select-options">

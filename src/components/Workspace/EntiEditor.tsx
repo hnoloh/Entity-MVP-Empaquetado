@@ -401,7 +401,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
             <input
               type="text"
               className="harness-input"
-              style={{ height: '34px', boxSizing: 'border-box', fontSize: '0.85rem', borderRadius: '6px', padding: '0 8px', margin: 0, border: '1px solid rgba(0, 229, 255, 0.2)', background: 'rgba(0, 0, 0, 0.3)' }}
               value={draft.name}
               onChange={(e) => handleChange("name", e.target.value)}
               placeholder="Nuevo Enti"
@@ -414,7 +413,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
             <div className="custom-select-container">
               <div 
                 className="custom-select-trigger"
-                style={{ height: '34px', boxSizing: 'border-box', fontSize: '0.85rem', borderRadius: '6px', padding: '0 8px', margin: 0, border: '1px solid rgba(0, 229, 255, 0.2)', background: 'rgba(0, 0, 0, 0.3)', display: 'flex', alignItems: 'center' }}
                 data-testid="input-cognitive-mode"
                 data-value={draft.cognitiveConfig.mode}
                 onClick={() => {

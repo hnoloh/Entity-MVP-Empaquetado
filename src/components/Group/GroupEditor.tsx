@@ -113,11 +113,11 @@ export const GroupEditor: React.FC<GroupEditorProps> = ({ group, isActive, onSav
   };
 
   const handleChangeFunction = (func: string) => {
-    const updated = editGroupFlow([draft], draft.id, { function: func })[0];
-    if (updated) {
-      setDraft(updated);
-      onDraftChange?.(updated);
-    }
+    setDraft(prev => {
+      const next = { ...prev, function: func };
+      onDraftChange?.(next);
+      return next;
+    });
   };
 
   const handleAddEntiToSlot = (slotId: string, entiId: string) => {
@@ -189,7 +189,6 @@ export const GroupEditor: React.FC<GroupEditorProps> = ({ group, isActive, onSav
               onChange={e => handleChangeName(e.target.value)} 
               className="harness-input" 
               placeholder="Nuevo Grupo"
-              style={{ height: '34px', boxSizing: 'border-box', fontSize: '0.85rem', borderRadius: '6px', padding: '0 8px', margin: 0, border: '1px solid rgba(0, 229, 255, 0.2)', background: 'rgba(0, 0, 0, 0.3)' }}
             />
           </div>
           <div className="field-group" style={{ flex: 1, margin: 0, gap: '4px' }}>
@@ -203,7 +202,6 @@ export const GroupEditor: React.FC<GroupEditorProps> = ({ group, isActive, onSav
                 value={draft.function || ""} 
                 onChange={e => handleChangeFunction(e.target.value)} 
                 className="harness-input" 
-                style={{ height: '34px', boxSizing: 'border-box', fontSize: '0.85rem', borderRadius: '6px', padding: '0 8px', margin: 0, border: '1px solid rgba(0, 229, 255, 0.2)', background: 'rgba(0, 0, 0, 0.3)' }}
               />
               <button type="button" className="expand-btn" onClick={() => setExpandedField({ key: "function", label: "Función del Grupo" })} title="Expandir">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

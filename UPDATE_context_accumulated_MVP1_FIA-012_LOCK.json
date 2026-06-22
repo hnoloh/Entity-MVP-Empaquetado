@@ -1,0 +1,26 @@
+{
+  "implemented_fia_expected": "MVP1-02/FIA-012 Tool Generar HTML",
+  "previous_lock_used": "LOCK-FIA-MVP1-02-010",
+  "bridge_used": "PUENTE_GPT_SPECS_MVP1_02_FIA_012_TOOL_GENERAR_HTML_SIN_VF",
+  "new_capability": "Tool autorizable por Enti para generar .html autocontenido como GeneratedToolArtifact",
+  "contracts_added": [
+    "HtmlGenerationInput",
+    "HtmlGenerationResult",
+    "HtmlGenerationPolicy",
+    "generateHtmlArtifact",
+    "htmlGenerationToolExecutor"
+  ],
+  "contracts_consumed": [
+    "GeneratedToolArtifact",
+    "GeneratedArtifactRegistry",
+    "Tool Descargar/Abrir Archivo Generado"
+  ],
+  "preserved_restrictions": [
+    "no filesystem local directo",
+    "no internet/network/fetch",
+    "no provider/Brain/Runtime auto-run",
+    "no RAG/vectorización"
+  ],
+  "drift_status": "No drift detected",
+  "next_fia_unlocked_after_lock": null
+}

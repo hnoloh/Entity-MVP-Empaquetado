@@ -114,6 +114,20 @@ export function ChatWindowView({ windowState, registry, onStateChange, grupos = 
   }, [windowState.windowId]);
 
   useEffect(() => {
+    const handleMainUnload = () => {
+      if (externalWindow.current && !externalWindow.current.closed) {
+        externalWindow.current.close();
+      }
+    };
+    window.addEventListener('unload', handleMainUnload);
+    window.addEventListener('beforeunload', handleMainUnload);
+    return () => {
+      window.removeEventListener('unload', handleMainUnload);
+      window.removeEventListener('beforeunload', handleMainUnload);
+    };
+  }, []);
+
+  useEffect(() => {
     let currentTitle = `Chat: ${windowState.chatId}`;
     try {
       const chat = chatRepository.getById(windowState.chatId);

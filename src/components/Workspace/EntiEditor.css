@@ -282,18 +282,25 @@
   color: #ff4444;
 }
 
-.attachment-item .btn-remove-attachment {
+.attachment-item .btn-remove-attachment,
+.attachment-card .btn-remove-attachment {
   opacity: 0;
   transition: opacity 0.2s, transform 0.2s;
 }
 
-.attachment-item:hover .btn-remove-attachment {
+.attachment-item:hover .btn-remove-attachment,
+.attachment-card:hover .btn-remove-attachment {
   opacity: 1;
 }
 
 .attachment-item .btn-remove-attachment:hover {
   transform: scale(1.1);
   background: rgba(255, 68, 68, 0.2) !important;
+}
+
+.attachment-card .btn-remove-attachment:hover {
+  transform: scale(1.1);
+  background: rgba(0, 229, 255, 0.2) !important;
 }
 
 .expanded-textarea {
@@ -421,8 +428,10 @@
 .custom-select-options {
   position: absolute;
   top: calc(100% + 4px);
-  left: 0;
   right: 0;
+  min-width: 100%;
+  width: max-content;
+  max-width: 600px;
   background: #1e293b; /* Tono más claro que el editor (#0f172a) para que resalte */
   border: 1px solid rgba(0, 229, 255, 0.4);
   border-radius: 8px;

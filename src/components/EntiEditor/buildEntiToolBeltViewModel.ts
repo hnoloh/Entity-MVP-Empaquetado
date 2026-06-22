@@ -8,12 +8,14 @@ export interface EntiToolBeltItemViewModel {
   description: string;
   state: ToolState;
   blockedReason?: ToolBlockedReason;
+  indicatorStatus?: 'active' | 'in_use' | 'required_not_active' | 'controlled_error';
 }
 
 export function buildEntiToolBeltViewModel(
   entiId: string,
   registryDefinitions: Record<string, EntiToolDefinition>,
-  authorizations: EntiToolAuthorization[]
+  authorizations: EntiToolAuthorization[],
+  getIndicator: (toolId: string) => 'required_not_active' | 'in_use' | 'controlled_error' | 'active' | undefined = () => undefined
 ): EntiToolBeltItemViewModel[] {
   const items: EntiToolBeltItemViewModel[] = [];
   
@@ -33,9 +35,21 @@ export function buildEntiToolBeltViewModel(
         blockedReason = 'tool_not_authorized';
       }
     } else {
-      if (def.riskLevel === 'high' || def.riskLevel === 'critical') {
+      if (def.riskLevel === 'critical') {
         state = 'blocked';
         blockedReason = 'risk_not_authorized';
+      }
+    }
+    
+    let indicatorStatus: 'active' | 'in_use' | 'required_not_active' | 'controlled_error' | undefined = getIndicator(toolId);
+
+    if (!indicatorStatus) {
+      if (state === 'in_use') {
+        indicatorStatus = 'in_use';
+      } else if (state === 'controlled_error') {
+        indicatorStatus = 'controlled_error';
+      } else if (state === 'authorized') {
+        indicatorStatus = 'active';
       }
     }
     
@@ -46,6 +60,7 @@ export function buildEntiToolBeltViewModel(
       description: def.description,
       state,
       blockedReason,
+      indicatorStatus,
     });
   }
   

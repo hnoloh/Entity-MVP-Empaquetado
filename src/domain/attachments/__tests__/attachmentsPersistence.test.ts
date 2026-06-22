@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from 'vitest';
 import {
   persistAttachmentRecordsFlow,
@@ -104,7 +105,7 @@ describe('attachmentsPersistence', () => {
       ...entiAttachment,
       sizeBytes: 1024,
       status: 'readable'
-    } as unknown;
+    } as any;
     const result = persistAttachmentRecordsFlow([att]);
     if (result.status === 'success') {
       expect(result.payload.records[0].sizeBytes).toBe(1024);
@@ -126,19 +127,19 @@ describe('attachmentsPersistence', () => {
   });
 
   it('forbidden content fields', () => {
-    const att = { ...entiAttachment, content: 'some text' } as unknown;
+    const att = { ...entiAttachment, content: 'some text' } as any;
     const result = persistAttachmentRecordsFlow([att]);
     expect(result.status).toBe('blocked');
   });
 
   it('invalid ownerType', () => {
-    const att = { ...entiAttachment, ownerType: 'invalid' } as unknown;
+    const att = { ...entiAttachment, ownerType: 'invalid' } as any;
     const result = persistAttachmentRecordsFlow([att]);
     expect(result.status).toBe('blocked');
   });
 
   it('restore with invalid payload', () => {
-    expect(restoreAttachmentRecordsFlow(null).status).toBe('controlled_error');
+    expect(restoreAttachmentRecordsFlow(null as any).status).toBe('controlled_error');
     expect(restoreAttachmentRecordsFlow({ records: 'not an array' }).status).toBe('controlled_error');
   });
 });

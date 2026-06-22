@@ -6,11 +6,16 @@ import { buildHarnessAttachmentDropIntent } from './buildHarnessAttachmentDropIn
 import type { HarnessDestinationScope } from './buildHarnessAttachmentDropIntent';
 import { readAttachmentPhysicalTextContent } from '../../domain/attachments/readAttachmentPhysicalTextContent';
 import { attachmentContentRepository } from '../../domain/attachments/attachmentContentRepository';
+import { generateToolRequiredNoticeForDocument } from '../../domain/tools/toolRequiredNotice';
+import { toolAuthorizationRepository } from '../../domain/tools/toolAuthorizationRepository';
+import { toolIndicatorRepository } from '../../domain/tools/toolIndicatorRepository';
+import { documentReadToolExecutor } from '../../domain/tools/document-read';
 
 export type HarnessAttachmentDropState = 'idle' | 'dragging_valid' | 'dragging_blocked' | 'dropped' | 'error';
 
 export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDestinationScope, onSuccess?: (fileNames: string[]) => void) {
   const [dropState, setDropState] = useState<HarnessAttachmentDropState>('idle');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const onDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -47,6 +52,7 @@ export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDest
     }
 
     setDropState('dropped');
+    setErrorMessage(null);
     
     // Simulate domain operations strictly following the domain rules
     let hasError = false;
@@ -54,6 +60,21 @@ export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDest
     for (const file of intent.files) {
        const parts = file.name.split('.');
        const extension = parts.length > 1 ? parts[parts.length - 1].toLowerCase() : '';
+
+       const toolNotice = generateToolRequiredNoticeForDocument(
+         file.name,
+         file.type,
+         'harness_enti',
+         ownerId,
+         toolAuthorizationRepository.list()
+       );
+
+       if (toolNotice) {
+         toolIndicatorRepository.setIndicator(ownerId, toolNotice.toolId, 'required_not_active');
+         hasError = true;
+         setErrorMessage('Para adjuntar archivos de conocimiento o material de trabajo de este tipo, debes activar la Tool: ' + toolNotice.toolId);
+         continue; 
+       }
 
        const creationResult = createAttachmentModelFlow({
          explicitUserAction: true,
@@ -73,19 +94,49 @@ export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDest
        
        const model = creationResult.attachment;
 
-       const readResult = await readAttachmentPhysicalTextContent({
-         attachmentId: model.attachmentId,
-         ownerType: model.ownerType as 'enti' | 'group',
-         ownerId: model.ownerId,
-         scope: scope,
-         fileName: model.fileName,
-         fileExtension: model.fileExtension,
-         mimeType: model.mimeType
-       }, file);
+       let extractedText: string;
 
-       if (readResult.readStatus !== 'success') {
-         hasError = true;
-         continue;
+       const isDoc = extension === 'pdf' || extension === 'docx';
+
+       if (isDoc) {
+         toolIndicatorRepository.setIndicator(ownerId, 'tool-read-doc', 'in_use');
+         
+         const execResult = await documentReadToolExecutor({
+           entiId: ownerId,
+           ownerType: 'enti',
+           ownerId: ownerId,
+           fileName: file.name,
+           mimeType: file.type,
+           fileExtension: extension,
+           sizeBytes: file.size,
+           fileRef: file
+         });
+
+         if (execResult.status !== 'success') {
+           hasError = true;
+           toolIndicatorRepository.setIndicator(ownerId, 'tool-read-doc', 'controlled_error');
+           setErrorMessage(execResult.errorMessage || execResult.blockedReason || 'Error de lectura documental');
+           continue;
+         }
+
+         toolIndicatorRepository.setIndicator(ownerId, 'tool-read-doc', 'active');
+         extractedText = execResult.content!.rawText;
+       } else {
+         const readResult = await readAttachmentPhysicalTextContent({
+           attachmentId: model.attachmentId,
+           ownerType: model.ownerType as 'enti' | 'group',
+           ownerId: model.ownerId,
+           scope: scope,
+           fileName: model.fileName,
+           fileExtension: model.fileExtension,
+           mimeType: model.mimeType
+         }, file);
+
+         if (readResult.readStatus !== 'success') {
+           hasError = true;
+           continue;
+         }
+         extractedText = readResult.contentText!;
        }
 
        if (scope === 'enti_knowledge') {
@@ -98,13 +149,13 @@ export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDest
        
        if (!hasError) {
          attachmentContentRepository.upsert({
-           attachmentId: readResult.attachmentId,
-           ownerType: readResult.ownerType,
-           ownerId: readResult.ownerId,
-           scope: readResult.scope as 'enti_knowledge' | 'enti_work_material',
-           contentText: readResult.contentText!,
+           attachmentId: model.attachmentId,
+           ownerType: model.ownerType as 'enti',
+           ownerId: model.ownerId,
+           scope: scope as 'enti_knowledge' | 'enti_work_material',
+           contentText: extractedText,
            readAt: new Date().toISOString(),
-           metadata: { fileName: readResult.fileName }
+           metadata: { fileName: model.fileName }
          });
          processedFiles.push(file.name);
        }
@@ -112,16 +163,18 @@ export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDest
 
     if (hasError) {
       setDropState('error');
+      setTimeout(() => setDropState('idle'), 2000);
     } else {
       if (onSuccess && processedFiles.length > 0) {
         onSuccess(processedFiles);
       }
+      setTimeout(() => setDropState('idle'), 2000);
     }
-    setTimeout(() => setDropState('idle'), 2000);
   }, [ownerId, scope, onSuccess]);
 
   return {
     dropState,
+    errorMessage,
     handlers: { onDragEnter, onDragOver, onDragLeave, onDrop }
   };
 }

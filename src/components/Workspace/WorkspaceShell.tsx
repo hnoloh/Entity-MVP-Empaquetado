@@ -34,6 +34,7 @@ export default function WorkspaceShell() {
   
   // For visual selection in the Hub
   const [focusedEntiId, setFocusedEntiId] = useState<string | null>(null);
+  const [autoChatEnabled, setAutoChatEnabled] = useState(true);
   
   // Track open windows to highlight owners in Hub
   const [activeWindowOwnerIds, setActiveWindowOwnerIds] = useState<string[]>([]);
@@ -132,7 +133,7 @@ export default function WorkspaceShell() {
     });
     setActiveTabId(id);
     setFocusedEntiId(id);
-    handleOpenChat(id, 'enti');
+    if (autoChatEnabled) handleOpenChat(id, 'enti');
   };
 
   const handleSelectGrupo = (id: string) => {
@@ -142,7 +143,7 @@ export default function WorkspaceShell() {
     });
     setActiveTabId(id);
     setFocusedEntiId(id);
-    handleOpenChat(id, 'grupo');
+    if (autoChatEnabled) handleOpenChat(id, 'grupo');
   };
 
   const handleSelectTab = (id: string) => {
@@ -198,6 +199,22 @@ export default function WorkspaceShell() {
       }
       return prev;
     });
+
+    // Cerrar las ventanas de chat asociadas al cerrar el editor
+    const associatedChatEnti = chatRepository.list().find(c => c.owner.type === 'enti' && c.owner.id === id);
+    if (associatedChatEnti) {
+      const windows = registry.findByChatId(associatedChatEnti.id);
+      windows.forEach(win => {
+        closeChatWindowFlow(registry, win.windowId);
+      });
+    }
+    const associatedChatGrupo = chatRepository.list().find(c => c.owner.type === 'grupo' && c.owner.id === id);
+    if (associatedChatGrupo) {
+      const windows = registry.findByChatId(associatedChatGrupo.id);
+      windows.forEach(win => {
+        closeChatWindowFlow(registry, win.windowId);
+      });
+    }
   };
 
   const handleDeleteEnti = (id: string) => {
@@ -421,6 +438,8 @@ export default function WorkspaceShell() {
            onCreateGrupo={handleCreateGrupo}
            onSelectGrupo={handleSelectGrupo}
            onDeleteGrupo={handleDeleteGrupo}
+           autoChatEnabled={autoChatEnabled}
+           onToggleAutoChat={() => setAutoChatEnabled(!autoChatEnabled)}
         />
         <WorkbenchRegion 
            editorStubs={editorStubs}

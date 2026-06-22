@@ -3,3 +3,8 @@ export * from './entiToolDefinition';
 export * from './entiToolAuthorization';
 export * from './entiToolRegistry';
 export * from './toolPolicy';
+export * from './toolAuthorizationToggle';
+export * from './toolAuthorizationPersistenceTypes';
+export * from './toolAuthorizationPersistenceSerializer';
+export * from './restoreToolAuthorizations';
+export * from './toolAuthorizationRepository';

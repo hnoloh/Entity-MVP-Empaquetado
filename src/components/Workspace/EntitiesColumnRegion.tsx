@@ -19,6 +19,8 @@ export interface EntitiesColumnRegionProps {
   onCreateGrupo?: () => void;
   onSelectGrupo?: (id: string) => void;
   onDeleteGrupo?: (id: string) => void;
+  autoChatEnabled?: boolean;
+  onToggleAutoChat?: () => void;
 }
 
 export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
@@ -31,6 +33,8 @@ export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
   onCreateGrupo,
   onSelectGrupo,
   onDeleteGrupo,
+  autoChatEnabled = true,
+  onToggleAutoChat,
 }) => {
   const [entisOpen, setEntisOpen] = useState(true);
   const [gruposOpen, setGruposOpen] = useState(true);
@@ -40,6 +44,7 @@ export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
     <div
       data-testid="entities-column-region"
       className="entities-column-region-inner"
+      style={{ position: 'relative', paddingBottom: '40px' }}
     >
       {/* Sección Entis */}
       <div className="entity-section">
@@ -173,6 +178,29 @@ export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
           </div>
         )}
       </div>
+      {onToggleAutoChat && (
+        <div 
+          onClick={onToggleAutoChat}
+          style={{ 
+            position: 'absolute', 
+            bottom: '12px', 
+            left: '16px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '4px',
+            fontSize: '11px',
+            cursor: 'pointer',
+            userSelect: 'none',
+            color: '#64748b'
+          }}
+          title="Auto-Chat"
+        >
+          Auto-Chat: 
+          <span style={{ color: autoChatEnabled ? '#00e5ff' : '#64748b', fontWeight: autoChatEnabled ? 600 : 400, transition: 'color 0.2s' }}>ON</span>
+          <span>/</span>
+          <span style={{ color: !autoChatEnabled ? '#00e5ff' : '#64748b', fontWeight: !autoChatEnabled ? 600 : 400, transition: 'color 0.2s' }}>OFF</span>
+        </div>
+      )}
 
       {itemToDelete && (
         <div className="delete-dialog-overlay" data-testid="delete-dialog-overlay">

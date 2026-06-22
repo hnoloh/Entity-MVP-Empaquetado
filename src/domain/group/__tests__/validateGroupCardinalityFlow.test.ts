@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from 'vitest';
 import { validateGroupCardinalityFlow } from '../validateGroupCardinalityFlow';
 import type { Group } from '../Group';
@@ -33,7 +34,7 @@ describe('validateGroupCardinalityFlow', () => {
 
   it('Estructura con slot fuera de 1..5: inválida/controlada sin mutación', () => {
      
-    const groups: Group[] = [{ id: 'g1', type: 'group', name: 'G1', slots: { '1': 'e1', '2': 'e2', '6': 'e3' } as unknown }];
+    const groups: Group[] = [{ id: 'g1', type: 'group', name: 'G1', slots: { '1': 'e1', '2': 'e2', '6': 'e3' } as any }];
     expect(validateGroupCardinalityFlow(groups, 'g1')).toBe(false);
   });
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from 'vitest';
 import { associateAttachmentToEntiWorkMaterialFlow } from '../associateAttachmentToEntiWorkMaterialFlow';
 import type { Attachment } from '../attachmentModel';
@@ -41,7 +42,7 @@ describe('associateAttachmentToEntiWorkMaterialFlow', () => {
 
   it('Rechaza attachmentId ausente', () => {
     const invalidAtt = { ...baseAttachment };
-    delete (invalidAtt as unknown).attachmentId;
+    delete (invalidAtt as any).attachmentId;
     const result = associateAttachmentToEntiWorkMaterialFlow({ attachment: invalidAtt, ownerId: 'enti-1', ownerType: 'enti' });
     expect(result.status).toBe('blocked');
     if (result.status === 'blocked') expect(result.reason).toContain('Falta attachmentId');
@@ -61,7 +62,7 @@ describe('associateAttachmentToEntiWorkMaterialFlow', () => {
   });
 
   it('Rechaza si no se pasa adjunto', () => {
-    const result = associateAttachmentToEntiWorkMaterialFlow({ attachment: null, ownerId: 'enti-1', ownerType: 'enti' });
+    const result = associateAttachmentToEntiWorkMaterialFlow({ attachment: null as any, ownerId: 'enti-1', ownerType: 'enti' });
     expect(result.status).toBe('controlled_error');
   });
 });

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ContextualSourceDescriptor } from './contextualSourceTypes';
 import type { AttachmentPhysicalReadResult, AttachmentPhysicalReadError } from './attachmentPhysicalContentTypes';
 import { attachmentPhysicalReadPolicy } from './attachmentPhysicalReadPolicy';
@@ -8,7 +9,7 @@ export async function readAttachmentPhysicalTextContent(
 ): Promise<AttachmentPhysicalReadResult> {
   const policyResult = attachmentPhysicalReadPolicy(descriptor, fileRef?.size);
 
-  if (policyResult.status !== 'valid') {
+  if ((policyResult as any).status !== 'valid') {
     return policyResult as AttachmentPhysicalReadError;
   }
 
@@ -48,12 +49,12 @@ export async function readAttachmentPhysicalTextContent(
       ownerId: descriptor.ownerId,
       chatId: descriptor.chatId,
       scope: descriptor.scope!,
-      fileName: descriptor.fileName,
-      fileExtension: descriptor.fileExtension,
-      mimeType: descriptor.mimeType,
+      fileName: descriptor.fileName || '',
+      fileExtension: descriptor.fileExtension || '',
+      mimeType: descriptor.mimeType || '',
       contentText,
       readStatus: 'success'
-    };
+    } as any;
   } catch (error) {
     return {
       attachmentId: descriptor.attachmentId,

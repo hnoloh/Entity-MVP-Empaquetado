@@ -34,6 +34,13 @@ import {
   type GroupMemberPositionState
 } from './groupMemberPositionsPersistence';
 import type { Chat } from '../chat/Chat';
+import {
+  serializeEntiToolAuthorizations,
+  restoreEntiToolAuthorizations,
+  type EntiToolAuthorizationPersistencePayload,
+} from '../tools';
+import type { EntiToolAuthorization } from '../tools';
+import { MOCK_REGISTRY_BASE } from '../tools/mockRegistry';
 
 export type PersistenceMode = 'entis' | 'groups' | 'combined' | 'cognitive' | 'full';
 
@@ -48,6 +55,7 @@ export interface PersistenceHarnessRequest {
   chats?: Chat[];
   sequences?: SequenceState[];
   positions?: GroupMemberPositionState[];
+  toolAuthorizations?: EntiToolAuthorization[];
 
   // For restore action
   entiPayload?: unknown;
@@ -56,6 +64,7 @@ export interface PersistenceHarnessRequest {
   chatPayload?: unknown;
   sequencePayload?: unknown;
   positionPayload?: unknown;
+  toolAuthorizationsPayload?: unknown;
 
   // Options
   enforceCrossReferenceConsistency?: boolean;
@@ -70,12 +79,14 @@ export interface PersistenceHarnessResult {
   chatPayload?: ChatHistoriesPersistencePayload;
   sequencePayload?: SequencePersistencePayload;
   positionPayload?: GroupMemberPositionsPersistencePayload;
+  toolAuthorizationsPayload?: EntiToolAuthorizationPersistencePayload;
   entis?: Enti[];
   groups?: Group[];
   cognitiveConfigs?: CognitiveConfigEntry[]; // To simplify return type signature
   chats?: Chat[];
   sequences?: SequenceState[];
   positions?: GroupMemberPositionState[];
+  toolAuthorizations?: EntiToolAuthorization[];
 }
 
 export function runPersistenceHarnessFlow(request: PersistenceHarnessRequest): PersistenceHarnessResult {
@@ -155,6 +166,15 @@ function handlePersist(request: PersistenceHarnessRequest): PersistenceHarnessRe
       return { status: posRes.status, error: posRes.error };
     }
     result.positionPayload = posRes.payload;
+
+    if (!request.toolAuthorizations) {
+      return { status: 'controlled_error', error: 'Missing toolAuthorizations array for full persistence' };
+    }
+    const toolsRes = serializeEntiToolAuthorizations(request.toolAuthorizations, MOCK_REGISTRY_BASE);
+    if (toolsRes.status !== 'success') {
+      return { status: toolsRes.status, error: toolsRes.error };
+    }
+    result.toolAuthorizationsPayload = toolsRes.payload;
   }
 
   // Cross reference validation (if required in combined/full mode)
@@ -245,6 +265,16 @@ function handleRestore(request: PersistenceHarnessRequest): PersistenceHarnessRe
       return { status: posRes.status, error: posRes.error };
     }
     result.positions = posRes.positions;
+
+    if (request.toolAuthorizationsPayload) {
+      const toolsRes = restoreEntiToolAuthorizations(request.toolAuthorizationsPayload, MOCK_REGISTRY_BASE);
+      if (toolsRes.status !== 'success') {
+        return { status: toolsRes.status, error: toolsRes.error };
+      }
+      result.toolAuthorizations = toolsRes.authorizations;
+    } else {
+      result.toolAuthorizations = [];
+    }
   }
 
   // Cross reference validation upon restoration

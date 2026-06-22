@@ -14,13 +14,15 @@ interface HubRegionProps {
   onCreateGrupo?: () => void;
   onSelectGrupo?: (id: string) => void;
   onDeleteGrupo?: (id: string) => void;
+  autoChatEnabled?: boolean;
+  onToggleAutoChat?: () => void;
 }
 
-export const HubRegion: React.FC<HubRegionProps> = ({ entis, openEntiIds, onCreateEnti, onSelectEnti, onDeleteEnti, grupos, onCreateGrupo, onSelectGrupo, onDeleteGrupo }) => {
+export const HubRegion: React.FC<HubRegionProps> = ({ entis, openEntiIds, onCreateEnti, onSelectEnti, onDeleteEnti, grupos, onCreateGrupo, onSelectGrupo, onDeleteGrupo, autoChatEnabled, onToggleAutoChat }) => {
   return (
     <div data-testid="hub-region" className="hub-region entities-column">
       <HubLateralView entis={entis} openEntiIds={openEntiIds} onCreateEnti={onCreateEnti} onSelectEnti={onSelectEnti} onDeleteEnti={onDeleteEnti}>
-        <EntitiesColumnRegion entis={entis} openEntiIds={openEntiIds} onCreateEnti={onCreateEnti} onSelectEnti={onSelectEnti} onDeleteEnti={onDeleteEnti} grupos={grupos} onCreateGrupo={onCreateGrupo} onSelectGrupo={onSelectGrupo} onDeleteGrupo={onDeleteGrupo} />
+        <EntitiesColumnRegion entis={entis} openEntiIds={openEntiIds} onCreateEnti={onCreateEnti} onSelectEnti={onSelectEnti} onDeleteEnti={onDeleteEnti} grupos={grupos} onCreateGrupo={onCreateGrupo} onSelectGrupo={onSelectGrupo} onDeleteGrupo={onDeleteGrupo} autoChatEnabled={autoChatEnabled} onToggleAutoChat={onToggleAutoChat} />
       </HubLateralView>
     </div>
   );

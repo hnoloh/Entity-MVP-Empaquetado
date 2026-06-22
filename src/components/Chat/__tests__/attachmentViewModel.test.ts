@@ -29,6 +29,7 @@ describe('attachmentViewModel', () => {
   });
 
   it('handles missing filename as unavailable_metadata', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const attachment: any = {
       attachmentId: 'att-2',
       chatId: 'chat-2',

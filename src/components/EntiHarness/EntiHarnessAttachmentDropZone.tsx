@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const EntiHarnessAttachmentDropZone: React.FC<Props> = ({ ownerId, scope, children, onSuccess }) => {
-  const { dropState, handlers } = useEntiHarnessAttachmentDrop(ownerId, scope, onSuccess);
+  const { dropState, errorMessage, handlers } = useEntiHarnessAttachmentDrop(ownerId, scope, onSuccess);
 
   let overlayContent = null;
   if (dropState === 'dragging_valid') overlayContent = <div className="harness-drop-overlay valid" />;
@@ -21,13 +21,20 @@ export const EntiHarnessAttachmentDropZone: React.FC<Props> = ({ ownerId, scope,
       <div className="spinner-dashed"></div>
     </div>
   );
-  if (dropState === 'error') overlayContent = <div className="harness-drop-overlay error" />;
+  if (dropState === 'error') overlayContent = (
+    <div className="harness-drop-overlay error">
+      {errorMessage && <div className="harness-drop-error-text">{errorMessage}</div>}
+    </div>
+  );
 
   return (
     <div 
       className="enti-harness-drop-zone-container"
       style={{ position: 'relative', width: '100%', height: '100%' }}
-      {...handlers}
+      onDragEnterCapture={handlers.onDragEnter}
+      onDragOverCapture={handlers.onDragOver}
+      onDragLeaveCapture={handlers.onDragLeave}
+      onDropCapture={handlers.onDrop}
       data-testid={`drop-zone-${scope}`}
     >
       {children}

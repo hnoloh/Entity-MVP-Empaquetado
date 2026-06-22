@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import OpenAI from 'openai';
 import type { ProviderBridge, ProviderExecutionInput, ProviderExecutionOutput } from './ProviderBridge';
+import { parseToolCallsIntoXml } from './parseToolCalls';
 
 export class OpenAIExecutor implements ProviderBridge {
   private apiKey: string;
@@ -25,18 +27,36 @@ export class OpenAIExecutor implements ProviderBridge {
     try {
       const openai = new OpenAI({ apiKey: this.apiKey, dangerouslyAllowBrowser: true });
       
-      const messages: Array<{ role: 'system' | 'user'; content: string }> = [];
-      if (input.systemPrompt) {
-        messages.push({ role: 'system', content: input.systemPrompt });
+      let messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [];
+      if (input.messages && input.messages.length > 0) {
+        if (input.systemPrompt) {
+          messages.push({ role: 'system', content: input.systemPrompt });
+        }
+        messages = messages.concat(input.messages as Array<{ role: 'system' | 'user' | 'assistant'; content: string }>);
+      } else {
+        if (input.systemPrompt) {
+          messages.push({ role: 'system', content: input.systemPrompt });
+        }
+        messages.push({ role: 'user', content: input.prompt });
       }
-      messages.push({ role: 'user', content: input.prompt });
 
-      const response = await openai.chat.completions.create({
+      const payload: Record<string, unknown> = {
         model: this.model,
         messages,
-      });
+      };
 
-      const responseText = response.choices[0]?.message?.content || '';
+      if (input.tools && input.tools.length > 0) {
+        payload.tools = input.tools;
+      }
+
+      const response: any = await openai.chat.completions.create(payload as any);
+
+      const message = response.choices[0]?.message;
+      let responseText = message?.content || '';
+
+      if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
+        responseText += parseToolCallsIntoXml(response.choices[0].message.tool_calls);
+      }
 
       return {
         success: true,

@@ -5,6 +5,7 @@ import { loadPersistedOperationalStateFlow } from '../../domain/lifecycle/loadPe
 import { chatRepository } from '../../domain/chat/chatRepository';
 import type { Group } from '../../domain/group/Group';
 import type { Enti } from '../../domain/enti/Enti';
+import { toolAuthorizationRepository } from '../../domain/tools/toolAuthorizationRepository';
 
 const SNAPSHOT_ID = 'main-workspace';
 
@@ -65,7 +66,8 @@ export function useAutosave(
         groups: grupos,
         chats: chatRepository.list(),
         sequences: [], // Secuencias no implementadas en memoria aún
-        positions
+        positions,
+        toolAuthorizations: toolAuthorizationRepository.list()
       });
 
       if (persistResult.status === 'success') {
@@ -78,7 +80,8 @@ export function useAutosave(
             cognitivePayload: persistResult.cognitivePayload,
             chatPayload: persistResult.chatPayload,
             sequencePayload: persistResult.sequencePayload,
-            positionPayload: persistResult.positionPayload
+            positionPayload: persistResult.positionPayload,
+            toolAuthorizationsPayload: persistResult.toolAuthorizationsPayload
           }
         };
         storage.saveSnapshot(SNAPSHOT_ID, payload).catch(err => {

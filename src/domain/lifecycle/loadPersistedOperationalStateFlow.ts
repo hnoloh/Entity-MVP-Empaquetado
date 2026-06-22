@@ -2,6 +2,7 @@ import { storage } from '../../infrastructure/storage/indexedDbStorage';
 import { restoreOperationalStateFlow } from '../persistence/operationalRestore';
 import { entiRepository } from '../enti/entiRepository';
 import { chatRepository } from '../chat/chatRepository';
+import { toolAuthorizationRepository } from '../tools/toolAuthorizationRepository';
 import type { Enti } from '../enti/Enti';
 import type { Group } from '../group/Group';
 
@@ -37,11 +38,16 @@ export async function loadPersistedOperationalStateFlow(request: LoadPersistedOp
       return { status: 'controlled_error', error: restoreResult.error || 'Validation failed during restore' };
     }
 
-    const { entis, groups, chats, positions } = restoreResult.restoredState;
+    const { entis, groups, chats, positions, toolAuthorizations } = restoreResult.restoredState;
 
     // All-or-nothing execution
     entiRepository.clear();
     chatRepository.clear();
+    toolAuthorizationRepository.clear();
+
+    if (toolAuthorizations && toolAuthorizations.length > 0) {
+      toolAuthorizationRepository.save(toolAuthorizations);
+    }
 
     const finalEntis = entis || [];
     finalEntis.forEach(e => entiRepository.save(e));

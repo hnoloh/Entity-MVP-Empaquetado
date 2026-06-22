@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from 'vitest';
 import type { Enti } from '../../enti/Enti';
 import {
@@ -41,7 +42,7 @@ describe('Cognitive Functional Persistence', () => {
     const config = result.payload?.data[0].config;
     expect(config?.mode).toBe('cloud');
     expect(config?.provider).toBe('openai');
-    expect((config as unknown).apiKey).toBeUndefined();  
+    expect((config as any).apiKey).toBeUndefined();  
   });
 
   it('restores cognitive config successfully from valid payload', () => {
@@ -78,7 +79,7 @@ describe('Cognitive Functional Persistence', () => {
     const payload: CognitivePersistencePayload = {
       root: 'cognitive',
       version: '1.0',
-      data: [{ entiId: 'enti-1', config: { mode: 'cloud', apiKey: 'leaked-key' } as unknown }]  
+      data: [{ entiId: 'enti-1', config: { mode: 'cloud', apiKey: 'leaked-key' } as any }]  
     };
     const request: CognitiveRestoreRequest = { explicitUserAction: true, payload };
     const result = restoreCognitiveConfigFlow(request);

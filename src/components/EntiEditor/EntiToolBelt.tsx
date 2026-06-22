@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useEntiToolBelt } from './useEntiToolBelt';
 import { EntiToolIcon } from './EntiToolIcon';
-import type { EntiToolBeltItemViewModel } from './buildEntiToolBeltViewModel';
 import './EntiToolBelt.css';
 
 interface Props {
@@ -9,9 +8,8 @@ interface Props {
 }
 
 export const EntiToolBelt: React.FC<Props> = ({ entiId }) => {
-  const { tools } = useEntiToolBelt(entiId);
+  const { tools, toggleAuthorization } = useEntiToolBelt(entiId);
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedTools, setSelectedTools] = useState<EntiToolBeltItemViewModel[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,12 +26,10 @@ export const EntiToolBelt: React.FC<Props> = ({ entiId }) => {
   
   if (!entiId || entiId === 'group' || tools.length === 0) return null;
 
-  const toggleTool = (tool: EntiToolBeltItemViewModel) => {
-    if (selectedTools.find(t => t.id === tool.id)) {
-      setSelectedTools(selectedTools.filter(t => t.id !== tool.id));
-    } else {
-      setSelectedTools([...selectedTools, tool]);
-    }
+  const authorizedTools = tools.filter(t => t.state === 'authorized' || t.state === 'in_use');
+
+  const handleToggle = (toolId: string) => {
+    toggleAuthorization(toolId);
   };
 
   return (
@@ -47,13 +43,13 @@ export const EntiToolBelt: React.FC<Props> = ({ entiId }) => {
         >
           Herramientas
         </label>
-        {selectedTools.length > 0 && (
+        {authorizedTools.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}>
-            {selectedTools.map(tool => (
+            {authorizedTools.map(tool => (
               <EntiToolIcon 
                 key={tool.id} 
                 item={tool} 
-                onRemove={() => toggleTool(tool)}
+                onRemove={() => handleToggle(tool.id)}
               />
             ))}
           </div>
@@ -62,18 +58,32 @@ export const EntiToolBelt: React.FC<Props> = ({ entiId }) => {
       {isOpen && (
         <ul className="custom-select-options" style={{ position: 'absolute', bottom: '100%', top: 'auto', left: '50%', transform: 'translateX(-50%)', marginBottom: '8px', width: 'max-content', minWidth: '100px', margin: 0, zIndex: 100, padding: '4px 0' }}>
           {tools.map(tool => {
-            const isSelected = selectedTools.some(t => t.id === tool.id);
+            const isSelected = tool.state === 'authorized' || tool.state === 'in_use';
+            const isUnclickable = tool.state === 'controlled_error' || tool.state === 'blocked';
             return (
               <li 
                 key={tool.id} 
-                onClick={(e) => { e.stopPropagation(); toggleTool(tool); setIsOpen(false); }}
-                style={{ display: 'flex', justifyContent: 'space-between', opacity: isSelected ? 0.5 : 1, padding: '4px 10px', fontSize: '0.75rem', gap: '8px' }}
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  if (!isUnclickable) {
+                    handleToggle(tool.id); 
+                  }
+                }}
+                style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  opacity: isSelected ? 0.5 : (isUnclickable ? 0.3 : 1), 
+                  padding: '4px 10px', 
+                  fontSize: '0.75rem', 
+                  gap: '8px',
+                  cursor: isUnclickable ? 'not-allowed' : 'pointer'
+                }}
               >
                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <EntiToolIcon item={tool} />
                   {tool.name}
                 </span>
-                {tool.state === 'blocked' && <span style={{ color: 'red', fontSize: '0.8rem' }}>Bloqueada</span>}
+                {isUnclickable && <span style={{ color: 'red', fontSize: '0.8rem' }}>Error</span>}
               </li>
             );
           })}

@@ -1,6 +1,15 @@
 export interface ProviderExecutionInput {
   prompt: string;
+  messages?: Array<{role: string, content: string}>;
   systemPrompt?: string;
+  tools?: Array<{
+    type: 'function';
+    function: {
+      name: string;
+      description: string;
+      parameters: unknown;
+    }
+  }>;
 }
 
 export interface ProviderExecutionOutput {

@@ -70,7 +70,7 @@ describe('useChatAttachmentDropPhysicalRead', () => {
     });
 
     expect(result.current.dropState).toBe('error');
-    expect(result.current.errorMessage).toContain('Unsupported file type');
+    expect(result.current.errorMessage).toContain('requiere la Tool');
 
     const attachments = attachmentsStore.getAttachmentsForChat('chat-1');
     expect(attachments.length).toBe(0); // Should not be persisted if blocked

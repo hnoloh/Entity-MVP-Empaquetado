@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach } from 'vitest';
 import type { Attachment } from '../attachmentModel';
 import { attachmentContentRepository } from '../attachmentContentRepository';
@@ -67,7 +68,7 @@ describe('MVP1 Attachments Integrated Flow', () => {
       prompt: 'Hola',
       systemPrompt: 'System rules'
     };
-    const injectResult = injectEntiContextualSourcesIntoPromptEngine(baseInput, blockResult.block!);
+    const injectResult = injectEntiContextualSourcesIntoPromptEngine(baseInput, (blockResult as any).block!);
     expect(injectResult.status).toBe('success');
     expect(injectResult.injectedInput.systemPrompt).toBe('System rules');
     expect(injectResult.injectedInput.prompt).toContain('### ADJUNTOS DEL CHAT');
@@ -108,7 +109,7 @@ describe('MVP1 Attachments Integrated Flow', () => {
       prompt: 'Resuelve',
       systemPrompt: 'System rules'
     };
-    const injectResult = injectEntiContextualSourcesIntoPromptEngine(baseInput, blockResult.block!);
+    const injectResult = injectEntiContextualSourcesIntoPromptEngine(baseInput, (blockResult as any).block!);
     expect(injectResult.injectedInput.systemPrompt).toBe('System rules');
     expect(injectResult.injectedInput.prompt).toContain('### CONOCIMIENTOS BASE');
     expect(injectResult.injectedInput.prompt).toContain('Contenido de conocimiento');
@@ -147,7 +148,7 @@ describe('MVP1 Attachments Integrated Flow', () => {
       prompt: 'Hazlo',
       systemPrompt: 'System rules'
     };
-    const injectResult = injectEntiContextualSourcesIntoPromptEngine(baseInput, blockResult.block!);
+    const injectResult = injectEntiContextualSourcesIntoPromptEngine(baseInput, (blockResult as any).block!);
     expect(injectResult.injectedInput.systemPrompt).toBe('System rules');
     expect(injectResult.injectedInput.prompt).toContain('### MATERIAL DE TRABAJO ACTIVO');
     expect(injectResult.injectedInput.prompt).toContain('Contenido de trabajo');
@@ -175,7 +176,7 @@ describe('MVP1 Attachments Integrated Flow', () => {
     });
     
     const blockResult = buildEntiPromptContextualSourceBlock('enti-1', 'chat-B', resolveResult.sources!);
-    expect(blockResult.block?.chatSources.length).toBe(0);
+    expect((blockResult as any).block?.chatSources.length).toBe(0);
   });
 
   it('validates Controlled errors (invalid input does not break batch)', () => {

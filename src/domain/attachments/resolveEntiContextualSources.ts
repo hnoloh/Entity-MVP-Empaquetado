@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Attachment } from './attachmentModel';
 import type { ResolveContextualSourcesResult } from './contextualSourceTypes';
 import { buildEntiContextualSources } from './buildEntiContextualSources';
@@ -18,8 +19,8 @@ export function resolveEntiContextualSources(request: ResolveEntiContextualSourc
     
     // FETCH Harness attachments directly from the repository!
     const repoResult = attachmentContentRepository.listByOwner('enti', request.ownerId);
-    if (repoResult.status === 'success' && repoResult.entries) {
-       for (const entry of repoResult.entries) {
+    if (repoResult.status === 'success' && (repoResult as any).entries) {
+       for (const entry of (repoResult as any).entries) {
           if (entry.scope === 'enti_knowledge' || entry.scope === 'enti_work_material') {
              // Avoid duplicates if somehow it was already added
              if (!sources.some(s => s.attachmentId === entry.attachmentId)) {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from 'vitest';
 import { createAttachmentModelFlow } from '../createAttachmentModelFlow';
 import type { AttachmentModelRequest } from '../attachmentModel';
@@ -104,7 +105,7 @@ describe('createAttachmentModelFlow', () => {
       chatId: 'chat-1',
       fileName: 'document.pdf',
       fileExtension: 'pdf'
-    } as unknown as AttachmentModelRequest;
+    } as any;
     const result = createAttachmentModelFlow(request);
     expect(result.status).toBe('controlled_error');
     expect(result.reason).toContain('ownerType');
@@ -177,7 +178,7 @@ describe('createAttachmentModelFlow', () => {
       chatId: 'chat-1',
       fileName: 'document.pdf',
       fileExtension: 'pdf'
-    } as unknown as AttachmentModelRequest;
+    } as any;
     const result = createAttachmentModelFlow(request);
     expect(result.status).toBe('controlled_error');
     expect(result.reason).toContain('ownerType');

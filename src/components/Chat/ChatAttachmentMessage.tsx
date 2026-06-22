@@ -63,8 +63,10 @@ export function ChatAttachmentMessage({ attachment }: ChatAttachmentMessageProps
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis'
-        }}>
-          {attachment.name}
+        }} title={attachment.name}>
+          {attachment.name && attachment.name.length > 25 
+            ? attachment.name.substring(0, 15) + '...' + attachment.name.substring(attachment.name.length - 8)
+            : attachment.name}
         </div>
         <div style={{ fontSize: '12px', color: '#94a3b8' }}>
           {message ? message : attachment.sizeFormatted}

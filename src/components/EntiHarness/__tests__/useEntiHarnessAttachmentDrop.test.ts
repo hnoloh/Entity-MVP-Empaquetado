@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useEntiHarnessAttachmentDrop } from '../useEntiHarnessAttachmentDrop';
@@ -34,7 +35,7 @@ describe('useEntiHarnessAttachmentDrop', () => {
       dataTransfer: {
         items: [{ kind, getAsFile: () => new File([''], 'test.txt') }]
       }
-    } as unknown;
+    } as any;
   };
 
   it('transiciona idle -> dragging_valid -> dropped', async () => {

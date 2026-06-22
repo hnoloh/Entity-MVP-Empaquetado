@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from 'vitest';
 import {
   persistSequencesFlow,
@@ -82,7 +83,7 @@ describe('Sequences Functional Persistence', () => {
     const payload: SequencePersistencePayload = {
       root: 'sequences',
       version: '1.0',
-      data: [{ ...validSeq, apiKey: 'secret' } as unknown]  
+      data: [{ ...validSeq, apiKey: 'secret' } as any]  
     };
     const request: RestoreSequencesRequest = { explicitUserAction: true, payload };
     const result = restoreSequencesFlow(request);
@@ -94,7 +95,7 @@ describe('Sequences Functional Persistence', () => {
     const payload: SequencePersistencePayload = {
       root: 'sequences',
       version: '1.0',
-      data: [{ ...validSeq, providerState: { active: true } } as unknown]  
+      data: [{ ...validSeq, providerState: { active: true } } as any]  
     };
     const request: RestoreSequencesRequest = { explicitUserAction: true, payload };
     const result = restoreSequencesFlow(request);

@@ -3,7 +3,7 @@ export type AttachmentPhysicalTextContent = {
   ownerType: 'enti' | 'group';
   ownerId: string;
   chatId?: string;
-  scope: 'chat' | 'enti_knowledge' | 'enti_work_material';
+  scope: import('./contextualSourceTypes').ContextualSourceScope;
   fileName: string;
   fileExtension?: string;
   mimeType?: string;
@@ -16,7 +16,7 @@ export type AttachmentPhysicalReadError = {
   ownerType?: 'enti' | 'group';
   ownerId?: string;
   chatId?: string;
-  scope?: 'chat' | 'enti_knowledge' | 'enti_work_material';
+  scope?: import('./contextualSourceTypes').ContextualSourceScope;
   readStatus: 'blocked' | 'controlled_error';
   errorCode:
     | 'missing_attachment'

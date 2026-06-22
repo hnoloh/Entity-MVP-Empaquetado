@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useCallback } from 'react';
 import { buildAttachmentDropIntent } from './buildAttachmentDropIntent';
 import { 
@@ -9,13 +10,18 @@ import {
 import { attachmentsStore } from './attachmentsStore';
 import { readAttachmentPhysicalTextContent } from '../../domain/attachments/readAttachmentPhysicalTextContent';
 import { attachmentContentRepository } from '../../domain/attachments/attachmentContentRepository';
+import { generateToolRequiredNoticeForDocument } from '../../domain/tools/toolRequiredNotice';
+import { toolAuthorizationRepository } from '../../domain/tools/toolAuthorizationRepository';
+import { toolIndicatorRepository } from '../../domain/tools/toolIndicatorRepository';
+import { documentReadToolExecutor } from '../../domain/tools/document-read';
 
 export type AttachmentDropState = 'idle' | 'dragging_valid' | 'dragging_blocked' | 'dropped' | 'error';
 
 export function useChatAttachmentDrop(
   ownerType: 'enti' | 'group' | undefined,
   ownerId: string | undefined,
-  chatId: string | undefined
+  chatId: string | undefined,
+  firstSequenceEntiId?: string | undefined
 ) {
   const [dropState, setDropState] = useState<AttachmentDropState>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -99,23 +105,72 @@ export function useChatAttachmentDrop(
 
     const attachment = creationResult.attachment;
 
-    // Puente UI -> Lectura Física
-    const readResult = await readAttachmentPhysicalTextContent({
-      attachmentId: attachment.attachmentId,
-      ownerType: attachment.ownerType as 'enti' | 'group',
-      ownerId: attachment.ownerId,
-      chatId: attachment.chatId,
-      scope: ownerType === 'enti' ? 'enti_chat' : 'group_chat',
-      fileName: attachment.fileName,
-      fileExtension: attachment.fileExtension,
-      mimeType: attachment.mimeType
-    }, file);
+    const toolNotice = generateToolRequiredNoticeForDocument(
+      attachment.fileName || intent.metadata.fileName || file.name || '',
+      (attachment.mimeType || '') as any,
+      ownerType === 'enti' ? 'chat_enti' : 'group_sequence',
+      (ownerType === 'enti' ? ownerId : firstSequenceEntiId) || '',
+      toolAuthorizationRepository.list()
+    );
 
-    if (readResult.readStatus !== 'success') {
+    if (toolNotice) {
+      toolIndicatorRepository.setIndicator(ownerType === 'enti' ? ownerId! : firstSequenceEntiId!, toolNotice.toolId, 'required_not_active');
       setDropState('error');
-      setErrorMessage(readResult.errorMessage || 'Error de lectura');
-      setTimeout(() => setDropState('idle'), 3000);
+      setErrorMessage(toolNotice.message);
+      setTimeout(() => setDropState('idle'), 4000);
       return;
+    }
+
+    let extractedText: string;
+
+    const ext = attachment.fileExtension.toLowerCase();
+    const isDoc = ext === 'pdf' || ext === 'docx';
+    const activeEntiId = ownerType === 'enti' ? ownerId! : firstSequenceEntiId!;
+
+    if (isDoc) {
+      toolIndicatorRepository.setIndicator(activeEntiId, 'tool-read-doc', 'in_use');
+      
+      const execResult = await documentReadToolExecutor({
+        entiId: activeEntiId,
+        ownerType: attachment.ownerType as 'enti' | 'group',
+        ownerId: attachment.ownerId,
+        fileName: attachment.fileName || '',
+        mimeType: (attachment.mimeType || '') as any,
+        fileExtension: attachment.fileExtension || '',
+        sizeBytes: file.size,
+        fileRef: file
+      });
+
+      if (execResult.status !== 'success') {
+        toolIndicatorRepository.setIndicator(activeEntiId, 'tool-read-doc', 'controlled_error');
+        setDropState('error');
+        setErrorMessage(execResult.errorMessage || execResult.blockedReason || 'Error de lectura documental');
+        setTimeout(() => setDropState('idle'), 3000);
+        return;
+      }
+
+      toolIndicatorRepository.setIndicator(activeEntiId, 'tool-read-doc', 'active');
+      extractedText = execResult.content!.rawText;
+    } else {
+      // Puente UI -> Lectura Física (TXT/MD)
+      const readResult = await readAttachmentPhysicalTextContent({
+        attachmentId: attachment.attachmentId,
+        ownerType: attachment.ownerType as any,
+        ownerId: attachment.ownerId,
+        chatId: attachment.chatId,
+        scope: 'chat_context' as any,
+        fileName: attachment.fileName,
+        fileExtension: attachment.fileExtension,
+        mimeType: attachment.mimeType
+      }, file);
+
+      if (readResult.readStatus !== 'success') {
+        setDropState('error');
+        setErrorMessage(readResult.errorMessage || 'Error de lectura');
+        setTimeout(() => setDropState('idle'), 3000);
+        return;
+      }
+      extractedText = readResult.contentText!;
     }
 
     let assocResult;
@@ -145,14 +200,14 @@ export function useChatAttachmentDrop(
 
     // Upsert to repository
     attachmentContentRepository.upsert({
-      attachmentId: readResult.attachmentId,
-      ownerType: readResult.ownerType,
-      ownerId: readResult.ownerId,
-      chatId: readResult.chatId,
-      scope: readResult.scope as 'enti_chat' | 'group_chat',
-      contentText: readResult.contentText!,
+      attachmentId: attachment.attachmentId,
+      ownerType: attachment.ownerType as any,
+      ownerId: attachment.ownerId,
+      chatId: attachment.chatId,
+      scope: (ownerType === 'enti' ? 'enti_chat' : 'group_chat') as any,
+      contentText: extractedText,
       readAt: new Date().toISOString(),
-      metadata: { fileName: readResult.fileName }
+      metadata: { fileName: attachment.fileName }
     });
 
     const persistResult = persistAttachmentRecordsFlow([attachment]);
@@ -164,10 +219,8 @@ export function useChatAttachmentDrop(
     }
 
     attachmentsStore.addAttachment(attachment);
-
-    setTimeout(() => setDropState('idle'), 1500);
-
-  }, [ownerType, ownerId, chatId]);
+    setTimeout(() => setDropState('idle'), 2000);
+  }, [ownerId, ownerType, chatId, firstSequenceEntiId]);
 
   return {
     dropState,

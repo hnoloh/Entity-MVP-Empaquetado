@@ -39,3 +39,26 @@
   font-size: 0.7rem;
   margin-left: 4px;
 }
+
+/* Indicators */
+.enti-tool-tiny-icon.indicator-required_not_active {
+  box-shadow: 0 0 0 2px rgba(255, 100, 100, 0.8);
+  animation: pulse-required 2s infinite;
+}
+
+@keyframes pulse-required {
+  0% { box-shadow: 0 0 0 0 rgba(255, 100, 100, 0.7); }
+  70% { box-shadow: 0 0 0 6px rgba(255, 100, 100, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 100, 100, 0); }
+}
+
+.enti-tool-tiny-icon.indicator-in_use {
+  background: rgba(255, 255, 0, 0.2);
+  border-color: rgba(255, 255, 0, 0.6);
+  color: #ffff00;
+}
+
+.enti-tool-tiny-icon.indicator-active {
+  /* Default active visual state for authorized tools is already applied via state-authorized, but we can boost it if needed */
+}
+

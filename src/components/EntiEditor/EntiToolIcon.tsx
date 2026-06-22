@@ -18,9 +18,11 @@ export const EntiToolIcon: React.FC<Props> = ({ item, onRemove }) => {
     return <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.1L7.6 4.8 5.4 7 2.6 4.2c-1.3 2.4-.9 5.4 1.1 7.4 1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l1.6-1.6c.4-.4.4-1.1 0-1.6z"/>;
   };
 
+  const effectiveState = (item.state === 'blocked' && item.blockedReason === 'risk_not_authorized') ? 'available' : item.state;
+
   return (
     <span 
-      className={`enti-tool-tiny-icon state-${item.state}`} 
+      className={`enti-tool-tiny-icon state-${effectiveState} ${item.indicatorStatus ? `indicator-${item.indicatorStatus}` : ''}`} 
       data-testid={`tool-icon-${item.id}`}
       title={`${item.name} - ${item.state === 'blocked' ? item.blockedReason : item.description}`}
     >
@@ -29,7 +31,7 @@ export const EntiToolIcon: React.FC<Props> = ({ item, onRemove }) => {
           {getIcon()}
         </svg>
       </span>
-      {item.state === 'blocked' && <span className="tool-badge-blocked" data-testid="badge-blocked">🚫</span>}
+      {item.state === 'blocked' && item.blockedReason !== 'risk_not_authorized' && <span className="tool-badge-blocked" data-testid="badge-blocked">🚫</span>}
       {item.state === 'controlled_error' && <span className="tool-badge-error" data-testid="badge-error">⚠️</span>}
       {onRemove && (
         <span className="tool-remove-btn" onClick={(e) => { e.stopPropagation(); onRemove(); }}>✕</span>

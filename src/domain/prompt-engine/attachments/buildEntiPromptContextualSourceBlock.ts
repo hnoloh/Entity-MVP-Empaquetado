@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ContextualSourceDescriptor } from '../../attachments/contextualSourceTypes';
 import { attachmentContentRepository } from '../../attachments/attachmentContentRepository';
 import { entiPromptContextualSourcesPolicy } from './entiPromptContextualSourcesPolicy';
@@ -36,16 +37,17 @@ export function buildEntiPromptContextualSourceBlock(
     };
 
     const repoResult = attachmentContentRepository.get(getReq);
-    if (repoResult.status !== 'success' || !repoResult.entry) {
+    const contentResult = repoResult as any;
+    if (contentResult.status !== 'success' || !contentResult.entry) {
       errors.push({
         attachmentId: desc.attachmentId,
         status: 'blocked',
-        reason: repoResult.reason || 'Not found in repository'
+        reason: contentResult.reason || 'Not found in repository'
       });
       continue;
     }
 
-    const entry = repoResult.entry;
+    const entry = contentResult.entry;
 
     const policyCheck = entiPromptContextualSourcesPolicy({
       attachmentId: entry.attachmentId,

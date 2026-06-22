@@ -83,7 +83,7 @@ describe('useEntiHarnessAttachmentDropPhysicalRead', () => {
       await result.current.handlers.onDrop(event);
     });
 
-    expect(result.current.dropState).toBe('error');
+    expect(result.current.errorMessage).toContain('activar la Tool');
     const snapshot = attachmentContentRepository.snapshot();
     expect(snapshot.entries.length).toBe(0);
   });

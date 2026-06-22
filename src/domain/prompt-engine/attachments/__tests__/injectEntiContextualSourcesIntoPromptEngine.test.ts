@@ -10,12 +10,16 @@ describe('injectEntiContextualSourcesIntoPromptEngine', () => {
 
   it('injects contextual sources into the user prompt without touching system prompt', () => {
     const block = {
-      chatSources: [{ attachmentId: 'a1', scope: 'enti_chat' as const, contentText: 'Chat Text' }],
-      knowledgeSources: [{ attachmentId: 'a2', scope: 'enti_knowledge' as const, contentText: 'Knowledge Text' }],
-      workMaterialSources: [{ attachmentId: 'a3', scope: 'enti_work_material' as const, contentText: 'Work Text' }]
-    };
-
-    const result = injectEntiContextualSourcesIntoPromptEngine(baseInput, block);
+      chatSources: [
+        { attachmentId: 'att-1', scope: 'chat_context' as const, contentText: 'Chat Text' }
+      ],
+      knowledgeSources: [
+        { attachmentId: 'att-2', scope: 'enti_knowledge' as const, contentText: 'Knowledge Text' }
+      ],
+      workMaterialSources: [
+        { attachmentId: 'att-3', scope: 'enti_work_material' as const, contentText: 'Work Text' }
+      ]
+    };const result = injectEntiContextualSourcesIntoPromptEngine(baseInput, block);
     expect(result.status).toBe('success');
     
     // System prompt should remain untouched

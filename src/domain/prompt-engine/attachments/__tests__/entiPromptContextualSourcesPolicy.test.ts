@@ -56,7 +56,7 @@ describe('entiPromptContextualSourcesPolicy', () => {
       ownerType: 'enti',
       ownerId: 'e1',
       attachmentId: 'a1',
-      scope: 'invalid_scope' as unknown as import('../../attachments/contextualSourceTypes').ContextualSourceScope,
+      scope: 'invalid_scope' as unknown as import('../../../attachments/contextualSourceTypes').ContextualSourceScope,
       chatId: 'c1',
       contentText: 'text'
     } as unknown as EntiPromptContextualSourceValidationRequest);

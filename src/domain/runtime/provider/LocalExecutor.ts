@@ -1,4 +1,5 @@
 import type { ProviderBridge, ProviderExecutionInput, ProviderExecutionOutput } from './ProviderBridge';
+import { parseToolCallsIntoXml } from './parseToolCalls';
 
 export class LocalExecutor implements ProviderBridge {
   private model: string;
@@ -22,22 +23,35 @@ export class LocalExecutor implements ProviderBridge {
     }
 
     try {
-      const messages: Array<{ role: string; content: string }> = [];
-      if (input.systemPrompt) {
-        messages.push({ role: 'system', content: input.systemPrompt });
+      let messages: Array<{ role: string; content: string }> = [];
+      if (input.messages && input.messages.length > 0) {
+        if (input.systemPrompt) {
+          messages.push({ role: 'system', content: input.systemPrompt });
+        }
+        messages = messages.concat(input.messages);
+      } else {
+        if (input.systemPrompt) {
+          messages.push({ role: 'system', content: input.systemPrompt });
+        }
+        messages.push({ role: 'user', content: input.prompt });
       }
-      messages.push({ role: 'user', content: input.prompt });
+
+      const bodyPayload: Record<string, unknown> = {
+        model: this.model,
+        messages: messages,
+        stream: false
+      };
+
+      if (input.tools && input.tools.length > 0) {
+        bodyPayload.tools = input.tools;
+      }
 
       const response = await fetch(this.endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          model: this.model,
-          messages: messages,
-          stream: false
-        })
+        body: JSON.stringify(bodyPayload)
       });
 
       if (!response.ok) {
@@ -46,9 +60,15 @@ export class LocalExecutor implements ProviderBridge {
 
       const data = await response.json();
 
+      let responseText = data.message?.content || '';
+
+      if (data.message?.tool_calls && data.message.tool_calls.length > 0) {
+        responseText += parseToolCallsIntoXml(data.message.tool_calls);
+      }
+
       return {
         success: true,
-        responseText: data.message?.content || ''
+        responseText
       };
     } catch (e) {
       return {

@@ -15,6 +15,8 @@ export interface EntiHarness {
   rules: string[];
   workMaterial: string;
   knowledge: string;
+  knowledgeAttachments?: string[];
+  workMaterialAttachments?: string[];
 }
 
 export type EntiStatus = "complete" | "incomplete";

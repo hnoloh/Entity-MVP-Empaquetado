@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import { type Group, GROUP_SLOT_IDS } from "../../domain/group/Group";
 import type { Enti } from "../../domain/enti/Enti";
-import { editGroupFlow } from "../../domain/group/editGroupFlow";
 import { addEntiToGroupSlotFlow } from "../../domain/group/addEntiToGroupSlotFlow";
 import { validateGroupGapsFlow } from "../../domain/group/validateGroupGapsFlow";
 import { removeEntiFromGroupSlotFlow } from "../../domain/group/removeEntiFromGroupSlotFlow";

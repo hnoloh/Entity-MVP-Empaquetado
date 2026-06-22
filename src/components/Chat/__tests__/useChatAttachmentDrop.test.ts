@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useChatAttachmentDrop } from '../useChatAttachmentDrop';
@@ -13,6 +14,14 @@ vi.mock('../../../domain/attachments', () => ({
 
 vi.mock('../../../domain/attachments/readAttachmentPhysicalTextContent', () => ({
   readAttachmentPhysicalTextContent: vi.fn()
+}));
+
+vi.mock('../../../domain/tools/toolAuthorizationRepository', () => ({
+  toolAuthorizationRepository: { list: vi.fn(() => [{ entiId: 'e1', toolId: 'tool-read-doc', state: 'authorized' }]) }
+}));
+
+vi.mock('../../../domain/tools/document-read', () => ({
+  documentReadToolExecutor: vi.fn(async () => ({ status: 'success', content: { rawText: 'content' } }))
 }));
 
 describe('useChatAttachmentDrop', () => {
@@ -44,10 +53,10 @@ describe('useChatAttachmentDrop', () => {
   });
 
   it('processes drop and calls domain flows', async () => {
-    const mockAttachment = { attachmentId: 'att1', ownerType: 'enti', ownerId: 'e1', chatId: 'c1' };
-    vi.mocked(attachmentsDomain.createAttachmentModelFlow).mockReturnValue({ status: 'success', attachment: mockAttachment } as unknown);
-    vi.mocked(attachmentsDomain.associateAttachmentToEntiChatFlow).mockReturnValue({ status: 'success' } as unknown);
-    vi.mocked(attachmentsDomain.persistAttachmentRecordsFlow).mockReturnValue({ status: 'success' } as unknown);
+    const mockAttachment = { attachmentId: 'att1', ownerType: 'enti', ownerId: 'e1', chatId: 'c1', fileName: 'test.pdf', fileExtension: 'pdf', mimeType: 'application/pdf' };
+    vi.mocked(attachmentsDomain.createAttachmentModelFlow).mockReturnValue({ status: 'success', attachment: mockAttachment } as any);
+    vi.mocked(attachmentsDomain.associateAttachmentToEntiChatFlow).mockReturnValue({ status: 'success' } as any);
+    vi.mocked(attachmentsDomain.persistAttachmentRecordsFlow).mockReturnValue({ status: 'success' } as any);
     vi.mocked(readAttachmentPhysicalTextContent).mockResolvedValue({
       readStatus: 'success',
       attachmentId: 'att1',
@@ -59,7 +68,7 @@ describe('useChatAttachmentDrop', () => {
       fileExtension: 'pdf',
       mimeType: 'application/pdf',
       contentText: 'content'
-    } as unknown);
+    } as any);
 
     const { result } = renderHook(() => useChatAttachmentDrop('enti', 'e1', 'c1'));
     await act(async () => {

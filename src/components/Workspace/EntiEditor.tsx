@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import type { Enti } from "../../domain/enti/Enti";
 import { deriveEntiStatus } from "../../domain/enti/entiStatus";
 import { EntiHarnessAttachmentDropZone } from "../EntiHarness/EntiHarnessAttachmentDropZone";
 import { EntiToolBelt } from "../EntiEditor/EntiToolBelt";
+import { toolAuthorizationRepository } from "../../domain/tools/toolAuthorizationRepository";
 import "./EntiEditor.css";
 
 interface EntiEditorProps {
@@ -18,7 +19,7 @@ interface EntiEditorProps {
 
 interface HarnessFieldProps {
   label: string;
-  value: string;
+  value: string | string[];
   testId: string;
   onExpand: () => void;
   onChange: (val: string) => void;
@@ -52,19 +53,30 @@ const HarnessField: React.FC<HarnessFieldProps> = ({ label, value, testId, onExp
     </div>
   );
 
-  const content = mode === 'modal-only' ? null : (
+  const displayValue = Array.isArray(value) ? value.join("\n") : value;
+
+  const content = mode === 'modal-only' ? (
+    <textarea
+      data-testid={testId}
+      style={{ display: 'none' }}
+      value={inlineValue !== undefined ? inlineValue : displayValue}
+      onChange={handleChange}
+    />
+  ) : (
     <div className="textarea-wrapper">
       <textarea
         data-testid={testId}
         rows={1}
-        value={inlineValue !== undefined ? inlineValue : value}
+        value={inlineValue !== undefined ? inlineValue : displayValue}
         onChange={handleChange}
       />
-      <button type="button" className="expand-btn" onClick={onExpand} title="Expandir">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
-        </svg>
-      </button>
+      {onExpand && (
+        <button type="button" className="expand-btn" onClick={onExpand} title="Expandir">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+          </svg>
+        </button>
+      )}
     </div>
   );
 
@@ -88,7 +100,8 @@ const HarnessField: React.FC<HarnessFieldProps> = ({ label, value, testId, onExp
 
 interface ExpandedModalProps {
   label: string;
-  value: string;
+  fieldKey?: string;
+  value: string | string[];
   onChange: (val: string) => void;
   onClose: () => void;
   attachments?: string[];
@@ -99,8 +112,6 @@ interface ExpandedModalProps {
 }
 
 const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChange, onClose, attachments, dropZoneScope, ownerId, onAttachmentsDropped, onRemoveAttachment }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e.target.value);
   };
@@ -109,77 +120,83 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
       <div className="expanded-field-content" style={{ display: 'flex', flexDirection: 'column' }}>
         <div className="expanded-field-header">
           <h3 style={{ margin: 0, color: '#00e5ff', fontSize: '1.1rem' }}>{label}</h3>
-          {attachments !== undefined && (
-            <button 
-              type="button" 
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              style={{
-                background: isSidebarOpen ? 'rgba(0, 229, 255, 0.1)' : 'transparent',
-                color: '#00ffff',
-                border: '1px solid rgba(0, 229, 255, 0.3)',
-                padding: '0.4rem 0.8rem',
-                borderRadius: '6px',
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                transition: 'all 0.2s'
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-              </svg>
-              {attachments.length} {attachments.length === 1 ? 'Adjunto' : 'Adjuntos'}
-            </button>
-          )}
         </div>
         <div className="expanded-field-body" style={{ display: 'flex', flex: 1, gap: '1rem', minHeight: 0 }}>
-          {attachments !== undefined && isSidebarOpen && (
-            <div className="expanded-field-sidebar" style={{ width: '250px', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '4px', overflowY: 'auto' }}>
-              <h4 style={{ margin: '0 0 1rem 0', color: '#00ffff', fontSize: '0.9rem', textTransform: 'uppercase' }}>Archivos Adjuntos</h4>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {attachments.map((name, i) => (
-                  <li key={i} className="attachment-item" style={{ position: 'relative', padding: '0.5rem', background: 'rgba(255,255,255,0.05)', marginBottom: '0.5rem', borderRadius: '4px', fontSize: '0.85rem', wordBreak: 'break-all', color: '#ccc', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                    <span style={{ flex: 1 }}>{name}</span>
-                    {onRemoveAttachment && (
-                      <button 
-                        className="btn-remove-attachment"
-                        onClick={(e) => { e.stopPropagation(); onRemoveAttachment(name); }}
-                        title="Eliminar adjunto"
-                        style={{
-                          background: 'rgba(255, 68, 68, 0.1)',
-                          border: 'none',
-                          color: '#ff4444',
-                          borderRadius: '4px',
-                          padding: '4px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0
-                        }}
-                      >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="3 6 5 6 21 6"></polyline>
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                      </button>
-                    )}
-                  </li>
-                ))}
-                {attachments.length === 0 && (
-                  <li style={{ color: '#aaa', fontSize: '0.85rem' }}>No hay archivos adjuntos</li>
-                )}
-              </ul>
+          {attachments !== undefined ? (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', padding: '1rem', overflowY: 'auto', width: '100%', alignContent: 'flex-start' }}>
+              {attachments.length === 0 ? (
+                <div style={{ color: '#aaa', fontSize: '0.9rem', width: '100%', textAlign: 'center', marginTop: '2rem' }}>
+                  Arrastra archivos aquí para añadirlos
+                </div>
+              ) : (
+                attachments.map((name, i) => {
+                  const words = name.split(/[-_.\s]+/);
+                  const shortName = words.slice(0, 3).join(' ') + (words.length > 3 ? '...' : '');
+                  return (
+                    <div key={i} className="attachment-card" style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(0, 229, 255, 0.2)',
+                      borderRadius: '8px',
+                      padding: '1rem',
+                      width: '120px',
+                      height: '120px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      position: 'relative',
+                      textAlign: 'center'
+                    }}>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '8px', flexShrink: 0 }}>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                      </svg>
+                      <span style={{ fontSize: '0.8rem', color: '#e2e8f0', wordBreak: 'break-word', lineHeight: '1.2', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }} title={name}>
+                        {shortName}
+                      </span>
+                      {onRemoveAttachment && (
+                        <button 
+                          className="btn-remove-attachment"
+                          onClick={(e) => { e.stopPropagation(); onRemoveAttachment(name); }}
+                          title="Eliminar adjunto"
+                          style={{
+                            position: 'absolute',
+                            top: '4px',
+                            right: '4px',
+                            background: 'rgba(0, 229, 255, 0.1)',
+                            border: 'none',
+                            color: '#00e5ff',
+                            borderRadius: '4px',
+                            padding: '4px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  );
+                })
+              )}
             </div>
+          ) : (
+            <textarea
+              className="expanded-textarea"
+              style={{ flex: 1, resize: 'none' }}
+              value={Array.isArray(value) ? value.join('\n') : value}
+              onChange={handleChange}
+            />
           )}
-          <textarea
-            className="expanded-textarea"
-            style={{ flex: 1, resize: 'none' }}
-            value={value}
-            onChange={handleChange}
-          />
         </div>
         <div className="expanded-field-actions" style={{ marginTop: '1rem' }}>
           <button type="button" onClick={onClose}>Cerrar</button>
@@ -226,7 +243,20 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
     workMaterial: draft.harness.workMaterialAttachments || []
   });
 
+  const [initialTools, setInitialTools] = useState(() => 
+    toolAuthorizationRepository.list().filter(t => t.entiId === enti.id)
+  );
+  const [, setCurrentToolsTick] = useState(0);
+
   React.useEffect(() => {
+    return toolAuthorizationRepository.subscribe(() => setCurrentToolsTick(t => t + 1));
+  }, []);
+
+  const currentTools = toolAuthorizationRepository.list().filter(t => t.entiId === enti.id);
+  const isToolsDirty = JSON.stringify(initialTools) !== JSON.stringify(currentTools);
+
+  React.useEffect(() => {
+    // eslint-disable-next-line
     setDraft(prev => {
       const currentKnowledge = prev.harness.knowledgeAttachments || [];
       const currentWorkMaterial = prev.harness.workMaterialAttachments || [];
@@ -247,13 +277,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
     });
   }, [sessionAttachments]);
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (brainSelectStep === "cloud_api_key" || brainSelectStep === "local_models") {
-      return; // Bloquea el cierre forzando interacción con el submenú
-    }
-    setIsBrainSelectOpen(false);
-  };
+
 
   React.useEffect(() => {
     if (isBrainSelectOpen && brainSelectStep === "local_models" && localDetectionState === "detecting") {
@@ -284,7 +308,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
     }
   }, [isBrainSelectOpen, brainSelectStep, localDetectionState]);
 
-  const isDirty = JSON.stringify(draft) !== JSON.stringify(enti);
+  const isDirty = JSON.stringify(draft) !== JSON.stringify(enti) || isToolsDirty;
 
   const handleCloseAttempt = React.useCallback(() => {
     if (isDirty) {
@@ -305,13 +329,28 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
   }, [draft.id, handleCloseAttempt]);
 
   const handleSave = () => {
-    const updatedDraft = { ...draft, status: deriveEntiStatus(draft) };
+    const rulesArray = typeof draft.harness.rules === 'string'
+      ? (draft.harness.rules as string).split('\n').filter(r => r.trim() !== '')
+      : draft.harness.rules;
+
+    const updatedDraft = { 
+      ...draft, 
+      harness: { ...draft.harness, rules: rulesArray },
+      status: deriveEntiStatus(draft) 
+    };
+    
+    setInitialTools(currentTools); // Reset tools dirty state
+    
     onSave(updatedDraft);
     setShowCloseDialog(false);
     onClose();
   };
 
   const handleDiscard = () => {
+    // Revert tool authorizations for this Enti
+    const allOtherTools = toolAuthorizationRepository.list().filter(t => t.entiId !== enti.id);
+    toolAuthorizationRepository.save([...allOtherTools, ...initialTools]);
+    
     setShowCloseDialog(false);
     onClose();
   };
@@ -408,7 +447,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
             />
           </div>
 
-          <div className="field-group" style={{ flex: 1, margin: 0, gap: '4px' }}>
+          <div data-testid="cognitive-config-section" className="field-group" style={{ flex: 1, margin: 0, gap: '4px' }}>
             <label style={{ margin: 0 }}>Tipo de Brain</label>
             <div className="custom-select-container">
               <div 
@@ -484,36 +523,38 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
                         <button className="btn-back" onClick={(e) => { e.stopPropagation(); setBrainSelectStep("main"); }}>← Volver</button>
                         <span className="step-title">OpenAI API Key</span>
                       </div>
-                      <div className="cloud-api-key-input-container">
-                        <input 
-                          type={showApiKey ? "text" : "password"} 
-                          className="harness-input" 
-                          value={tempApiKey} 
-                          onChange={(e) => setTempApiKey(e.target.value)} 
-                          placeholder="sk-..." 
-                          data-testid="input-openai-api-key"
-                          autoComplete="new-password"
-                        />
-                        <button 
-                          className="btn-eye" 
-                          onClick={(e) => { e.stopPropagation(); setShowApiKey(!showApiKey); }}
-                          data-testid="btn-toggle-api-key"
-                          title={showApiKey ? "Ocultar API Key" : "Mostrar API Key"}
-                        >
-                          {showApiKey ? (
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                              <line x1="1" y1="1" x2="23" y2="23"></line>
-                            </svg>
-                          ) : (
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                              <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                          )}
-                        </button>
-                      </div>
-                      <div className="cloud-api-key-actions">
+                      <div className="cloud-api-key-input-row" style={{ display: 'flex', gap: '8px', padding: '10px', alignItems: 'center', minWidth: '500px' }}>
+                        <div style={{ position: 'relative', flex: 1, display: 'flex' }}>
+                          <input 
+                            type={showApiKey ? "text" : "password"} 
+                            className="harness-input" 
+                            value={tempApiKey} 
+                            onChange={(e) => setTempApiKey(e.target.value)} 
+                            placeholder="sk-..." 
+                            data-testid="input-openai-api-key"
+                            autoComplete="new-password"
+                            style={{ flex: 1, paddingRight: '32px', minWidth: '380px' }}
+                          />
+                          <button 
+                            className="btn-eye" 
+                            onClick={(e) => { e.stopPropagation(); setShowApiKey(!showApiKey); }}
+                            data-testid="btn-toggle-api-key"
+                            title={showApiKey ? "Ocultar API Key" : "Mostrar API Key"}
+                            style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)' }}
+                          >
+                            {showApiKey ? (
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                              </svg>
+                            ) : (
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                              </svg>
+                            )}
+                          </button>
+                        </div>
                         <button 
                           className="btn-accept" 
                           onClick={(e) => {
@@ -523,6 +564,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
                             setIsBrainSelectOpen(false);
                           }}
                           data-testid="btn-accept-api-key"
+                          style={{ margin: 0, padding: '6px 12px' }}
                         >
                           Aceptar
                         </button>
@@ -535,17 +577,19 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+        <div data-testid="harness-base-section" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+          <div className="field-group">
             <HarnessField
               label="Función"
               value={draft.harness.function}
-              inlineValue={draft.harness.shortFunction || ''}
+              inlineValue={draft.harness.shortFunction}
               onInlineChange={(val) => handleHarnessChange("shortFunction" as keyof typeof draft.harness, val)}
               testId="input-function"
               onExpand={() => setExpandedField({ key: "function", label: "Función (Extendida)" })}
               onChange={(val) => handleHarnessChange("function", val)}
               mode="inline"
             />
+          </div>
             <HarnessField
               label="Normas"
               value={draft.harness.rules}

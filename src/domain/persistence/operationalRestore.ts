@@ -10,6 +10,7 @@ export interface OperationalRestorePayload {
     chatPayload?: unknown;
     sequencePayload?: unknown;
     positionPayload?: unknown;
+    toolAuthorizationsPayload?: unknown;
   };
 }
 
@@ -55,6 +56,7 @@ export function restoreOperationalStateFlow(request: OperationalRestoreRequest):
     chatPayload: data.chatPayload,
     sequencePayload: data.sequencePayload,
     positionPayload: data.positionPayload,
+    toolAuthorizationsPayload: data.toolAuthorizationsPayload,
     enforceCrossReferenceConsistency: true
   });
 

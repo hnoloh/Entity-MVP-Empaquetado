@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useSyncExternalStore, useRef, useEffect } from 'react';
 import { chatRepository, sendMessageToChatFlow, type Chat, type ChatMessage } from '../../domain/chat';
 import { entiRepository } from '../../domain/enti';
@@ -9,7 +10,64 @@ import { ChatAttachmentDropZone } from './ChatAttachmentDropZone';
 import { attachmentsStore } from './attachmentsStore';
 import { mapAttachmentRecordToChatAttachmentViewModel } from './attachmentViewModel';
 import { ChatAttachmentMessage } from './ChatAttachmentMessage';
+import { generatedArtifactRegistry } from '../../domain/tools/generated-artifacts';
+import { GeneratedArtifactActions } from '../EntiEditor/GeneratedArtifactActions';
 import './ChatView.css';
+
+const renderMessageContent = (content: string, entiId: string) => {
+  if (!entiId) return content;
+  
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = linkRegex.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(<span key={`text-${lastIndex}`}>{content.substring(lastIndex, match.index)}</span>);
+    }
+    
+    const text = match[1];
+    const url = match[2];
+    
+    const artifacts = generatedArtifactRegistry.getArtifactsByEnti(entiId);
+    let matchedArtifact = null;
+    
+    for (const art of artifacts) {
+      if (url.includes(art.filename) || text.includes(art.filename)) {
+        matchedArtifact = art;
+        break;
+      }
+    }
+
+    if (matchedArtifact) {
+      parts.push(
+        <GeneratedArtifactActions key={`art-${match.index}`} artifactId={matchedArtifact.artifactId} entiId={entiId} text={text} />
+      );
+    } else if (url.toLowerCase().startsWith('sandbox:')) {
+      const isDocx = url.toLowerCase().endsWith('.docx') || text.toLowerCase().endsWith('.docx');
+      const filename = url.split('/').pop() || (isDocx ? 'documento.docx' : 'documento.pdf');
+      const blobType = isDocx ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf';
+      const blob = new Blob([content], { type: blobType });
+      const objectUrl = URL.createObjectURL(blob);
+      parts.push(
+        <a key={`link-${match.index}`} href={objectUrl} download={filename} style={{ color: '#3b82f6', textDecoration: 'underline', cursor: 'pointer' }}>
+          {text || filename}
+        </a>
+      );
+    } else {
+      parts.push(<a key={`link-${match.index}`} href={url} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'underline' }}>{text}</a>);
+    }
+    
+    lastIndex = linkRegex.lastIndex;
+  }
+  
+  if (lastIndex < content.length) {
+    parts.push(<span key={`text-${lastIndex}`}>{content.substring(lastIndex)}</span>);
+  }
+  
+  return parts.length > 0 ? <>{parts}</> : content;
+};
 
 interface ChatViewProps {
   chatId: string;
@@ -40,14 +98,14 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
   let error: string | null = null;
 
   const sortedItems = React.useMemo(() => {
-    const items: Array<{ type: 'message', data: ChatMessage, time: number } | { type: 'attachment', data: Record<string, unknown>, time: number }> = [];
+    const items: Array<{ type: 'message', data: ChatMessage, time: number } | { type: 'attachment', data: import('../../domain/attachments').Attachment, time: number }> = [];
     
     const currentHistory = chat?.history || [];
     currentHistory.forEach(msg => items.push({ type: 'message', data: msg, time: msg.timestamp }));
     
     attachments.forEach(att => {
       const time = att.receivedAt ? new Date(att.receivedAt).getTime() : 0;
-      items.push({ type: 'attachment', data: att as unknown as Record<string, unknown>, time });
+      items.push({ type: 'attachment', data: att, time });
     });
 
     return items.sort((a, b) => a.time - b.time);
@@ -69,10 +127,19 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
   const resolvedOwnerType = isGroup ? 'group' : 'enti';
   const resolvedOwnerId = chat?.owner.id;
 
+  let firstSequenceEntiId: string | undefined;
+  if (isGroup && chat) {
+    const group = grupos?.find(g => g.id === chat.owner.id);
+    if (group && group.slots && group.slots['1']) {
+      firstSequenceEntiId = group.slots['1'];
+    }
+  }
+
   const { dropState, errorMessage, handlers } = useChatAttachmentDrop(
     resolvedOwnerType,
     resolvedOwnerId,
-    chatId
+    chatId,
+    firstSequenceEntiId
   );
 
   React.useEffect(() => {
@@ -244,7 +311,7 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
           ) : (
             sortedItems.map((item, index) => {
               if (item.type === 'attachment') {
-                const vm = mapAttachmentRecordToChatAttachmentViewModel(item.data);
+                const vm = mapAttachmentRecordToChatAttachmentViewModel(item.data as any);
                 return <ChatAttachmentMessage key={vm.id} attachment={vm} />;
               }
               const msg = item.data as ChatMessage;
@@ -263,29 +330,45 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
               }
 
               const className = `chat-message role-${msg.role}`;
+              
+              let entiIdForArtifacts = '';
+              if (isAssistant) {
+                if (isGroup) {
+                  const currentGroup = grupos ? grupos.find(g => g.id === chat.owner.id) : null;
+                  if (currentGroup && currentGroup.slots) {
+                    const slotId = (sortedItems.slice(0, index + 1).filter(i => i.type === 'message' && (i.data as ChatMessage).role === 'assistant').length).toString();
+                    entiIdForArtifacts = currentGroup.slots[slotId as keyof typeof currentGroup.slots] || '';
+                  }
+                } else {
+                  entiIdForArtifacts = chat.owner.id;
+                }
+              }
+
               return (
                 <div key={msg.id || index} data-testid="chat-message" className={className}>
                   <span className="chat-message-role">{currentOwnerName}</span>
-                  <span className="chat-message-content">{msg.content}</span>
+                  <span className="chat-message-content" style={{ whiteSpace: 'pre-wrap' }}>
+                    {isAssistant ? renderMessageContent(msg.content, entiIdForArtifacts) : msg.content}
+                  </span>
                 </div>
               );
             })
           )}
+          
+          {showLoadingBubble && (
+            <div className="chat-message role-assistant loading-indicator">
+              <span className="chat-message-role">{loadingRoleName}</span>
+              <span className="chat-message-content typing">{loadingStatusText}</span>
+            </div>
+          )}
+          {runtimeError && (
+            <div data-testid="chat-message" className="chat-message role-system">
+              <span className="chat-message-role" style={{ color: '#e03131' }}>Sistema (Error)</span>
+              <span className="chat-message-content" style={{ color: '#e03131' }}>{runtimeError}</span>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
         </div>
-        
-        {showLoadingBubble && (
-          <div className="chat-message role-assistant loading-indicator">
-            <span className="chat-message-role">{loadingRoleName}</span>
-            <span className="chat-message-content typing">{loadingStatusText}</span>
-          </div>
-        )}
-        {runtimeError && (
-          <div data-testid="chat-message" className="chat-message role-system">
-            <span className="chat-message-role" style={{ color: '#e03131' }}>Sistema (Error)</span>
-            <span className="chat-message-content" style={{ color: '#e03131' }}>{runtimeError}</span>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
       </div>
 
       <div className="chat-view-composer" data-testid="chat-view-composer">

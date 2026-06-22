@@ -31,7 +31,7 @@ describe("Workspace Cognitive Config Integration (FIA-016)", () => {
   it("TEST-FIA016-01: abrir Enti seleccionado muestra Configuración Cognitiva sin errores", () => {
     render(<EntiEditor isActive={true} enti={mockEnti} onSave={mockOnSave} onClose={mockOnClose} />);
     expect(screen.getByTestId("cognitive-config-section")).toBeInTheDocument();
-    expect(screen.getByText("Configuración Cognitiva")).toBeInTheDocument();
+    expect(screen.getByText("Tipo de Brain")).toBeInTheDocument();
     expect(screen.getByTestId("input-cognitive-mode")).toBeInTheDocument();
   });
 

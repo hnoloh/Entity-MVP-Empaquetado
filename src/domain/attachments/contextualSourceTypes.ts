@@ -2,10 +2,13 @@ export type ContextualSourceScope = 'chat_context' | 'enti_knowledge' | 'enti_wo
 
 export interface ContextualSourceDescriptor {
   attachmentId: string;
-  ownerType: 'enti';
+  ownerType: 'enti' | 'group';
   ownerId: string;
   chatId?: string;
   scope: ContextualSourceScope;
+  fileName?: string;
+  fileExtension?: string;
+  mimeType?: string;
   metadata?: Record<string, unknown>;
 }
 

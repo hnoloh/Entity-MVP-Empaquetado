@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from 'vitest';
 import { attachmentPhysicalReadPolicy, MAX_TEXT_FILE_SIZE_BYTES } from '../attachmentPhysicalReadPolicy';
 import type { ContextualSourceDescriptor } from '../contextualSourceTypes';
@@ -8,7 +9,7 @@ describe('attachmentPhysicalReadPolicy', () => {
     ownerType: 'enti',
     ownerId: 'enti-1',
     chatId: 'chat-1',
-    scope: 'chat',
+    scope: 'chat_context',
     fileName: 'test.txt',
     fileExtension: 'txt'
   };
@@ -23,7 +24,7 @@ describe('attachmentPhysicalReadPolicy', () => {
       ...validDescriptor,
       ownerId: undefined as unknown as string
     });
-    expect(result.status).toBeUndefined();
+    expect((result as any).status).toBeUndefined();
     if ('readStatus' in result) {
       expect(result.readStatus).toBe('blocked');
       expect(result.errorCode).toBe('missing_owner');
@@ -33,9 +34,9 @@ describe('attachmentPhysicalReadPolicy', () => {
   it('blocks missing scope', () => {
     const result = attachmentPhysicalReadPolicy({
       ...validDescriptor,
-      scope: undefined as unknown as "chat" | "enti_knowledge" | "enti_work_material"
+      scope: undefined as unknown as "chat_context" | "enti_knowledge" | "enti_work_material"
     });
-    expect(result.status).toBeUndefined();
+    expect((result as any).status).toBeUndefined();
     if ('readStatus' in result) {
       expect(result.readStatus).toBe('blocked');
       expect(result.errorCode).toBe('missing_scope');
@@ -48,7 +49,7 @@ describe('attachmentPhysicalReadPolicy', () => {
       fileExtension: 'exe',
       mimeType: 'application/octet-stream'
     });
-    expect(result.status).toBeUndefined();
+    expect((result as any).status).toBeUndefined();
     if ('readStatus' in result) {
       expect(result.readStatus).toBe('blocked');
       expect(result.errorCode).toBe('unsupported_type');
@@ -66,7 +67,7 @@ describe('attachmentPhysicalReadPolicy', () => {
 
   it('blocks files exceeding size limit', () => {
     const result = attachmentPhysicalReadPolicy(validDescriptor, MAX_TEXT_FILE_SIZE_BYTES + 1);
-    expect(result.status).toBeUndefined();
+    expect((result as any).status).toBeUndefined();
     if ('readStatus' in result) {
       expect(result.readStatus).toBe('blocked');
       expect(result.errorCode).toBe('size_limit_exceeded');

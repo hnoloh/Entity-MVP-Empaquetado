@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
@@ -24,7 +25,7 @@ describe('ChatWindowHost', () => {
     document.body.appendChild(popupContainer);
 
     window.open = vi.fn(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       let unloadHandler: any = null;
       return {
         document: {
@@ -38,19 +39,19 @@ describe('ChatWindowHost', () => {
           },
           title: ''
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         addEventListener: vi.fn((ev: string, handler: any) => {
           if (ev === 'beforeunload') unloadHandler = handler;
         }),
         close: function() { 
-          if (this.onbeforeunload) this.onbeforeunload();
+          if ((this as any).onbeforeunload) (this as any).onbeforeunload();
           if (unloadHandler) unloadHandler();
           if(popupContainer) popupContainer.innerHTML = ''; 
         },
         closed: false
          
-      } as unknown;
-    });
+      } as any;
+    }) as any;
   });
 
   afterEach(() => {

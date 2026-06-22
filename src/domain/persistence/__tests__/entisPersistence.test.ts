@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from 'vitest';
 import type { Enti } from '../../enti/Enti';
 import {
@@ -79,7 +80,7 @@ describe('Entis Functional Persistence', () => {
     const payload: EntiPersistencePayload = {
       root: 'entis',
       version: '1.0',
-      data: [{ ...validEnti, unexpectedField: 'bad', chatHistory: [] } as unknown]  
+      data: [{ ...validEnti, unexpectedField: 'bad', chatHistory: [] } as any]  
     };
     const result = restoreEntisFromPersistencePayload(payload);
     expect(result.status).toBe('controlled_error');
@@ -91,7 +92,7 @@ describe('Entis Functional Persistence', () => {
     const payload: EntiPersistencePayload = {
       root: 'entis',
       version: '1.0',
-      data: [invalidEnti as unknown]  
+      data: [invalidEnti as any]  
     };
     const result = restoreEntisFromPersistencePayload(payload);
     expect(result.status).toBe('controlled_error');

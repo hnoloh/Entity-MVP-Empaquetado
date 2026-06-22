@@ -13,10 +13,9 @@ describe('buildEntiToolBeltViewModel', () => {
     expect(vm[0].id).toBe('t1');
     expect(vm[0].state).toBe('available');
     
-    // High risk defaults to blocked
+    // High risk is now available by default
     expect(vm[1].id).toBe('t2');
-    expect(vm[1].state).toBe('blocked');
-    expect(vm[1].blockedReason).toBe('risk_not_authorized');
+    expect(vm[1].state).toBe('available');
   });
 
   it('mapea estados de autorización', () => {

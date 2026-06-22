@@ -38,15 +38,28 @@ export function injectEntiContextualSourcesIntoPromptEngine(
     };
   }
 
-  // We append the injection text to the end of the user prompt, NOT the system prompt.
-  // This keeps the system prompt (Harness) clean and immutable.
+  // Append the injection text to the end of the user prompt, NOT the system prompt.
+  // Also update the last message in the messages array if it exists.
   const newPrompt = `${input.prompt}\n\n${injection.trim()}`;
+  
+  let newMessages = input.messages;
+  if (newMessages && newMessages.length > 0) {
+    newMessages = [...newMessages];
+    const lastMsg = newMessages[newMessages.length - 1];
+    if (lastMsg.role === 'user') {
+      newMessages[newMessages.length - 1] = {
+        ...lastMsg,
+        content: `${lastMsg.content}\n\n${injection.trim()}`
+      };
+    }
+  }
 
   return {
     status: 'success',
     injectedInput: {
       ...input,
-      prompt: newPrompt
+      prompt: newPrompt,
+      messages: newMessages
     }
   };
 }

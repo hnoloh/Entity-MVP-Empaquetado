@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from 'vitest';
 import { type Group } from '../Group';
 import { createGroupFlow } from '../createGroupFlow';
@@ -17,11 +18,11 @@ describe('Group without Brain (RV05-FIA-015)', () => {
     
     // Verificamos que las propiedades cognitivas no se añadan por defecto
      
-    expect((group as unknown).brainId).toBeUndefined();
+    expect((group as any).brainId).toBeUndefined();
      
-    expect((group as unknown).provider).toBeUndefined();
+    expect((group as any).provider).toBeUndefined();
      
-    expect((group as unknown).runtimeConfig).toBeUndefined();
+    expect((group as any).runtimeConfig).toBeUndefined();
   });
 
   it('TEST-FIA015-02: Edición de nombre y función en Grupo sin Brain', () => {

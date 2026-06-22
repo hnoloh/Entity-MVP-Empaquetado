@@ -1,23 +1,46 @@
-import { useMemo } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import type { EntiToolRegistry } from '../../domain/tools';
+import { toggleToolAuthorization } from '../../domain/tools';
 import { buildEntiToolBeltViewModel } from './buildEntiToolBeltViewModel';
-
-const MOCK_REGISTRY: EntiToolRegistry = {
-  definitions: {
-    'tool-read-doc': { id: 'tool-read-doc', kind: 'document_read', name: 'Leer Documento', description: 'Lee PDF/DOCX', riskLevel: 'low' },
-    'tool-gen-pdf': { id: 'tool-gen-pdf', kind: 'generate_pdf', name: 'Generar PDF', description: 'Genera archivo PDF', riskLevel: 'medium' },
-    'tool-gen-docx': { id: 'tool-gen-docx', kind: 'generate_docx', name: 'Generar DOCX', description: 'Genera archivo DOCX', riskLevel: 'medium' },
-    'tool-dl': { id: 'tool-dl', kind: 'download_generated_artifact', name: 'Descargar Artefacto', description: 'Descarga un artefacto', riskLevel: 'low' },
-    'tool-net': { id: 'tool-net', kind: 'internet', name: 'Internet', description: 'Acceso a la web', riskLevel: 'high' },
-    'tool-fs': { id: 'tool-fs', kind: 'local_filesystem', name: 'Filesystem', description: 'Acceso a disco local', riskLevel: 'critical' },
-  },
-  authorizations: []
-};
+import { toolAuthorizationRepository } from '../../domain/tools/toolAuthorizationRepository';
+import { toolIndicatorRepository } from '../../domain/tools/toolIndicatorRepository';
+import { MOCK_REGISTRY_BASE } from '../../domain/tools/mockRegistry';
 
 export function useEntiToolBelt(entiId: string) {
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    const unsubAuth = toolAuthorizationRepository.subscribe(() => setTick(t => t + 1));
+    const unsubInd = toolIndicatorRepository.subscribe(() => setTick(t => t + 1));
+    return () => {
+      unsubAuth();
+      unsubInd();
+    };
+  }, []);
+
+  const currentAuths = toolAuthorizationRepository.list();
+
   const viewModel = useMemo(() => {
-    return buildEntiToolBeltViewModel(entiId, MOCK_REGISTRY.definitions, MOCK_REGISTRY.authorizations);
+    // We include `tick` to force re-evaluation of indicators when global store updates
+    return buildEntiToolBeltViewModel(entiId, MOCK_REGISTRY_BASE.definitions, currentAuths, (toolId) => toolIndicatorRepository.getIndicator(entiId, toolId) as any);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entiId, currentAuths, tick]);
+
+  const toggleAuthorization = useCallback((toolId: string) => {
+    const virtualRegistry: EntiToolRegistry = {
+      ...MOCK_REGISTRY_BASE,
+      authorizations: toolAuthorizationRepository.list()
+    };
+
+    const result = toggleToolAuthorization(entiId, toolId, virtualRegistry);
+    if (result.success) {
+      toolAuthorizationRepository.save(result.newAuthorizations);
+      return { success: true };
+    } else {
+      return { success: false, reason: result.reason };
+    }
   }, [entiId]);
   
-  return { tools: viewModel };
+  return { tools: viewModel, toggleAuthorization };
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from 'vitest';
 import type { Chat } from '../../chat/Chat';
 import {
@@ -89,7 +90,7 @@ describe('Chat Histories Functional Persistence', () => {
         { id: 'msg-dup', role: 'user', content: 'A', timestamp: 1 },
         { id: 'msg-dup', role: 'assistant', content: 'B', timestamp: 2 }
       ]
-    } as unknown;  
+    } as any;  
     const request: ChatHistoriesPersistenceRequest = { explicitUserAction: true, chats: [invalidChat] };
     const result = persistChatHistoriesFlow(request);
     expect(result.status).toBe('controlled_error');
@@ -109,7 +110,7 @@ describe('Chat Histories Functional Persistence', () => {
       history: [
         { id: 'msg-only', role: 'user' } // Missing content and timestamp
       ]
-    } as unknown;  
+    } as any;  
     const request: ChatHistoriesPersistenceRequest = { explicitUserAction: true, chats: [invalidChat] };
     const result = persistChatHistoriesFlow(request);
     expect(result.status).toBe('controlled_error');
@@ -120,7 +121,7 @@ describe('Chat Histories Functional Persistence', () => {
     const payload: ChatHistoriesPersistencePayload = {
       root: 'chats',
       version: '1.0',
-      data: [{ ...validChat, visualState: 'open' } as unknown]  
+      data: [{ ...validChat, visualState: 'open' } as any]  
     };
     const request: ChatHistoriesRestoreRequest = { explicitUserAction: true, payload };
     const result = restoreChatHistoriesFlow(request);
@@ -137,7 +138,7 @@ describe('Chat Histories Functional Persistence', () => {
         history: [
           { id: 'msg-1', role: 'user', content: 'Hello', timestamp: 1000, apiKey: 'leak' }
         ]
-      } as unknown]  
+      } as any]  
     };
     const request: ChatHistoriesRestoreRequest = { explicitUserAction: true, payload };
     const result = restoreChatHistoriesFlow(request);

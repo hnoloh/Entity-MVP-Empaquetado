@@ -103,6 +103,13 @@
   letter-spacing: 0.5px;
 }
 
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
 .chat-message {
   max-width: 85%;
   padding: 12px 16px;
@@ -312,4 +319,10 @@
   0% { opacity: 0.5; }
   50% { opacity: 1; }
   100% { opacity: 0.5; }
+}
+
+.chat-message-content {
+  display: block;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }

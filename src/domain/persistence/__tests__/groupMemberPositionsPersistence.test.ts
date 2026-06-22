@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from 'vitest';
 import {
   persistGroupMemberPositionsFlow,
@@ -69,7 +70,7 @@ describe('Group Member Positions Functional Persistence', () => {
   it('controlled_error por slotId fuera de rango', () => {
     const invalidPos: GroupMemberPositionState = {
       groupId: 'group-2',
-      slots: { '6': 'enti-1' } as unknown  
+      slots: { '6': 'enti-1' } as any  
     };
     const request: GroupMemberPositionsPersistenceRequest = { explicitUserAction: true, positions: [invalidPos] };
     const result = persistGroupMemberPositionsFlow(request);
@@ -80,7 +81,7 @@ describe('Group Member Positions Functional Persistence', () => {
   it('controlled_error por entiId ausente en slot ocupado', () => {
     const invalidPos: GroupMemberPositionState = {
       groupId: 'group-2',
-      slots: { '1': 123 } as unknown  
+      slots: { '1': 123 } as any  
     };
     const request: GroupMemberPositionsPersistenceRequest = { explicitUserAction: true, positions: [invalidPos] };
     const result = persistGroupMemberPositionsFlow(request);
@@ -92,7 +93,7 @@ describe('Group Member Positions Functional Persistence', () => {
     const payload: GroupMemberPositionsPersistencePayload = {
       root: 'member_positions',
       version: '1.0',
-      data: [{ ...validPos, apiKey: 'secret' } as unknown]  
+      data: [{ ...validPos, apiKey: 'secret' } as any]  
     };
     const request: GroupMemberPositionsRestoreRequest = { explicitUserAction: true, payload };
     const result = restoreGroupMemberPositionsFlow(request);
@@ -104,7 +105,7 @@ describe('Group Member Positions Functional Persistence', () => {
     const payload: GroupMemberPositionsPersistencePayload = {
       root: 'member_positions',
       version: '1.0',
-      data: [{ ...validPos, visualState: { visible: true } } as unknown]  
+      data: [{ ...validPos, visualState: { visible: true } } as any]  
     };
     const request: GroupMemberPositionsRestoreRequest = { explicitUserAction: true, payload };
     const result = restoreGroupMemberPositionsFlow(request);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from 'vitest';
 import { validateAttachmentReadPolicy } from '../attachmentReadPolicy';
 import type { Attachment } from '../attachmentModel';
@@ -14,7 +15,7 @@ describe('attachmentReadPolicy', () => {
     source: 'user_upload',
     receivedAt: '2023-01-01T00:00:00Z',
     sizeBytes: 1024
-  };
+  } as any;
 
   it('permite leer archivos validos', () => {
     const result = validateAttachmentReadPolicy(baseAttachment);
@@ -30,7 +31,7 @@ describe('attachmentReadPolicy', () => {
 
   it('bloquea extensiones no soportadas', () => {
     const exeAttachment = { ...baseAttachment, fileExtension: 'exe', mimeType: 'application/x-msdownload' };
-    const result = validateAttachmentReadPolicy(exeAttachment as unknown);
+    const result = validateAttachmentReadPolicy(exeAttachment as any);
     expect(result.isReadable).toBe(false);
     expect(result.error).toBe('unsupported_type');
   });
@@ -44,7 +45,7 @@ describe('attachmentReadPolicy', () => {
 
   it('permite leer mediante mimeType aunque no tenga extension', () => {
     const noExtAttachment = { ...baseAttachment, fileExtension: undefined, mimeType: 'text/plain' };
-    const result = validateAttachmentReadPolicy(noExtAttachment as unknown);
+    const result = validateAttachmentReadPolicy(noExtAttachment as any);
     expect(result.isReadable).toBe(true);
   });
 });

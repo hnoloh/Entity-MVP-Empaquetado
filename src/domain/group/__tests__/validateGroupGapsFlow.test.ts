@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from 'vitest';
 import { type Group } from '../Group';
 import { validateGroupGapsFlow } from '../validateGroupGapsFlow';
@@ -67,7 +68,7 @@ describe('validateGroupGapsFlow (RV05-FIA-016)', () => {
     const group: Group = {
       id: 'g-1', type: 'group', name: 'Test',
        
-      slots: { '1': 'e-1', '6': 'e-6' } as unknown
+      slots: { '1': 'e1', '6': 'e-6' } as any
     };
     const result = validateGroupGapsFlow(group);
     expect(result.valid).toBe(false);

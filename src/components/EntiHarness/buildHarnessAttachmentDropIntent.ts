@@ -16,31 +16,44 @@ export function buildHarnessAttachmentDropIntent(
     return { status: 'blocked', scope, reason: 'El ownerType debe ser enti', files: [] };
   }
 
-  if (!dataTransfer || !dataTransfer.items || dataTransfer.items.length === 0) {
+  if (!dataTransfer) {
     return { status: 'blocked', scope, reason: 'No se detectaron archivos', files: [] };
   }
 
   const files: File[] = [];
-  let blocked = false;
-  let hasFiles = false;
   
-  for (let i = 0; i < dataTransfer.items.length; i++) {
-    const item = dataTransfer.items[i];
-    if (item.kind === 'file') {
-      hasFiles = true;
-      const file = item.getAsFile();
-      if (file) {
-        files.push(file);
+  if (dataTransfer.files && dataTransfer.files.length > 0) {
+    for (let i = 0; i < dataTransfer.files.length; i++) {
+      files.push(dataTransfer.files[i]);
+    }
+  } else if (dataTransfer.items) {
+    for (let i = 0; i < dataTransfer.items.length; i++) {
+      const item = dataTransfer.items[i];
+      if (item.kind === 'file') {
+        const file = item.getAsFile();
+        if (file) {
+          files.push(file);
+        }
       }
-    } else {
-      blocked = true;
     }
   }
 
-  // During dragover, getAsFile() returns null, so files array will be empty
-  // but hasFiles will be true. We only block if there are NO files detected.
-  if (blocked || !hasFiles) {
-    return { status: 'blocked', scope, reason: 'Contenido inválido en Drop', files: [] };
+  // Durante el dragover, WebKitGTK a menudo oculta toda evidencia de que es un archivo.
+  // Por tanto, si no hay archivos (dragover o drop vacío), simplemente lo damos por válido para el hover visual.
+  // Si resulta ser texto o un drop interceptado, fallará limpiamente en la fase de drop al no tener archivos.
+  if (files.length === 0) {
+    if (dataTransfer && dataTransfer.items && dataTransfer.items.length > 0) {
+      let hasOnlyStrings = true;
+      for (let i = 0; i < dataTransfer.items.length; i++) {
+        if (dataTransfer.items[i].kind !== 'string') {
+          hasOnlyStrings = false;
+        }
+      }
+      if (hasOnlyStrings) {
+        return { status: 'blocked', scope, reason: 'Contenido inválido', files: [] };
+      }
+    }
+    return { status: 'valid', scope, files: [] };
   }
 
   return { status: 'valid', scope, files };

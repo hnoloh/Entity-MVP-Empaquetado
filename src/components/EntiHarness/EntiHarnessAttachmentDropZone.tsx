@@ -8,10 +8,12 @@ interface Props {
   scope: HarnessDestinationScope;
   children: React.ReactNode;
   onSuccess?: (fileNames: string[]) => void;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
-export const EntiHarnessAttachmentDropZone: React.FC<Props> = ({ ownerId, scope, children, onSuccess }) => {
-  const { dropState, errorMessage, handlers } = useEntiHarnessAttachmentDrop(ownerId, scope, onSuccess);
+export const EntiHarnessAttachmentDropZone: React.FC<Props> = ({ ownerId, scope, children, onSuccess, className, style }) => {
+  const { zoneRef, dropState, errorMessage, handlers } = useEntiHarnessAttachmentDrop(ownerId, scope, onSuccess);
 
   let overlayContent = null;
   if (dropState === 'dragging_valid') overlayContent = <div className="harness-drop-overlay valid" />;
@@ -22,15 +24,16 @@ export const EntiHarnessAttachmentDropZone: React.FC<Props> = ({ ownerId, scope,
     </div>
   );
   if (dropState === 'error') overlayContent = (
-    <div className="harness-drop-overlay error">
+    <div className="harness-drop-overlay error" onClick={handlers.onDismissError} style={{ cursor: 'pointer' }}>
       {errorMessage && <div className="harness-drop-error-text">{errorMessage}</div>}
     </div>
   );
 
   return (
     <div 
-      className="enti-harness-drop-zone-container"
-      style={{ position: 'relative', width: '100%', height: '100%' }}
+      ref={zoneRef}
+      className={`enti-harness-drop-zone-container ${className || ''}`}
+      style={{ position: 'relative', width: '100%', ...style }}
       onDragEnterCapture={handlers.onDragEnter}
       onDragOverCapture={handlers.onDragOver}
       onDragLeaveCapture={handlers.onDragLeave}

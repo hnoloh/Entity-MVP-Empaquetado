@@ -204,26 +204,31 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
       </div>
   );
 
-  const overlayContent = (
-    <div className="expanded-field-overlay" data-testid="expanded-field-modal">
-      {innerContent}
-    </div>
-  );
-
   if (dropZoneScope && ownerId) {
-    return createPortal(
+    const wrappedInner = (
       <EntiHarnessAttachmentDropZone
         scope={dropZoneScope}
         ownerId={ownerId}
         onSuccess={onAttachmentsDropped}
+        style={{ width: 'auto' }}
       >
-        {overlayContent}
-      </EntiHarnessAttachmentDropZone>,
+        {innerContent}
+      </EntiHarnessAttachmentDropZone>
+    );
+    return createPortal(
+      <div className="expanded-field-overlay" data-testid="expanded-field-modal">
+        {wrappedInner}
+      </div>,
       document.body
     );
   }
 
-  return createPortal(overlayContent, document.body);
+  return createPortal(
+    <div className="expanded-field-overlay" data-testid="expanded-field-modal">
+      {innerContent}
+    </div>,
+    document.body
+  );
 };
 
 // --- Componente Principal ---
@@ -604,7 +609,8 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               testId="input-knowledge"
               onExpand={() => setExpandedField({ key: "knowledge", label: "Conocimientos" })}
               onChange={(val) => handleHarnessChange("knowledge", val)}
-              dropZoneScope="enti_knowledge"
+              attachments={sessionAttachments.knowledge}
+              dropZoneScope={expandedField?.key === "knowledge" ? undefined : "enti_knowledge"}
               ownerId={draft.id}
               onAttachmentsDropped={(files) => setSessionAttachments(prev => ({ ...prev, knowledge: [...prev.knowledge, ...files] }))}
               mode="modal-only"
@@ -615,7 +621,8 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               testId="input-workMaterial"
               onExpand={() => setExpandedField({ key: "workMaterial", label: "Material de Trabajo" })}
               onChange={(val) => handleHarnessChange("workMaterial", val)}
-              dropZoneScope="enti_work_material"
+              attachments={sessionAttachments.workMaterial}
+              dropZoneScope={expandedField?.key === "workMaterial" ? undefined : "enti_work_material"}
               ownerId={draft.id}
               onAttachmentsDropped={(files) => setSessionAttachments(prev => ({ ...prev, workMaterial: [...prev.workMaterial, ...files] }))}
               mode="modal-only"

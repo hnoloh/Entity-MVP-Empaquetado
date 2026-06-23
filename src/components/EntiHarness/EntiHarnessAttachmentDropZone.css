@@ -63,5 +63,51 @@
 }
 
 .harness-drop-overlay.error {
-  background: rgba(248, 113, 113, 0.2);
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: auto;
+}
+
+.harness-drop-error-text {
+  background: #0f172a;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  color: #e2e8f0;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  box-shadow: 0 8px 32px rgba(0, 229, 255, 0.15), inset 0 0 10px rgba(0, 229, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  position: relative;
+}
+
+.harness-drop-error-text::before {
+  content: 'ℹ️';
+  font-size: 1.1rem;
+}
+
+.harness-drop-error-text::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px 8px 0;
+  border-style: solid;
+  border-color: rgba(0, 229, 255, 0.4) transparent transparent transparent;
+  display: block;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.9) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }

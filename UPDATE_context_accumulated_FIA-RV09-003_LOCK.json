@@ -1,0 +1,30 @@
+{
+  "implemented_fia_expected": "RV09/FIA-003 Integración Chats",
+  "previous_lock": "LOCK-FIA-RV09-002",
+  "new_capability": "Integración visual/manual E2E de Chats de Enti y Chat único de Grupo en desktop-host web-fallback/simulado",
+  "contracts_added": ["ManualValidationChecklist_RV09_FIA003"],
+  "contracts_consumed": [
+    "DesktopHostAdapter",
+    "DesktopHostCompatibilityChecklist",
+    "ChatModel",
+    "MessageModel",
+    "ChatRepository",
+    "ChatView",
+    "ChatWindow",
+    "Attachment render/context contracts",
+    "GeneratedArtifactRegistry",
+    "GeneratedArtifactAccess"
+  ],
+  "preserved_restrictions": [
+    "no Internet",
+    "no fetch/network",
+    "no filesystem nativo completo",
+    "no Runtime auto-run nuevo",
+    "no Provider/Brain auto-run",
+    "no rediseño Chat UI",
+    "no storage paralelo",
+    "no visual persistence",
+    "no Grupo como owner de tools"
+  ],
+  "next_fia_unlocked_after_lock": "RV09/FIA-004"
+}

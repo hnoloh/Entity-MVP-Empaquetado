@@ -1,0 +1,51 @@
+{
+  "files_created_expected": [
+    "src/platform/desktop/manualValidationChecklist_RV09_FIA003.ts",
+    "src/platform/desktop/__tests__/manualValidationChecklist_RV09_FIA003.test.ts",
+    "src/components/Chat/__tests__/ChatDesktopHostIntegration.test.tsx",
+    "src/components/Chat/__tests__/GroupChatDesktopHostIntegration.test.tsx"
+  ],
+  "files_modified_expected": [
+    "src/platform/desktop/desktopHostCompatibilityChecklist.ts",
+    "src/platform/desktop/index.ts"
+  ],
+  "files_preserved": [
+    "src/domain/tools/*",
+    "src/domain/runtime/*",
+    "src/domain/attachments/*",
+    "src/components/Workspace/*",
+    "src/components/EntiEditor/*"
+  ],
+  "tests_required": [
+    "unit",
+    "component_ui",
+    "integration",
+    "regression",
+    "manual_e2e"
+  ],
+  "quality_gates": [
+    "unit tests PASS",
+    "integration tests PASS",
+    "component/UI tests PASS",
+    "manual E2E PASS",
+    "typecheck PASS",
+    "lint PASS",
+    "build PASS",
+    "anti-drift PASS",
+    "forbidden-units scan PASS",
+    "no-secret scan PASS",
+    "no-scope-creep PASS"
+  ],
+  "forbidden_units": [
+    "internet",
+    "fetch",
+    "network",
+    "filesystem nativo completo",
+    "runtime auto-run",
+    "provider auto-run",
+    "brain auto-run",
+    "storage paralelo",
+    "visual persistence",
+    "tool internet"
+  ]
+}

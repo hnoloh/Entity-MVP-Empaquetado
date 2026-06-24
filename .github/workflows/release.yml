@@ -1,0 +1,56 @@
+name: Release Entity MVP1
+
+# Esto le dice a GitHub cuándo debe compilar la app
+on:
+  push:
+    branches:
+      - main
+  # Esto nos permite ejecutarlo manualmente con un botón desde GitHub
+  workflow_dispatch:
+
+jobs:
+  release:
+    permissions:
+      contents: write # Necesario para subir los .exe, .deb, etc a la pestaña Releases
+
+    # Aquí le decimos que ejecute 3 ordenadores diferentes a la vez
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, ubuntu-22.04, windows-latest]
+
+    runs-on: ${{ matrix.platform }}
+    
+    steps:
+      - name: Descargar el código fuente
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      # Si está compilando en Linux, le instalamos las dependencias gráficas de Ubuntu
+      - name: Instalar dependencias de Ubuntu
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libgtk-3-dev
+
+      - name: Instalar dependencias de NPM
+        run: npm install
+
+      # La magia: Esta acción de Tauri se encarga de compilar y subir los archivos a GitHub
+      - name: Compilar y Empaquetar
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v1.0.0-${{ github.sha }}
+          releaseName: 'Entity MVP 1.0 (Auto-Release)'
+          releaseBody: 'Instaladores generados automáticamente para Windows, Mac y Linux.'
+          releaseDraft: false
+          prerelease: false

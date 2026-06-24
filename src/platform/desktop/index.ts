@@ -10,3 +10,6 @@ export * from './manualValidationChecklist_RV09_FIA007';
 export * from './manualValidationChecklist_RV09_FIA008';
 export * from './splash';
 export * from './llm-auto-installer';
+export * from './manualValidationChecklist_RV09_FIA011';
+export * from './mvpFunctionalValidationResult';
+export * from './mvpReadinessGate';

@@ -48,5 +48,11 @@ export const desktopHostCompatibilityChecklist: DesktopHostCompatibilityItem[] =
     category: 'chats',
     description: 'Verify ChatView, ChatWindow, input focus, DnD, scroll/historial, object URLs conversacionales y persistencia de historial en desktop host',
     status: 'pending',
+  },
+  {
+    id: 'fia011_integration',
+    category: 'entis',
+    description: 'Verify MVP Functional Readiness Gate and Validation Result (RV09/FIA-011)',
+    status: 'pending',
   }
 ];

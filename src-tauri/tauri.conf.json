@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Entity",
-  "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "version": "1.0.0",
+  "identifier": "com.entity.app",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
@@ -17,6 +17,11 @@
   },
   "bundle": {
     "active": true,
+    "category": "Utility",
+    "copyright": "© 2026 hnoloh",
+    "shortDescription": "Entity AI Desktop MVP",
+    "longDescription": "Entity Desktop Application MVP1.",
+    "publisher": "hnoloh",
     "targets": "all",
     "icon": [
       "icons/32x32.png",

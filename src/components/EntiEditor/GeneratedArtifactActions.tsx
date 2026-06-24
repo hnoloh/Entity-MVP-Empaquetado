@@ -55,7 +55,12 @@ export const GeneratedArtifactActions: React.FC<Props> = ({ artifactId, entiId, 
           try {
             const { save } = await import('@tauri-apps/plugin-dialog');
             const { writeFile } = await import('@tauri-apps/plugin-fs');
-            const filePath = await save({ defaultPath: downloadDesc.filename });
+            const { desktopDir, join } = await import('@tauri-apps/api/path');
+            
+            const desktopPath = await desktopDir();
+            const defaultFilePath = await join(desktopPath, downloadDesc.filename);
+            
+            const filePath = await save({ defaultPath: defaultFilePath });
             if (!filePath) return;
             
             const response = await fetch(openDesc.objectUrl);

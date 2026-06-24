@@ -41,37 +41,70 @@ export async function executeEntiFlow(
   let finalResponseText = providerResult.responseText || '';
 
   if (targetEnti) {
-    const docxRegex = /<generate_docx filename="([^"]*)">([\s\S]*?)<\/generate_docx>/g;
+    const docxRegex = /<generate_docx filename="([^"]*)"(?:\s+targetPath="([^"]*)")?>([\s\S]*?)<\/generate_docx>/g;
     let match;
     while ((match = docxRegex.exec(finalResponseText)) !== null) {
       const filename = match[1] || 'documento.docx';
-      const res = await docxGenerationToolExecutor.execute({ toolId: 'tool-gen-docx', entiId: request.entiId, filename: filename, content: match[2] });
+      const targetPath = match[2];
+      let absoluteTargetPath = targetPath;
+      if (!absoluteTargetPath || (!absoluteTargetPath.startsWith('/') && !absoluteTargetPath.match(/^[a-zA-Z]:\\/))) {
+        const relative = absoluteTargetPath && absoluteTargetPath !== '.' ? absoluteTargetPath : '';
+        absoluteTargetPath = getDefaultWorkspaceDescriptor().basePath.replace(/\/$/, '') + (relative ? '/' + relative.replace(/^\//, '') : '');
+      }
+      const res = await docxGenerationToolExecutor.execute({ toolId: 'tool-gen-docx', entiId: request.entiId, filename: filename, content: match[3], targetPath: absoluteTargetPath });
       if (res.status === 'success') {
-        finalResponseText = finalResponseText.replace(match[0], `[Descargar ${filename}](${filename})`);
+        if (targetPath) {
+          const displayPath = targetPath !== '.' ? targetPath : 'raíz del proyecto';
+          finalResponseText = finalResponseText.replace(match[0], `[✅ Documento generado exitosamente en: ${displayPath}]`);
+        } else {
+          finalResponseText = finalResponseText.replace(match[0], `[Descargar ${filename}](${filename})`);
+        }
       } else {
         finalResponseText = finalResponseText.replace(match[0], `[Error al generar ${filename}: ${res.errorReason}]`);
       }
     }
 
-    const pdfRegex = /<generate_pdf filename="([^"]*)">([\s\S]*?)<\/generate_pdf>/g;
+    const pdfRegex = /<generate_pdf filename="([^"]*)"(?:\s+targetPath="([^"]*)")?>([\s\S]*?)<\/generate_pdf>/g;
     while ((match = pdfRegex.exec(finalResponseText)) !== null) {
       const filename = match[1] || 'documento.pdf';
-      const res = await pdfGenerationToolExecutor.execute({ toolId: 'tool-gen-pdf', entiId: request.entiId, filename: filename, content: match[2] });
+      const targetPath = match[2];
+      let absoluteTargetPath = targetPath;
+      if (!absoluteTargetPath || (!absoluteTargetPath.startsWith('/') && !absoluteTargetPath.match(/^[a-zA-Z]:\\/))) {
+        const relative = absoluteTargetPath && absoluteTargetPath !== '.' ? absoluteTargetPath : '';
+        absoluteTargetPath = getDefaultWorkspaceDescriptor().basePath.replace(/\/$/, '') + (relative ? '/' + relative.replace(/^\//, '') : '');
+      }
+      const res = await pdfGenerationToolExecutor.execute({ toolId: 'tool-gen-pdf', entiId: request.entiId, filename: filename, content: match[3], targetPath: absoluteTargetPath });
       if (res.status === 'success') {
-        finalResponseText = finalResponseText.replace(match[0], `[Descargar ${filename}](${filename})`);
+        if (targetPath) {
+          const displayPath = targetPath !== '.' ? targetPath : 'raíz del proyecto';
+          finalResponseText = finalResponseText.replace(match[0], `[✅ PDF generado exitosamente en: ${displayPath}]`);
+        } else {
+          finalResponseText = finalResponseText.replace(match[0], `[Descargar ${filename}](${filename})`);
+        }
       } else {
         finalResponseText = finalResponseText.replace(match[0], `[Error al generar ${filename}: ${res.errorReason}]`);
       }
     }
 
-    const htmlRegex = /<generate_html filename="([^"]*)">([\s\S]*?)<\/generate_html>/g;
+    const htmlRegex = /<generate_html filename="([^"]*)"(?:\s+targetPath="([^"]*)")?>([\s\S]*?)<\/generate_html>/g;
     while ((match = htmlRegex.exec(finalResponseText)) !== null) {
       const filename = match[1] || 'index.html';
-      const res = await htmlGenerationToolExecutor.execute({ toolId: 'tool-gen-html', entiId: request.entiId, filename: filename, htmlContent: match[2] });
+      const targetPath = match[2];
+      let absoluteTargetPath = targetPath;
+      if (!absoluteTargetPath || (!absoluteTargetPath.startsWith('/') && !absoluteTargetPath.match(/^[a-zA-Z]:\\/))) {
+        const relative = absoluteTargetPath && absoluteTargetPath !== '.' ? absoluteTargetPath : '';
+        absoluteTargetPath = getDefaultWorkspaceDescriptor().basePath.replace(/\/$/, '') + (relative ? '/' + relative.replace(/^\//, '') : '');
+      }
+      const res = await htmlGenerationToolExecutor.execute({ toolId: 'tool-gen-html', entiId: request.entiId, filename: filename, htmlContent: match[3], targetPath: absoluteTargetPath });
       if (res.status === 'success') {
-        finalResponseText = finalResponseText.replace(match[0], `[Descargar ${filename}](${filename})`);
+        if (targetPath) {
+          const displayPath = targetPath !== '.' ? targetPath : 'raíz del proyecto';
+          finalResponseText = finalResponseText.replace(match[0], `[✅ HTML generado exitosamente en: ${displayPath}]`);
+        } else {
+          finalResponseText = finalResponseText.replace(match[0], `[Descargar ${filename}](${filename})`);
+        }
       } else {
-        finalResponseText = finalResponseText.replace(match[0], `[Error al generar ${filename}: ${res.reason || res.error}]`);
+        finalResponseText = finalResponseText.replace(match[0], `[Error al generar ${filename}: ${res.reason || (res as any).errorReason}]`);
       }
     }
 

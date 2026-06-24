@@ -69,7 +69,8 @@ export function parseToolCallsIntoXml(toolCalls: Array<{ function: { name: strin
           : toolCall.function.arguments;
         const filename = sanitizeArgValue(args.filename) || 'documento.docx';
         const content = sanitizeArgValue(args.content) || ' ';
-        responseText += `\n<generate_docx filename="${filename}">${content}</generate_docx>\n`;
+        const targetPathAttr = args.targetPath ? ` targetPath="${sanitizeArgValue(args.targetPath)}"` : '';
+        responseText += `\n<generate_docx filename="${filename}"${targetPathAttr}>${content}</generate_docx>\n`;
       } catch {
         responseText += `\n[Error parsing tool arguments for docx]\n`;
       }
@@ -80,7 +81,8 @@ export function parseToolCallsIntoXml(toolCalls: Array<{ function: { name: strin
           : toolCall.function.arguments;
         const filename = sanitizeArgValue(args.filename) || 'documento.pdf';
         const content = sanitizeArgValue(args.content) || ' ';
-        responseText += `\n<generate_pdf filename="${filename}">${content}</generate_pdf>\n`;
+        const targetPathAttr = args.targetPath ? ` targetPath="${sanitizeArgValue(args.targetPath)}"` : '';
+        responseText += `\n<generate_pdf filename="${filename}"${targetPathAttr}>${content}</generate_pdf>\n`;
       } catch {
         responseText += `\n[Error parsing tool arguments for pdf]\n`;
       }
@@ -91,7 +93,8 @@ export function parseToolCallsIntoXml(toolCalls: Array<{ function: { name: strin
           : toolCall.function.arguments;
         const filename = sanitizeArgValue(args.filename) || 'index.html';
         const content = sanitizeArgValue(args.content) || ' ';
-        responseText += `\n<generate_html filename="${filename}">${content}</generate_html>\n`;
+        const targetPathAttr = args.targetPath ? ` targetPath="${sanitizeArgValue(args.targetPath)}"` : '';
+        responseText += `\n<generate_html filename="${filename}"${targetPathAttr}>${content}</generate_html>\n`;
       } catch {
         responseText += `\n[Error parsing tool arguments for html]\n`;
       }

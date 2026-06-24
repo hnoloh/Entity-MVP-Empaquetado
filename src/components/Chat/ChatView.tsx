@@ -58,7 +58,12 @@ const renderMessageContent = (content: string, entiId: string) => {
             try {
               const { save } = await import('@tauri-apps/plugin-dialog');
               const { writeFile } = await import('@tauri-apps/plugin-fs');
-              const filePath = await save({ defaultPath: filename });
+              const { desktopDir, join } = await import('@tauri-apps/api/path');
+              
+              const desktopPath = await desktopDir();
+              const defaultFilePath = await join(desktopPath, filename);
+              
+              const filePath = await save({ defaultPath: defaultFilePath });
               if (!filePath) return;
               const array = new Uint8Array(await blob.arrayBuffer());
               await writeFile(filePath, array);

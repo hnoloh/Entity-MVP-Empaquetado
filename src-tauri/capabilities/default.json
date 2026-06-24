@@ -26,19 +26,23 @@
     "fs:default",
     {
       "identifier": "fs:allow-read",
-      "allow": [
-        {
-          "path": "**"
-        }
-      ]
+      "allow": [{ "path": "**" }]
     },
     {
       "identifier": "fs:allow-write-file",
-      "allow": [
-        {
-          "path": "**"
-        }
-      ]
+      "allow": [{ "path": "**" }]
+    },
+    {
+      "identifier": "fs:allow-write-text-file",
+      "allow": [{ "path": "**" }]
+    },
+    {
+      "identifier": "fs:allow-mkdir",
+      "allow": [{ "path": "**" }]
+    },
+    {
+      "identifier": "fs:allow-remove",
+      "allow": [{ "path": "**" }]
     },
     "dialog:default",
     "opener:default",

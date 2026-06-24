@@ -5,6 +5,7 @@ export interface PdfGenerationInput {
   toolId: ToolId;
   content: string;
   filename: string;
+  targetPath?: string;
 }
 
 export interface PdfGenerationResult {

@@ -4,6 +4,8 @@ import { generateHtmlArtifact } from './generateHtmlArtifact';
 import { generatedArtifactRegistry } from '../generated-artifacts';
 import { toolIndicatorRepository } from '../toolIndicatorRepository';
 
+import { writeTextFile, mkdir, BaseDirectory } from '@tauri-apps/plugin-fs';
+
 export class HtmlGenerationToolExecutor {
   constructor(
     private policy = htmlGenerationPolicy,
@@ -24,6 +26,30 @@ export class HtmlGenerationToolExecutor {
       const artifact = generateHtmlArtifact(input.entiId, input.toolId, input.htmlContent, input.filename);
       this.registry.registerArtifact(artifact);
 
+      // Save to disk ONLY if targetPath is explicitly provided
+      if (input.targetPath) {
+        let dirPath = input.targetPath.replace(/\/$/, '');
+        let isDesktop = false;
+        if (dirPath.toLowerCase().endsWith('escritorio') || dirPath === '..') {
+          isDesktop = true;
+        }
+        
+        const finalFilename = input.filename.endsWith('.html') ? input.filename : `${input.filename}.html`;
+        const savePath = isDesktop ? finalFilename.replace(/^\//, '') : dirPath + '/' + finalFilename.replace(/^\//, '');
+
+        try {
+          if (isDesktop) {
+            await writeTextFile(savePath, input.htmlContent, { baseDir: BaseDirectory.Desktop });
+          } else {
+            try { await mkdir(dirPath, { recursive: true }); } catch { /* ignore if exists */ }
+            await writeTextFile(savePath, input.htmlContent);
+          }
+        } catch (fsErr) {
+          console.error("FS Error:", fsErr);
+          throw fsErr;
+        }
+      }
+
       this.indicators.setIndicator(input.entiId, input.toolId, 'active');
       return {
         status: 'success',
@@ -32,7 +58,7 @@ export class HtmlGenerationToolExecutor {
     } catch (err: unknown) {
       // Avoid throwing again if indicators fail
       try { this.indicators.setIndicator(input.entiId, input.toolId, 'controlled_error'); } catch { /* ignore */ }
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      const errorMessage = err instanceof Error ? err.message : (typeof err === 'string' ? err : 'Unknown error');
       return { status: 'controlled_error', error: errorMessage };
     }
   }

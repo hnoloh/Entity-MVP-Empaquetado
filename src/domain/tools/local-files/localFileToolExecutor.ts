@@ -82,7 +82,7 @@ export async function localFileToolExecutor(
     logLocalFileOperation(entry);
     return { success: true, data: resultData };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'unknown_error';
+    const errorMessage = error instanceof Error ? error.message : (typeof error === 'string' ? error : 'unknown_error');
     const entry = createAuditEntry(request.entiId, request.operation, request.relativePath, 'error', errorMessage);
     logLocalFileOperation(entry);
     return { error: 'controlled_error', message: errorMessage };

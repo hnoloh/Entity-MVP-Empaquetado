@@ -6,6 +6,7 @@ export interface HtmlGenerationInput {
   toolId: ToolId;
   filename: string;
   htmlContent: string;
+  targetPath?: string;
   metadata?: Record<string, string>;
 }
 

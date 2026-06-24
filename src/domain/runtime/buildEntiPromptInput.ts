@@ -61,12 +61,13 @@ export function buildEntiPromptInput(enti: Enti, chat: Chat): ProviderExecutionI
           type: 'function',
           function: {
             name: 'generate_docx',
-            description: 'Generates a DOCX file and returns a downloadable link. Use this whenever the user asks for a Word document.',
+            description: 'Generates a DOCX file. If the user asks for a download link, leave targetPath empty and output the sandbox link. If the user asks to save it to a specific folder or to their Desktop, provide the targetPath and DO NOT output a download link.',
             parameters: {
               type: 'object',
               properties: {
                 filename: { type: 'string', description: 'Name of the file, e.g. "documento.docx"' },
-                content: { type: 'string', description: 'The text content to be written inside the DOCX document. MUST be the actual full generated content that the user requested.' }
+                content: { type: 'string', description: 'The text content to be written inside the DOCX document.' },
+                targetPath: { type: 'string', description: 'Optional. The relative path where the document should be saved (e.g., "escritorio" or "carpeta1"). Leave this empty ONLY if the user specifically requests a download link instead of saving the file.' }
               },
               required: ['filename', 'content']
             }
@@ -77,12 +78,13 @@ export function buildEntiPromptInput(enti: Enti, chat: Chat): ProviderExecutionI
           type: 'function',
           function: {
             name: 'generate_pdf',
-            description: 'Generates a PDF file and returns a downloadable link. Use this whenever the user asks for a PDF document.',
+            description: 'Generates a PDF file. If the user asks for a download link, leave targetPath empty and output the sandbox link. If the user asks to save it to a specific folder or to their Desktop, provide the targetPath and DO NOT output a download link.',
             parameters: {
               type: 'object',
               properties: {
                 filename: { type: 'string', description: 'Name of the file, e.g. "documento.pdf"' },
-                content: { type: 'string', description: 'The text content to be written inside the PDF document. MUST be the actual full generated content that the user requested.' }
+                content: { type: 'string', description: 'The text content to be written inside the PDF document.' },
+                targetPath: { type: 'string', description: 'Optional. The relative path where the document should be saved (e.g., "escritorio" or "carpeta1"). Leave this empty ONLY if the user specifically requests a download link instead of saving the file.' }
               },
               required: ['filename', 'content']
             }
@@ -93,12 +95,13 @@ export function buildEntiPromptInput(enti: Enti, chat: Chat): ProviderExecutionI
           type: 'function',
           function: {
             name: 'generate_html',
-            description: 'Generates an HTML file and returns a downloadable link. Use this whenever the user asks for an HTML document or web page.',
+            description: 'Generates an HTML file. If the user asks for a download link, leave targetPath empty and output the sandbox link. If the user asks to save it to a specific folder or to their Desktop, provide the targetPath and DO NOT output a download link.',
             parameters: {
               type: 'object',
               properties: {
                 filename: { type: 'string', description: 'Name of the file, e.g. "index.html"' },
-                content: { type: 'string', description: 'The text content to be written inside the HTML document. MUST be the actual full generated content that the user requested.' }
+                content: { type: 'string', description: 'The text content to be written inside the HTML document.' },
+                targetPath: { type: 'string', description: 'Optional. The relative path where the document should be saved (e.g., "escritorio" or "carpeta1"). Leave this empty ONLY if the user specifically requests a download link instead of saving the file.' }
               },
               required: ['filename', 'content']
             }

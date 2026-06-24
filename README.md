@@ -1,73 +1,57 @@
-# React + TypeScript + Vite
+# Entity App (V2)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Entity es una plataforma avanzada de asistentes basados en IA con capacidades de ejecución local y conexión a herramientas del sistema (generación de documentos y gestión de archivos). Está construida sobre **Tauri**, **React**, **Vite** y **TypeScript**.
 
-Currently, two official plugins are available:
+## 🚀 Tecnologías Principales
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Frontend:** React 19, TypeScript, Vite.
+- **Backend / OS Integration:** Tauri v2, Rust.
+- **IA y Runtime:** Sistema propio de Entis (agentes) y Grupos con orquestación secuencial, soporte para OpenAI (nube) y modelos locales.
+- **Herramientas de IA:** Generación nativa de documentos (DOCX, PDF, HTML) e interacción directa con el sistema de archivos del usuario.
 
-## React Compiler
+## 🛠️ Herramientas y Capacidades de los Agentes (Entis)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+El sistema integra un entorno de herramientas (Tools) para que los Entis puedan interactuar de manera segura con el entorno del usuario:
 
-## Expanding the ESLint configuration
+### 1. Sistema de Archivos (Local Filesystem)
+Los agentes pueden interactuar con la raíz del proyecto y directorios permitidos a través del `localFileToolExecutor`. Las operaciones disponibles incluyen listar, leer, escribir, sobrescribir, eliminar y crear carpetas. Este sistema utiliza internamente `@tauri-apps/plugin-fs` para garantizar un entorno sandbox seguro pero potente.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 2. Generación de Documentos (DOCX, PDF, HTML)
+El sistema permite que los Entis generen archivos formateados bajo demanda.
+- **Modo Virtual (Enlace):** Si el usuario solicita un documento sin especificar destino, el sistema genera un artefacto virtual y proporciona un enlace de descarga interactivo en el chat. Al hacer clic, se abrirá el diálogo nativo del sistema (Tauri Dialog) que apuntará directamente al **Escritorio** por defecto.
+- **Modo Guardado Directo:** Si el usuario especifica explícitamente una ruta de guardado (ej. "guárdalo en el escritorio" o "en la carpeta ./docs"), la IA utilizará la API nativa de Tauri (`BaseDirectory.Desktop` u otras rutas relativas) para escribir el archivo físicamente en el disco sin requerir interacción manual, y omitirá el enlace de descarga para mantener el chat limpio.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 💻 Entorno de Desarrollo
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Requisitos Previos
+- Node.js (v24+)
+- Rust (cargo) y dependencias de Tauri v2.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Comandos Útiles
+
+```bash
+# Instalar dependencias
+npm install
+
+# Iniciar el entorno de desarrollo (React + Tauri)
+npm run tauri dev
+
+# Compilar la aplicación para producción
+npm run tauri build
+
+# Revisión de tipos estáticos (TypeScript)
+npm run typecheck
+
+# Linter
+npm run lint
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🔒 Arquitectura de Seguridad (Tauri)
+La aplicación utiliza configuraciones de capacidades estrictas de Tauri v2 (`src-tauri/capabilities/default.json`). 
+El acceso al sistema de archivos mediante `@tauri-apps/plugin-fs` está diseñado para evitar ataques de *Path Traversal*. Las operaciones que implican el Escritorio físico están programadas nativamente usando `BaseDirectory.Desktop` en lugar de navegar mediante rutas relativas (`../`), garantizando que la aplicación respete las medidas de seguridad impuestas por el sistema operativo.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 📝 Changelog (Últimas Modificaciones)
+- Refactorización de herramientas (DOCX, PDF, HTML) para integrarse 100% con `@tauri-apps/plugin-fs` y `BaseDirectory.Desktop`.
+- Mejora en la lógica del prompt de los Entis (`buildEntiPromptInput.ts`) para diferenciar inteligentemente entre peticiones de *enlace de descarga* vs *guardado automático en disco*.
+- El botón de descarga ahora utiliza `@tauri-apps/api/path` para sugerir automáticamente el Escritorio como carpeta destino en el explorador de archivos nativo.
+- Limpieza general de scripts de pruebas y logs generados durante la depuración.

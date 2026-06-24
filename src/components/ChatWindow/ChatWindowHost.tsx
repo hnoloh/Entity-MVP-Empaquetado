@@ -18,10 +18,13 @@ export function ChatWindowHost({ registry, grupos = [] }: ChatWindowHostProps) {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setWindows(registry.list());
-    }, 200);
-    return () => clearInterval(interval);
+    const handleUpdate = () => setWindows(registry.list());
+    window.addEventListener('chat-windows-updated', handleUpdate);
+    const interval = setInterval(handleUpdate, 200);
+    return () => {
+      window.removeEventListener('chat-windows-updated', handleUpdate);
+      clearInterval(interval);
+    };
   }, [registry]);
 
   const visibleWindows = windows.filter(w => w.state === 'visible');

@@ -31,10 +31,23 @@ describe('WorkspaceGroupChatIntegration - RV-05/FIA-017', () => {
     fireEvent.change(screen.getAllByTestId('input-group-function')[0], { target: { value: 'Func Grupo' } });
     
     // Asignar Entis
-    fireEvent.click(screen.getByTestId('select-slot-1'));
-    fireEvent.click(screen.getAllByText('Enti 1')[screen.getAllByText('Enti 1').length - 1]);
-    fireEvent.click(screen.getByTestId('select-slot-2'));
-    fireEvent.click(screen.getAllByText('Enti 2')[screen.getAllByText('Enti 2').length - 1]);
+    const enti1Item = screen.getAllByTestId(/^enti-item-/)[0];
+    const enti2Item = screen.getAllByTestId(/^enti-item-/)[1];
+    
+    const enti1Id = enti1Item.dataset.testid!.replace('enti-item-', '');
+    const enti2Id = enti2Item.dataset.testid!.replace('enti-item-', '');
+
+    const createDataTransfer = (id: string) => ({
+      types: ['application/x-enti-id'],
+      getData: (format: string) => format === 'application/x-enti-id' ? id : ''
+    });
+
+    fireEvent.drop(screen.getByTestId('slot-dropzone-1'), {
+      dataTransfer: createDataTransfer(enti1Id)
+    });
+    fireEvent.drop(screen.getByTestId('slot-dropzone-2'), {
+      dataTransfer: createDataTransfer(enti2Id)
+    });
     
     // Guardar grupo
     fireEvent.click(screen.getByTestId('btn-close-editor'));

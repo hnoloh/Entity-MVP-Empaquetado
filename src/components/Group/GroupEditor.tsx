@@ -47,12 +47,6 @@ export const GroupEditor: React.FC<GroupEditorProps> = ({ group, isActive, onSav
   const [draft, setDraft] = useState<Group>(group);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [expandedField, setExpandedField] = useState<{ key: string; label: string } | null>(null);
-  const [openSlotDropdown, setOpenSlotDropdown] = useState<string | null>(null);
-
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setOpenSlotDropdown(null);
-  };
 
   const isDirty = JSON.stringify(draft) !== JSON.stringify(group);
 
@@ -173,14 +167,12 @@ export const GroupEditor: React.FC<GroupEditorProps> = ({ group, isActive, onSav
         document.body
       )}
 
-      {openSlotDropdown && (
-        <div className="global-transparent-overlay" onClick={handleOverlayClick} />
-      )}
-
       <div className="editor-body">
         <div className="harness-fields-row" style={{ display: 'flex', flexDirection: 'row', gap: '1rem', alignItems: 'flex-end', marginBottom: '1rem' }}>
           <div className="field-group name-field" style={{ flex: 1, margin: 0, gap: '4px' }}>
-            <label style={{ margin: 0 }}>Nombre del Grupo</label>
+            <div className="field-header">
+              <label style={{ margin: 0 }}>Nombre del Grupo</label>
+            </div>
             <input 
               type="text" 
               data-testid="input-group-name" 
@@ -214,37 +206,74 @@ export const GroupEditor: React.FC<GroupEditorProps> = ({ group, isActive, onSav
         <div className="harness-base-section horizontal-harness" data-testid="slots-section">
           <h3>Secuencia de grupo</h3>
           <div className="harness-fields-row slots-fields-row">
-            {GROUP_SLOT_IDS.map(slotId => (
-              <div key={slotId} className="field-group slot-field-group">
-                <label className="slot-label">{slotId}</label>
-                <div className="custom-select-container" style={{ zIndex: openSlotDropdown === slotId ? 100 : 1 }}>
-                  <div 
-                    className="custom-select-trigger"
-                    data-testid={`select-slot-${slotId}`} 
-                    data-value={draft.slots?.[slotId] || ""}
-                    onClick={() => setOpenSlotDropdown(openSlotDropdown === slotId ? null : slotId)}
-                  >
-                    {draft.slots?.[slotId] ? (availableEntis.find(e => e.id === draft.slots![slotId])?.name || draft.slots![slotId]) : "-- Sin Enti --"}
-                    <span className="dropdown-arrow">▼</span>
+            {GROUP_SLOT_IDS.map(slotId => {
+              const assignedEntiId = draft.slots?.[slotId];
+              const assignedEnti = assignedEntiId ? availableEntis.find(e => e.id === assignedEntiId) : null;
+              
+              return (
+                <div key={slotId} className="field-group slot-field-group">
+                  <label className="slot-label">{slotId}</label>
+                  <div className="custom-select-container">
+                    <div 
+                      className="custom-select-trigger slot-dropzone"
+                      data-testid={`slot-dropzone-${slotId}`}
+                      onDragOver={(e) => {
+                        if (e.dataTransfer.types.includes('application/x-enti-id')) {
+                          e.preventDefault();
+                          e.dataTransfer.dropEffect = 'copy';
+                          e.currentTarget.style.borderColor = 'rgba(0, 229, 255, 0.6)';
+                          e.currentTarget.style.backgroundColor = 'rgba(0, 229, 255, 0.1)';
+                        }
+                      }}
+                      onDragLeave={(e) => {
+                        e.currentTarget.style.borderColor = '';
+                        e.currentTarget.style.backgroundColor = '';
+                      }}
+                      onDrop={(e) => {
+                        e.currentTarget.style.borderColor = '';
+                        e.currentTarget.style.backgroundColor = '';
+                        const entiId = e.dataTransfer.getData('application/x-enti-id');
+                        if (entiId) {
+                          e.preventDefault();
+                          const isAssigned = Object.entries(draft.slots || {}).some(([sId, eId]) => sId !== slotId && eId === entiId);
+                          if (!isAssigned) {
+                            handleAddEntiToSlot(slotId, entiId);
+                          }
+                        }
+                      }}
+                    >
+                      <span style={{ color: assignedEntiId ? '#fff' : 'rgba(255, 255, 255, 0.4)' }}>
+                        {assignedEntiId ? (assignedEnti?.name || assignedEntiId) : "-- Arrastra un Enti aquí --"}
+                      </span>
+                      {assignedEntiId && (
+                        <button 
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); handleAddEntiToSlot(slotId, ""); }}
+                          title="Liberar slot"
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#00e5ff',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            opacity: 0.8
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                          onMouseLeave={(e) => e.currentTarget.style.opacity = '0.8'}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/>
+                          </svg>
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  {openSlotDropdown === slotId && (
-                    <ul className="custom-select-options">
-                      <li onClick={() => { handleAddEntiToSlot(slotId, ""); setOpenSlotDropdown(null); }}>
-                        -- Sin Enti --
-                      </li>
-                      {availableEntis.filter(e => {
-                        const isSelectedInOtherSlot = Object.entries(draft.slots || {}).some(([sId, eId]) => sId !== slotId && eId === e.id);
-                        return !isSelectedInOtherSlot;
-                      }).map(e => (
-                        <li key={e.id} onClick={() => { handleAddEntiToSlot(slotId, e.id); setOpenSlotDropdown(null); }}>
-                          {e.name || e.id}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

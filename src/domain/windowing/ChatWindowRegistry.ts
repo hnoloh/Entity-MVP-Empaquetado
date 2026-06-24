@@ -15,6 +15,8 @@ export function createChatWindowRegistry(): ChatWindowRegistry {
   const registry = new Map<string, ChatWindow>();
   let focusedWindowId: string | null = null;
 
+  const notify = () => window.dispatchEvent(new CustomEvent('chat-windows-updated'));
+
   return {
     register(window: ChatWindow) {
       if (!window || !window.windowId || window.windowId.trim() === '') {
@@ -40,6 +42,7 @@ export function createChatWindowRegistry(): ChatWindowRegistry {
         state: window.state,
         geometry: { ...window.geometry }
       });
+      notify();
     },
 
     getByWindowId(windowId: string): ChatWindow | null {
@@ -71,6 +74,7 @@ export function createChatWindowRegistry(): ChatWindowRegistry {
       if (focusedWindowId === windowId) {
         focusedWindowId = null;
       }
+      notify();
     },
 
     update(window: ChatWindow) {
@@ -86,6 +90,7 @@ export function createChatWindowRegistry(): ChatWindowRegistry {
         state: window.state,
         geometry: { ...window.geometry }
       });
+      notify();
     },
 
     focus(windowId: string) {

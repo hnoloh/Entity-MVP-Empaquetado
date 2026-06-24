@@ -41,11 +41,24 @@ describe('WorkspaceSelectGroupDebug', () => {
     fireEvent.change(screen.getByTestId('input-group-function'), { target: { value: 'Test Function' } });
     
     // Asignar entis
-    fireEvent.click(screen.getByTestId('select-slot-1'));
-    fireEvent.click(screen.getByText('Enti 1', { selector: 'li' }));
+    const enti1Item = screen.getAllByTestId(/^enti-item-/)[0];
+    const enti2Item = screen.getAllByTestId(/^enti-item-/)[1];
     
-    fireEvent.click(screen.getByTestId('select-slot-2'));
-    fireEvent.click(screen.getByText('Enti 2', { selector: 'li' }));
+    const enti1Id = enti1Item.dataset.testid!.replace('enti-item-', '');
+    const enti2Id = enti2Item.dataset.testid!.replace('enti-item-', '');
+
+    const createDataTransfer = (id: string) => ({
+      types: ['application/x-enti-id'],
+      getData: (format: string) => format === 'application/x-enti-id' ? id : ''
+    });
+
+    fireEvent.drop(screen.getByTestId('slot-dropzone-1'), {
+      dataTransfer: createDataTransfer(enti1Id)
+    });
+    
+    fireEvent.drop(screen.getByTestId('slot-dropzone-2'), {
+      dataTransfer: createDataTransfer(enti2Id)
+    });
 
     // Cerrar y guardar grupo
     act(() => {

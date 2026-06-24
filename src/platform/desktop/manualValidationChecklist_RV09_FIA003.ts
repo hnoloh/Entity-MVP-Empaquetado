@@ -1,4 +1,4 @@
-import { ManualValidationChecklist } from './manualValidationChecklist_RV09_FIA002';
+import type { ManualValidationChecklist } from './manualValidationChecklist_RV09_FIA002';
 
 export const manualValidationChecklist_RV09_FIA003: ManualValidationChecklist = {
   id: 'RV09_FIA003_CHATS_INTEGRATION',

@@ -11,6 +11,10 @@ import { toolAuthorizationRepository } from '../../domain/tools/toolAuthorizatio
 import { toolIndicatorRepository } from '../../domain/tools/toolIndicatorRepository';
 import { documentReadToolExecutor } from '../../domain/tools/document-read';
 
+interface FileWithPath extends File {
+  path?: string;
+}
+
 export type HarnessAttachmentDropState = 'idle' | 'dragging_valid' | 'dragging_blocked' | 'dropped' | 'error';
 
 const isTauriActive = () => typeof window !== 'undefined' && ((window as unknown as { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__ || (window as unknown as { __TAURI__?: unknown }).__TAURI__);
@@ -104,12 +108,13 @@ export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDest
        }
        
        if (!hasError) {
+         const filePath = (file as FileWithPath).path || file.name;
          attachmentContentRepository.upsert({
            attachmentId: model.attachmentId, ownerType: model.ownerType as 'enti', ownerId: model.ownerId,
            scope: scope as 'enti_knowledge' | 'enti_work_material', contentText: extractedText,
-           readAt: new Date().toISOString(), metadata: { fileName: model.fileName }
+           readAt: new Date().toISOString(), metadata: { fileName: model.fileName, filePath }
          });
-         processedFiles.push(file.name);
+         processedFiles.push(filePath);
        }
     }
 
@@ -161,7 +166,6 @@ export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDest
                 // Debounce double-firing from WebKitGTK
                 const now = Date.now();
                 if (lastDropTimestamp && now - lastDropTimestamp < 1000) {
-                   console.log("Ignored duplicate drop event within 1s");
                    return;
                 }
                 lastDropTimestamp = now;
@@ -178,7 +182,9 @@ export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDest
                     if (filename.endsWith('.pdf')) mime = 'application/pdf';
                     else if (filename.endsWith('.docx')) mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
                     else if (filename.endsWith('.txt')) mime = 'text/plain';
-                    finalFiles.push(new File([bytes], filename, { type: mime }));
+                    const fileObj = new File([bytes], filename, { type: mime }) as FileWithPath;
+                    fileObj.path = path;
+                    finalFiles.push(fileObj);
                   } catch (e) {
                     console.error("Tauri native read fail", e);
                   }
@@ -186,7 +192,7 @@ export function useEntiHarnessAttachmentDrop(ownerId: string, scope: HarnessDest
                 
                 await processFiles(finalFiles);
              }
-          } else if (event.payload.type === 'cancel' || event.payload.type === 'leave') {
+          } else if ((event.payload.type as string) === 'cancel' || (event.payload.type as string) === 'leave') {
              setDropState('idle');
           }
         });

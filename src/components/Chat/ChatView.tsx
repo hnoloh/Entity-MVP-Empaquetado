@@ -50,8 +50,28 @@ const renderMessageContent = (content: string, entiId: string) => {
       const blobType = isDocx ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf';
       const blob = new Blob([content], { type: blobType });
       const objectUrl = URL.createObjectURL(blob);
+      
+      const handleNativeDownload = async (e: React.MouseEvent) => {
+        import('../../utils/isTauri').then(async ({ checkIsTauri }) => {
+          if (checkIsTauri()) {
+            e.preventDefault();
+            try {
+              const { save } = await import('@tauri-apps/plugin-dialog');
+              const { writeFile } = await import('@tauri-apps/plugin-fs');
+              const filePath = await save({ defaultPath: filename });
+              if (!filePath) return;
+              const array = new Uint8Array(await blob.arrayBuffer());
+              await writeFile(filePath, array);
+            } catch (err) {
+              console.error('Failed native download', err);
+              alert('Error descargando archivo: ' + err);
+            }
+          }
+        });
+      };
+
       parts.push(
-        <a key={`link-${match.index}`} href={objectUrl} download={filename} style={{ color: '#3b82f6', textDecoration: 'underline', cursor: 'pointer' }}>
+        <a key={`link-${match.index}`} href={objectUrl} download={filename} onClick={handleNativeDownload} style={{ color: '#3b82f6', textDecoration: 'underline', cursor: 'pointer' }}>
           {text || filename}
         </a>
       );

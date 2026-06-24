@@ -30,11 +30,11 @@ describe('GroupEditor', () => {
 
   it('shows slots 1..5', () => {
     render(<GroupEditor group={mockGroup} isActive={true} onSave={vi.fn()} onClose={vi.fn()} availableEntis={mockEntis} />);
-    expect(screen.getByTestId('select-slot-1')).toHaveAttribute('data-value', 'e1');
-    expect(screen.getByTestId('select-slot-2')).toHaveAttribute('data-value', 'e2');
-    expect(screen.getByTestId('select-slot-3')).toHaveAttribute('data-value', '');
-    expect(screen.getByTestId('select-slot-4')).toHaveAttribute('data-value', '');
-    expect(screen.getByTestId('select-slot-5')).toHaveAttribute('data-value', '');
+    expect(screen.getByTestId('slot-dropzone-1')).toHaveTextContent('Enti 1');
+    expect(screen.getByTestId('slot-dropzone-2')).toHaveTextContent('Enti 2');
+    expect(screen.getByTestId('slot-dropzone-3')).toHaveTextContent('Arrastra un Enti aquí');
+    expect(screen.getByTestId('slot-dropzone-4')).toHaveTextContent('Arrastra un Enti aquí');
+    expect(screen.getByTestId('slot-dropzone-5')).toHaveTextContent('Arrastra un Enti aquí');
   });
 
   it('allows editing name via editGroupFlow', () => {

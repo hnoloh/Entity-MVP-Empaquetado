@@ -48,10 +48,33 @@ export const GeneratedArtifactActions: React.FC<Props> = ({ artifactId, entiId, 
   }
 
   if (downloadDesc && openDesc) {
+    const handleDownload = async (e: React.MouseEvent) => {
+      import('../../utils/isTauri').then(async ({ checkIsTauri }) => {
+        if (checkIsTauri()) {
+          e.preventDefault();
+          try {
+            const { save } = await import('@tauri-apps/plugin-dialog');
+            const { writeFile } = await import('@tauri-apps/plugin-fs');
+            const filePath = await save({ defaultPath: downloadDesc.filename });
+            if (!filePath) return;
+            
+            const response = await fetch(openDesc.objectUrl);
+            const blob = await response.blob();
+            const buffer = await blob.arrayBuffer();
+            await writeFile(filePath, new Uint8Array(buffer));
+          } catch (err) {
+            console.error('Failed native download', err);
+            alert('Error descargando archivo: ' + err);
+          }
+        }
+      });
+    };
+
     return (
       <a 
         href={openDesc.objectUrl} 
         download={downloadDesc.filename}
+        onClick={handleDownload}
         style={{ color: '#3b82f6', textDecoration: 'underline', cursor: 'pointer' }}
         title={`Descargar ${downloadDesc.filename}`}
       >

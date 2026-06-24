@@ -34,6 +34,6 @@ describe('WorkspaceGroupEditorOpeningIntegration - FIA-013', () => {
     expect(screen.getByTestId('input-group-name')).toHaveValue('');
     expect(screen.getByTestId('input-group-name')).toHaveAttribute('placeholder', 'Nuevo Grupo');
     expect(screen.getByTestId('input-group-function')).toHaveValue('');
-    expect(screen.getByTestId('select-slot-1')).toHaveTextContent('-- Sin Enti --');
+    expect(screen.getByTestId('slot-dropzone-1')).toHaveTextContent('Arrastra un Enti aquí');
   });
 });

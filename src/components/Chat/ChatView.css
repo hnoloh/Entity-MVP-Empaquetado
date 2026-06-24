@@ -325,4 +325,6 @@
   display: block;
   word-break: break-word;
   overflow-wrap: anywhere;
+  user-select: text;
+  -webkit-user-select: text;
 }

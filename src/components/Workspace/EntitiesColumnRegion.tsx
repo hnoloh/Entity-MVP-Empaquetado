@@ -85,6 +85,11 @@ export const EntitiesColumnRegion: React.FC<EntitiesColumnRegionProps> = ({
                 className={`list-item ${openEntiIds.includes(e.id) ? 'selected' : ''}`}
                 data-testid={`enti-item-${e.id}`}
                 onClick={() => onSelectEnti?.(e.id)}
+                draggable
+                onDragStart={(ev) => {
+                  ev.dataTransfer.setData('application/x-enti-id', e.id);
+                  ev.dataTransfer.effectAllowed = 'copy';
+                }}
               >
                 <div className="item-info">
                   <span 

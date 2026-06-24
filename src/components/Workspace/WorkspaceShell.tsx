@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import type { WorkspaceState } from "../../types/WorkspaceState";
 import WorkbenchRegion from "./WorkbenchRegion";
 import { HubRegion } from "./HubRegion";
@@ -17,7 +17,8 @@ import { GroupEditor } from "../Group/GroupEditor";
 import { useAutosave } from "./useAutosave";
 import "./WorkspaceShell.css";
 
-import { startEntityLifecycleFlow, minimizeEntityLifecycleFlow, restoreEntityLifecycleFlow, closeEntityLifecycleFlow } from "../../domain/lifecycle";
+import { startEntityLifecycleFlow, closeEntityLifecycleFlow } from "../../domain/lifecycle";
+import { checkIsTauri } from "../../utils/isTauri";
 
 export default function WorkspaceShell() {
   const [startupStatus, setStartupStatus] = useState<'pending' | 'success' | 'controlled_error' | 'blocked'>('pending');
@@ -39,9 +40,45 @@ export default function WorkspaceShell() {
   // Track open windows to highlight owners in Hub
   const [activeWindowOwnerIds, setActiveWindowOwnerIds] = useState<string[]>([]);
   const [triggerSave, setTriggerSave] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [appWindow, setAppWindow] = useState<any>(null);
+
+  useEffect(() => {
+    if (checkIsTauri()) {
+      import('@tauri-apps/api/window').then(({ getCurrentWindow }) => {
+        setAppWindow(getCurrentWindow());
+      });
+    }
+  }, []);
 
   // Hook de autosave
   useAutosave(entis, grupos, setGrupos, setEntis, triggerSave, startupStatus === 'success');
+
+  // Multi-window sync
+  const stateRef = useRef({ entis, grupos });
+  useEffect(() => {
+    stateRef.current = { entis, grupos };
+    import('../../platform/desktop/MultiWindowSync').then(m => m.broadcastGroupsUpdate(grupos));
+  }, [entis, grupos]);
+
+  useEffect(() => {
+    import('../../platform/desktop/MultiWindowSync').then(({ syncChannel }) => {
+      const handleMsg = (e: MessageEvent) => {
+        if (e.data.type === 'request_full_state') {
+          syncChannel.postMessage({
+            type: 'full_state',
+            entis: entiRepository.list(),
+            grupos: stateRef.current.grupos,
+            chats: chatRepository.list()
+          });
+        } else if (e.data.type === 'chat_updated') {
+          chatRepository.saveSilent(e.data.chat);
+        }
+      };
+      syncChannel.addEventListener('message', handleMsg);
+      return () => syncChannel.removeEventListener('message', handleMsg);
+    });
+  }, []);
 
   useEffect(() => {
     // RV-08/FIA-001: Arranque Entity
@@ -116,14 +153,32 @@ export default function WorkspaceShell() {
     if (!chat) {
       chat = createChatFlow(type, id);
     }
-    // Abrir ventana (o enfocar si ya existe)
-    const existingWindows = registry.findByChatId(chat.id);
-    if (existingWindows.length === 0) {
-      openChatWindowFlow(chat.id, registry);
-    } else {
-      focusChatWindowFlow(registry, existingWindows[0].windowId);
-      window.dispatchEvent(new CustomEvent('request-focus-window', { detail: { windowId: existingWindows[0].windowId } }));
-    }
+    
+    import('../../utils/isTauri').then(({ checkIsTauri }) => {
+      if (checkIsTauri()) {
+        import('@tauri-apps/api/webviewWindow').then(({ WebviewWindow }) => {
+          const label = `chat-${chat!.id}`;
+          WebviewWindow.getByLabel(label).then(w => {
+            if (w) {
+              w.unminimize();
+              w.setFocus();
+            } else {
+              openChatWindowFlow(chat!.id, registry);
+            }
+          });
+        });
+        return;
+      }
+
+      // Fallback in-app
+      const existingWindows = registry.findByChatId(chat!.id);
+      if (existingWindows.length === 0) {
+        openChatWindowFlow(chat!.id, registry);
+      } else {
+        focusChatWindowFlow(registry, existingWindows[0].windowId);
+        window.dispatchEvent(new CustomEvent('request-focus-window', { detail: { windowId: existingWindows[0].windowId } }));
+      }
+    });
   };
 
   const handleSelectEnti = (id: string) => {
@@ -323,34 +378,7 @@ export default function WorkspaceShell() {
     });
   };
 
-  const handleMinimizeApp = () => {
-    if (state === 'minimizado') {
-      const restoreResult = restoreEntityLifecycleFlow({
-        explicitApplicationAction: true,
-        workspaceShellMounted: true,
-        currentWorkspaceState: state
-      });
-      
-      if (restoreResult.status === 'success') {
-        setState('visible');
-      } else {
-        console.error('Failed to restore application:', restoreResult.error);
-      }
-      return;
-    }
 
-    const result = minimizeEntityLifecycleFlow({
-      explicitApplicationAction: true,
-      workspaceShellMounted: true,
-      currentStartupStatus: startupStatus
-    });
-
-    if (result.status === 'success') {
-      setState('minimizado');
-    } else {
-      console.error('Failed to minimize application:', result.error);
-    }
-  };
 
   const handleCloseApp = () => {
     const result = closeEntityLifecycleFlow({
@@ -361,11 +389,26 @@ export default function WorkspaceShell() {
     });
 
     if (result.status === 'success') {
-      // Temporary CLOSE for browser testing
       setState('cerrado' as WorkspaceState);
-      console.log("App closed safely via lifecycle flow");
     } else {
       console.error('Failed to close application:', result.error);
+    }
+  };
+
+  const handleMinimizeOS = () => {
+    import('@tauri-apps/api/window').then(({ getCurrentWindow }) => {
+      getCurrentWindow().minimize();
+    });
+  };
+
+  const handleCloseOS = () => {
+    import('../../platform/desktop/MultiWindowSync').then(m => {
+      m.syncChannel.postMessage({ type: 'app_closing' });
+    });
+    if (appWindow) {
+      setTimeout(() => appWindow.close(), 100);
+    } else {
+      setTimeout(() => handleCloseApp(), 100);
     }
   };
 
@@ -409,21 +452,24 @@ export default function WorkspaceShell() {
       data-state={state}
       className={`workspace-shell state-${state}`}
     >
-      {/* Controles de ventana nativa (Top-Right, Windows style) */}
-      <div className="window-controls">
-        <button 
-          onClick={handleMinimizeApp}
-          className="window-btn minimize-btn"
-          title={state === 'minimizado' ? "Restaurar" : "Minimizar"}
-        >
-          {state === 'minimizado' ? "□" : "—"}
+      {/* Área invisible para arrastrar la ventana */}
+      <div 
+        data-tauri-drag-region="true"
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '40px', zIndex: 9998, cursor: 'grab', background: 'rgba(0,0,0,0.01)' }} 
+      />
+
+      {/* Controles de ventana nativa (Top-Right) */}
+      <div className="app-window-controls no-drag">
+        <button onClick={handleMinimizeOS} className="window-btn minimize-btn" title="Minimizar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+          </svg>
         </button>
-        <button 
-          onClick={handleCloseApp}
-          className="window-btn close-btn"
-          title="Cerrar"
-        >
-          ✕
+        <button onClick={handleCloseOS} className="window-btn close-btn" title="Cerrar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
         </button>
       </div>
 

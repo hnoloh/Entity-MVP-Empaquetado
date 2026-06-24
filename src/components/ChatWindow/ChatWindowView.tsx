@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef } from 'react';
-import { createPortal } from 'react-dom';
+import { useState, useRef } from 'react';
+import { checkIsTauri } from '../../utils/isTauri';
 import type { ChatWindow } from '../../domain/windowing/ChatWindow';
 import { closeChatWindowFlow } from '../../domain/windowing/closeChatWindowFlow';
 import type { ChatWindowRegistry } from '../../domain/windowing/ChatWindowRegistry';
@@ -17,141 +17,21 @@ export interface ChatWindowViewProps {
 }
 
 export function ChatWindowView({ windowState, registry, onStateChange, grupos = [] }: ChatWindowViewProps) {
-  const [container, setContainer] = useState<HTMLElement | null>(null);
-  const externalWindow = useRef<Window | null>(null);
-  const isProgrammaticClose = useRef(false);
+  const [position, setPosition] = useState({ x: windowState.geometry.x, y: windowState.geometry.y });
+  const [size, setSize] = useState({ width: windowState.geometry.width, height: windowState.geometry.height });
+  
+  const isDragging = useRef(false);
+  const dragStart = useRef({ x: 0, y: 0 });
 
+  const isResizing = useRef(false);
+  const resizeStart = useRef({ w: 0, h: 0, x: 0, y: 0 });
 
-  useEffect(() => {
-    if (windowState.state === 'closed') {
-      if (externalWindow.current && !externalWindow.current.closed) {
-        isProgrammaticClose.current = true;
-        externalWindow.current.close();
-      }
-      externalWindow.current = null;
-      return;
-    }
-
-    if (!externalWindow.current || externalWindow.current.closed) {
-      isProgrammaticClose.current = false;
-      const { width, height, x, y } = windowState.geometry;
-      const features = `width=${width},height=${height},left=${x},top=${y}`;
-      externalWindow.current = window.open('', `chat-${windowState.windowId}`, features);
-
-      if (externalWindow.current) {
-        let initialTitle = `Chat: ${windowState.chatId}`;
-        try {
-          const chat = chatRepository.getById(windowState.chatId);
-          if (chat) {
-            if (chat.owner.type === 'enti') {
-              const enti = entiRepository.getById(chat.owner.id);
-              if (enti) initialTitle = enti.name || 'Entidad sin nombre';
-            } else {
-              const grupo = grupos.find(g => g.id === chat.owner.id);
-              if (grupo) initialTitle = grupo.name || 'Nuevo Grupo';
-              else initialTitle = chat.owner.id;
-            }
-          }
-        } catch (e) { console.debug(e); }
-        
-        const doc = externalWindow.current.document;
-        doc.title = initialTitle;
-
-        // Limpiar por si es un remount de StrictMode que reusa la ventana
-        doc.body.innerHTML = '';
-
-        const div = doc.createElement('div');
-        div.className = 'external-chat-root';
-        div.style.width = '100%';
-        div.style.height = '100vh';
-        div.style.display = 'flex';
-        div.style.flexDirection = 'column';
-        doc.body.appendChild(div);
-
-        const styles = document.querySelectorAll('style, link[rel="stylesheet"]');
-        styles.forEach(styleEl => {
-          doc.head.appendChild(styleEl.cloneNode(true));
-        });
-
-        doc.body.style.margin = '0';
-        doc.body.style.backgroundColor = 'var(--bg-base, #020617)';
-
-        externalWindow.current.onbeforeunload = () => {
-          if (!isProgrammaticClose.current) {
-            closeChatWindowFlow(registry, windowState.windowId);
-            onStateChange();
-          }
-        };
-
-        setContainer(div);
-      } else {
-        console.warn('¡Popup bloqueado! Por favor, permite las ventanas emergentes para abrir el chat en el SO.');
-      }
-    }
-
-    return () => {
-      // Si el componente se desmonta porque ha sido minimizado o cerrado desde la UI principal
-      const currentWin = registry.getByWindowId(windowState.windowId);
-      if (!currentWin || currentWin.state !== 'visible') {
-        if (externalWindow.current && !externalWindow.current.closed) {
-          isProgrammaticClose.current = true;
-          externalWindow.current.close();
-        }
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [windowState.state, windowState.windowId, windowState.geometry, registry, onStateChange, windowState.chatId]);
-
-  useEffect(() => {
-    const handleFocusRequest = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail.windowId === windowState.windowId && externalWindow.current) {
-        externalWindow.current.focus();
-      }
-    };
-    window.addEventListener('request-focus-window', handleFocusRequest);
-    return () => window.removeEventListener('request-focus-window', handleFocusRequest);
-  }, [windowState.windowId]);
-
-  useEffect(() => {
-    const handleMainUnload = () => {
-      if (externalWindow.current && !externalWindow.current.closed) {
-        externalWindow.current.close();
-      }
-    };
-    window.addEventListener('unload', handleMainUnload);
-    window.addEventListener('beforeunload', handleMainUnload);
-    return () => {
-      window.removeEventListener('unload', handleMainUnload);
-      window.removeEventListener('beforeunload', handleMainUnload);
-    };
-  }, []);
-
-  useEffect(() => {
-    let currentTitle = `Chat: ${windowState.chatId}`;
-    try {
-      const chat = chatRepository.getById(windowState.chatId);
-      if (chat) {
-        if (chat.owner.type === 'enti') {
-          const enti = entiRepository.getById(chat.owner.id);
-          if (enti) currentTitle = enti.name || 'Entidad sin nombre';
-        } else {
-          const grupo = grupos.find(g => g.id === chat.owner.id);
-          if (grupo) currentTitle = grupo.name || 'Nuevo Grupo';
-          else currentTitle = chat.owner.id;
-        }
-      }
-    } catch (e) { console.debug(e); }
-
-    if (externalWindow.current && !externalWindow.current.closed) {
-      externalWindow.current.document.title = currentTitle;
-    }
-  }, [windowState.chatId, grupos]);
-
-  // Si no hay contenedor, la ventana fue bloqueada o está cerrada
-  if (!container || windowState.state === 'closed') {
+  if (checkIsTauri() && window.location.search.indexOf('chatId') === -1) {
+    // If we are in the MAIN Tauri window, do not render in-app windows, because they are native OS windows!
     return null;
   }
+
+  if (windowState.state === 'closed') return null;
 
   let title = `Chat: ${windowState.chatId}`;
   let isGroupChat = false;
@@ -172,16 +52,89 @@ export function ChatWindowView({ windowState, registry, onStateChange, grupos = 
       }
     }
   } catch (e) {
-    // Ignorar si el propietario fue eliminado pero la ventana no se ha desmontado aún
     console.debug(e);
   }
-  return createPortal(
-    <>
-      <div className="chat-window-header" style={{ cursor: 'default' }} data-testid={`chat-window-header-${windowState.windowId}`}>
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    isDragging.current = true;
+    dragStart.current = { x: e.clientX - position.x, y: e.clientY - position.y };
+    e.currentTarget.setPointerCapture(e.pointerId);
+    registry.focus(windowState.windowId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (isDragging.current) {
+      setPosition({
+        x: e.clientX - dragStart.current.x,
+        y: e.clientY - dragStart.current.y
+      });
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (isDragging.current) {
+      isDragging.current = false;
+      e.currentTarget.releasePointerCapture(e.pointerId);
+      registry.update({
+        ...windowState,
+        geometry: { ...windowState.geometry, x: position.x, y: position.y }
+      });
+    }
+  };
+
+  const handleResizeDown = (e: React.PointerEvent) => {
+    e.stopPropagation();
+    isResizing.current = true;
+    resizeStart.current = { w: size.width, h: size.height, x: e.clientX, y: e.clientY };
+    e.currentTarget.setPointerCapture(e.pointerId);
+    registry.focus(windowState.windowId);
+  };
+
+  const handleResizeMove = (e: React.PointerEvent) => {
+    if (isResizing.current) {
+      setSize({
+        width: Math.max(300, resizeStart.current.w + (e.clientX - resizeStart.current.x)),
+        height: Math.max(200, resizeStart.current.h + (e.clientY - resizeStart.current.y))
+      });
+    }
+  };
+
+  const handleResizeUp = (e: React.PointerEvent) => {
+    if (isResizing.current) {
+      isResizing.current = false;
+      e.currentTarget.releasePointerCapture(e.pointerId);
+      registry.update({
+        ...windowState,
+        geometry: { ...windowState.geometry, width: size.width, height: size.height }
+      });
+    }
+  };
+
+  const isFocused = registry.getFocusedWindowId() === windowState.windowId;
+
+  return (
+    <div 
+      className="chat-window-view" 
+      style={{ 
+        left: position.x, 
+        top: position.y, 
+        width: size.width, 
+        height: size.height,
+        zIndex: isFocused ? 1001 : 1000 
+      }}
+      onPointerDown={() => registry.focus(windowState.windowId)}
+    >
+      <div 
+        className="chat-window-header" 
+        data-testid={`chat-window-header-${windowState.windowId}`}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+      >
         <div className="chat-window-header-info">
           <span className="chat-window-title">{title}</span>
         </div>
-        <div className="chat-window-controls">
+        <div className="chat-window-controls" onPointerDown={e => e.stopPropagation()}>
           {!isGroupChat && (
             <button 
               className="chat-window-btn clear" 
@@ -215,7 +168,8 @@ export function ChatWindowView({ windowState, registry, onStateChange, grupos = 
             className="chat-window-btn close" 
             data-testid={`close-btn-${windowState.windowId}`}
             onClick={() => {
-              if (externalWindow.current) externalWindow.current.close();
+              closeChatWindowFlow(registry, windowState.windowId);
+              onStateChange();
             }}
           >✕</button>
         </div>
@@ -225,11 +179,17 @@ export function ChatWindowView({ windowState, registry, onStateChange, grupos = 
           chatId={windowState.chatId} 
           grupos={grupos}
           onCloseRequest={() => {
-            if (externalWindow.current) externalWindow.current.close();
+            closeChatWindowFlow(registry, windowState.windowId);
+            onStateChange();
           }}
         />
+        <div 
+          className="chat-window-resize-handle" 
+          onPointerDown={handleResizeDown}
+          onPointerMove={handleResizeMove}
+          onPointerUp={handleResizeUp}
+        />
       </div>
-    </>,
-    container
+    </div>
   );
 }

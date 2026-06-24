@@ -2,6 +2,7 @@ import type { Chat } from './Chat';
 
 export interface ChatRepository {
   save(chat: Chat): void;
+  saveSilent(chat: Chat): void;
   getById(id: string): Chat | undefined;
   getSnapshot(id: string): Chat | undefined;
   list(): Chat[];
@@ -27,6 +28,14 @@ class InMemoryChatRepository implements ChatRepository {
   private cachedSnapshots = new Map<string, Chat>();
 
   save(chat: Chat): void {
+    const cloned = JSON.parse(JSON.stringify(chat));
+    this.chats.set(chat.id, cloned);
+    this.snapshots.set(chat.id, cloned);
+    this.cachedSnapshots.delete(chat.id);
+    this.emit();
+  }
+
+  saveSilent(chat: Chat): void {
     const cloned = JSON.parse(JSON.stringify(chat));
     this.chats.set(chat.id, cloned);
     this.snapshots.set(chat.id, cloned);

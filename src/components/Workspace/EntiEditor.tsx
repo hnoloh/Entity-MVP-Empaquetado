@@ -112,6 +112,8 @@ interface ExpandedModalProps {
 }
 
 const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChange, onClose, attachments, dropZoneScope, ownerId, onAttachmentsDropped, onRemoveAttachment }) => {
+  const [selectedAttachment, setSelectedAttachment] = useState<string | null>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e.target.value);
   };
@@ -123,62 +125,67 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
         </div>
         <div className="expanded-field-body" style={{ display: 'flex', flex: 1, gap: '1rem', minHeight: 0 }}>
           {attachments !== undefined ? (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', padding: '1rem', overflowY: 'auto', width: '100%', alignContent: 'flex-start' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '1rem', overflowY: 'auto', width: '100%', alignContent: 'flex-start' }}>
               {attachments.length === 0 ? (
                 <div style={{ color: '#aaa', fontSize: '0.9rem', width: '100%', textAlign: 'center', marginTop: '2rem' }}>
                   Arrastra archivos aquí para añadirlos
                 </div>
               ) : (
                 attachments.map((name, i) => {
-                  const words = name.split(/[-_.\s]+/);
-                  const shortName = words.slice(0, 3).join(' ') + (words.length > 3 ? '...' : '');
+                  const isSelected = selectedAttachment === name;
                   return (
-                    <div key={i} className="attachment-card" style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(0, 229, 255, 0.2)',
-                      borderRadius: '8px',
-                      padding: '1rem',
-                      width: '120px',
-                      height: '120px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      position: 'relative',
-                      textAlign: 'center'
-                    }}>
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '8px', flexShrink: 0 }}>
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                        <polyline points="10 9 9 9 8 9"></polyline>
-                      </svg>
-                      <span style={{ fontSize: '0.8rem', color: '#e2e8f0', wordBreak: 'break-word', lineHeight: '1.2', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }} title={name}>
-                        {shortName}
-                      </span>
+                    <div 
+                      key={i} 
+                      className={`attachment-card ${isSelected ? 'selected' : ''}`}
+                      onClick={() => setSelectedAttachment(name)}
+                      onDoubleClick={async (e) => {
+                        e.stopPropagation();
+                        try {
+                          if ((window as unknown as { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__) {
+                            const { openPath } = await import('@tauri-apps/plugin-opener');
+                            await openPath(name);
+                          } else {
+                            console.warn('Tauri opener plugin not available en este entorno');
+                          }
+                        } catch (err) {
+                          console.error('Error al abrir archivo', err);
+                          alert(`No se pudo abrir: ${name}\nError: ${err}`);
+                        }
+                      }}
+                      title="Doble clic para abrir"
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                          <line x1="16" y1="13" x2="8" y2="13"></line>
+                          <line x1="16" y1="17" x2="8" y2="17"></line>
+                          <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        <span style={{ fontSize: '0.75rem', color: '#e2e8f0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {name.split(/[/\\]/).pop()}
+                        </span>
+                      </div>
+                      
                       {onRemoveAttachment && (
                         <button 
                           className="btn-remove-attachment"
                           onClick={(e) => { e.stopPropagation(); onRemoveAttachment(name); }}
                           title="Eliminar adjunto"
                           style={{
-                            position: 'absolute',
-                            top: '4px',
-                            right: '4px',
-                            background: 'rgba(0, 229, 255, 0.1)',
+                            background: 'transparent',
                             border: 'none',
                             color: '#00e5ff',
-                            borderRadius: '4px',
                             padding: '4px',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            transition: 'all 0.2s'
+                            transition: 'all 0.2s',
+                            borderRadius: '4px'
                           }}
                         >
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <polyline points="3 6 5 6 21 6"></polyline>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                           </svg>
@@ -609,7 +616,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               testId="input-knowledge"
               onExpand={() => setExpandedField({ key: "knowledge", label: "Conocimientos" })}
               onChange={(val) => handleHarnessChange("knowledge", val)}
-              attachments={sessionAttachments.knowledge}
               dropZoneScope={expandedField?.key === "knowledge" ? undefined : "enti_knowledge"}
               ownerId={draft.id}
               onAttachmentsDropped={(files) => setSessionAttachments(prev => ({ ...prev, knowledge: [...prev.knowledge, ...files] }))}
@@ -621,7 +627,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
               testId="input-workMaterial"
               onExpand={() => setExpandedField({ key: "workMaterial", label: "Material de Trabajo" })}
               onChange={(val) => handleHarnessChange("workMaterial", val)}
-              attachments={sessionAttachments.workMaterial}
               dropZoneScope={expandedField?.key === "workMaterial" ? undefined : "enti_work_material"}
               ownerId={draft.id}
               onAttachmentsDropped={(files) => setSessionAttachments(prev => ({ ...prev, workMaterial: [...prev.workMaterial, ...files] }))}

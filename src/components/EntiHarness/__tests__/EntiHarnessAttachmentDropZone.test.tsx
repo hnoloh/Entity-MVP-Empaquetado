@@ -7,6 +7,7 @@ import * as HookModule from '../useEntiHarnessAttachmentDrop';
 describe('EntiHarnessAttachmentDropZone', () => {
   it('renderiza el contenido base sin overlay en estado idle', () => {
     vi.spyOn(HookModule, 'useEntiHarnessAttachmentDrop').mockReturnValue({
+      zoneRef: { current: null },
       dropState: 'idle',
       errorMessage: null,
       handlers: {} as any
@@ -22,6 +23,7 @@ describe('EntiHarnessAttachmentDropZone', () => {
 
   it('renderiza valid overlay en dragging_valid', () => {
     vi.spyOn(HookModule, 'useEntiHarnessAttachmentDrop').mockReturnValue({
+      zoneRef: { current: null },
       dropState: 'dragging_valid',
       errorMessage: null,
       handlers: {} as any

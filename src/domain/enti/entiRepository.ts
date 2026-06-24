@@ -4,6 +4,7 @@ import type { SerializedEnti } from "./entiSerialization";
 
 export interface EntiRepository {
   save(enti: Enti): void;
+  saveSilent(enti: Enti): void;
   getById(id: string): Enti | null;
   list(): Enti[];
   delete(id: string): void;
@@ -14,6 +15,11 @@ export class InMemoryEntiRepository implements EntiRepository {
   private store: Map<string, SerializedEnti> = new Map();
 
   save(enti: Enti): void {
+    const serialized = serializeEnti(enti);
+    this.store.set(enti.id, serialized);
+  }
+
+  saveSilent(enti: Enti): void {
     const serialized = serializeEnti(enti);
     this.store.set(enti.id, serialized);
   }

@@ -18,24 +18,28 @@ vi.mock('../EntiToolBelt', () => ({
 
 const mockEntiA = {
   id: '1',
+  type: 'enti' as const,
+  status: 'incomplete' as const,
   name: 'Enti A',
   capabilities: [],
   goals: [],
   personality: '',
   systemPrompt: '',
-  cognitiveConfig: { provider: 'local', model: 'llama3', apiKey: '' },
-  harness: { knowledgeAttachments: [], workMaterialAttachments: [] }
+  cognitiveConfig: { mode: 'local', provider: 'local', model: 'llama3', apiKey: '' },
+  harness: { function: '', rules: [], workMaterial: '', knowledge: '', knowledgeAttachments: [], workMaterialAttachments: [] }
 };
 
 const mockEntiB = {
   id: '2',
+  type: 'enti' as const,
+  status: 'incomplete' as const,
   name: 'Enti B',
   capabilities: [],
   goals: [],
   personality: '',
   systemPrompt: '',
-  cognitiveConfig: { provider: 'cloud', model: 'gpt-4', apiKey: 'test' },
-  harness: { knowledgeAttachments: [], workMaterialAttachments: [] }
+  cognitiveConfig: { mode: 'cloud', provider: 'cloud', model: 'gpt-4', apiKey: 'test' },
+  harness: { function: '', rules: [], workMaterial: '', knowledge: '', knowledgeAttachments: [], workMaterialAttachments: [] }
 };
 
 describe('EntiEditorDesktopHostIntegration', () => {

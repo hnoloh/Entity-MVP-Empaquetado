@@ -88,26 +88,12 @@ export function ChatStandaloneRoot({ chatId }: { chatId: string }) {
     if (ready) {
       import('../../utils/isTauri').then(({ checkIsTauri }) => {
         if (checkIsTauri()) {
-          import('@tauri-apps/api/window').then(async ({ getCurrentWindow, currentMonitor }) => {
+          import('@tauri-apps/api/window').then(async ({ getCurrentWindow }) => {
             const win = getCurrentWindow();
             win.setTitle(computedTitle);
             
-            try {
-              const monitor = await currentMonitor();
-              if (monitor) {
-                const dpi = await import('@tauri-apps/api/dpi');
-                const scale = monitor.scaleFactor;
-                // Logical size from openChatWindowFlow is 340x560
-                const physicalWidth = 340 * scale;
-                const physicalHeight = 560 * scale;
-                const cx = monitor.position.x + (monitor.size.width - physicalWidth) / 2;
-                const cy = monitor.position.y + (monitor.size.height - physicalHeight) / 2;
-                await win.setPosition(new dpi.PhysicalPosition(Math.max(0, cx), Math.max(0, cy)));
-              }
-            } catch (e) {
-              console.error("Failed to position window", e);
-            }
-            
+            // Just show the window. It is centered natively via openChatWindowFlow.
+            // Do not reposition it here, or it will jump around when title changes or on reload.
             win.show();
           });
         }

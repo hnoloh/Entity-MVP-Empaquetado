@@ -437,7 +437,8 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
       }, 700);
       return () => clearTimeout(timer);
     }
-  }, [currentStatus, draft.hasSpawnedInitialChat, isActive, onDraftChange, onRequestOpenChat]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStatus, draft.hasSpawnedInitialChat, isActive]);
 
   return (
     <div 

@@ -316,12 +316,6 @@ export default function WorkspaceShell() {
       return prev;
     });
 
-    // Cerrar las ventanas de chat asociadas al cerrar el editor
-    const associatedChat = chatRepository.list().find(c => c.owner.id === id);
-    if (associatedChat) {
-      const windows = registry.findByChatId(associatedChat.id);
-      windows.forEach(win => closeChatWindowFlow(registry, win.windowId));
-    }
   };
 
   const handleDeleteEnti = (id: string) => {

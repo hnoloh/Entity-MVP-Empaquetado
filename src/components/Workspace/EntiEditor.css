@@ -88,7 +88,7 @@
 
 .window-controls button[data-testid="btn-close-editor"]:hover {
   background: transparent;
-  color: #ff4444;
+  color: #00bcd4;
   transform: scale(1.15);
 }
 
@@ -275,7 +275,7 @@
 }
 
 .expanded-field-header button:hover {
-  color: #ff4444;
+  color: #00bcd4;
 }
 
 .attachment-item .btn-remove-attachment,

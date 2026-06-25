@@ -116,6 +116,75 @@ export default function WorkspaceShell() {
     return unsub;
   }, []);
 
+  useEffect(() => {
+    const handleOsWindowClose = (e: CustomEvent) => {
+      import('../../utils/isTauri').then(({ checkIsTauri }) => {
+        if (checkIsTauri()) {
+          import('@tauri-apps/api/webviewWindow').then(({ WebviewWindow }) => {
+            WebviewWindow.getByLabel(e.detail.label).then(w => {
+              if (w) w.close();
+            });
+          });
+        }
+      });
+    };
+    window.addEventListener('request-os-window-close', handleOsWindowClose as EventListener);
+    return () => window.removeEventListener('request-os-window-close', handleOsWindowClose as EventListener);
+  }, []);
+
+  useEffect(() => {
+    const handleOsWindowOpen = (e: CustomEvent) => {
+      const { chatId, geometry } = e.detail;
+      import('../../utils/isTauri').then(({ checkIsTauri }) => {
+        if (checkIsTauri()) {
+          import('@tauri-apps/api/webviewWindow').then(({ WebviewWindow }) => {
+            const label = `chat-${chatId}`;
+            
+            // Si la ventana ya existe, la enfocamos
+            WebviewWindow.getByLabel(label).then(existingWin => {
+              if (existingWin) {
+                existingWin.unminimize();
+                existingWin.setFocus();
+                return;
+              }
+              
+              // Si no existe, la creamos
+              let title = `Chat`;
+              const chat = chatRepository.getById(chatId);
+              if (chat) {
+                if (chat.owner.type === 'enti') {
+                  const enti = entiRepository.getById(chat.owner.id);
+                  if (enti) title = enti.name;
+                } else {
+                  title = `Grupo`;
+                }
+              }
+
+              const webview = new WebviewWindow(label, {
+                url: `/?chatId=${chatId}`,
+                title: title,
+                width: geometry.width,
+                height: geometry.height,
+                center: true,
+                decorations: false,
+                visible: false,
+                transparent: true
+              });
+              
+              webview.once('tauri://error', (err) => {
+                console.error('Tauri WebviewWindow error', err);
+              });
+            });
+          }).catch(err => {
+            console.error('Failed to import Tauri module', err);
+          });
+        }
+      });
+    };
+    window.addEventListener('request-os-window-open', handleOsWindowOpen as EventListener);
+    return () => window.removeEventListener('request-os-window-open', handleOsWindowOpen as EventListener);
+  }, []);
+
   const handleCreateEnti = () => {
     const id = `enti-${Date.now()}`;
     const newEnti = {
@@ -154,19 +223,11 @@ export default function WorkspaceShell() {
       chat = createChatFlow(type, id);
     }
     
+    // Delegamos la apertura al flujo de dominio, la infraestructura (los listeners) se encargará
+    // de abrir la ventana OS si es necesario.
     import('../../utils/isTauri').then(({ checkIsTauri }) => {
       if (checkIsTauri()) {
-        import('@tauri-apps/api/webviewWindow').then(({ WebviewWindow }) => {
-          const label = `chat-${chat!.id}`;
-          WebviewWindow.getByLabel(label).then(w => {
-            if (w) {
-              w.unminimize();
-              w.setFocus();
-            } else {
-              openChatWindowFlow(chat!.id, registry);
-            }
-          });
-        });
+        openChatWindowFlow(chat!.id, registry);
         return;
       }
 
@@ -220,13 +281,13 @@ export default function WorkspaceShell() {
   };
 
   const handleCloseEditor = (id: string) => {
-    setOpenedEditorIds(prev => {
-      const next = prev.filter(openId => openId !== id);
-      if (activeTabId === id) {
-        setActiveTabId(next.length > 0 ? next[next.length - 1] : null);
-      }
-      return next;
-    });
+    setOpenedEditorIds(prev => prev.filter(openId => openId !== id));
+    
+    // Si la pestaña que se cierra es la activa, cambiar a la última pestaña disponible
+    if (activeTabId === id) {
+      const next = openedEditorIds.filter(openId => openId !== id);
+      setActiveTabId(next.length > 0 ? next[next.length - 1] : null);
+    }
     setUnsavedEntis(prev => {
       if (prev[id]) {
         const next = { ...prev };
@@ -256,19 +317,10 @@ export default function WorkspaceShell() {
     });
 
     // Cerrar las ventanas de chat asociadas al cerrar el editor
-    const associatedChatEnti = chatRepository.list().find(c => c.owner.type === 'enti' && c.owner.id === id);
-    if (associatedChatEnti) {
-      const windows = registry.findByChatId(associatedChatEnti.id);
-      windows.forEach(win => {
-        closeChatWindowFlow(registry, win.windowId);
-      });
-    }
-    const associatedChatGrupo = chatRepository.list().find(c => c.owner.type === 'grupo' && c.owner.id === id);
-    if (associatedChatGrupo) {
-      const windows = registry.findByChatId(associatedChatGrupo.id);
-      windows.forEach(win => {
-        closeChatWindowFlow(registry, win.windowId);
-      });
+    const associatedChat = chatRepository.list().find(c => c.owner.id === id);
+    if (associatedChat) {
+      const windows = registry.findByChatId(associatedChat.id);
+      windows.forEach(win => closeChatWindowFlow(registry, win.windowId));
     }
   };
 

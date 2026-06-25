@@ -417,15 +417,13 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
   };
 
   const currentStatus = deriveEntiStatus(draft);
+  const spawnRef = React.useRef(false);
 
   React.useEffect(() => {
-    if (currentStatus === 'complete' && !draft.hasSpawnedInitialChat && isActive) {
-      setDraft(prev => {
-        if (prev.hasSpawnedInitialChat) return prev;
-        return { ...prev, hasSpawnedInitialChat: true };
-      });
-      
+    if (currentStatus === 'complete' && !draft.hasSpawnedInitialChat && isActive && !spawnRef.current) {
+      spawnRef.current = true;
       const updated = { ...draft, hasSpawnedInitialChat: true };
+      setDraft(updated);
       onDraftChange?.(updated);
       entiRepository.saveSilent(updated);
       

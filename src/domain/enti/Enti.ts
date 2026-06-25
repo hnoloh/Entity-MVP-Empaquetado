@@ -28,4 +28,5 @@ export interface Enti {
   harness: EntiHarness;
   cognitiveConfig: EntiCognitiveConfig;
   status: EntiStatus;
+  hasSpawnedInitialChat?: boolean;
 }

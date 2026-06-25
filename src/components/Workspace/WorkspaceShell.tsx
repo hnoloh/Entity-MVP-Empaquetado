@@ -352,6 +352,7 @@ export default function WorkspaceShell() {
           onSave={handleSaveEnti}
           onClose={() => handleCloseEditor(enti.id)}
           onDraftChange={(draft) => setLiveDrafts(prev => ({ ...prev, [enti.id]: { name: draft.name, draft } }))}
+          onRequestOpenChat={() => handleOpenChat(enti.id, 'enti')}
         />
       );
     } else {

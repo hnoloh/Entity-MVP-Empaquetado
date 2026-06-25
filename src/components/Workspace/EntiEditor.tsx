@@ -14,6 +14,7 @@ interface EntiEditorProps {
   onClose: () => void;
   isActive: boolean;
   onDraftChange?: (draft: Enti) => void;
+  onRequestOpenChat?: () => void;
 }
 
 // --- Subcomponentes para mantener el código limpio (Clean Code) ---
@@ -241,7 +242,7 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
 
 // --- Componente Principal ---
 
-export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, isActive, onDraftChange }) => {
+export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, isActive, onDraftChange, onRequestOpenChat }) => {
   const initialEntiRef = React.useRef<Enti>(enti);
   const [draft, setDraft] = useState<Enti>(enti);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
@@ -416,6 +417,27 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
   };
 
   const currentStatus = deriveEntiStatus(draft);
+
+  React.useEffect(() => {
+    if (currentStatus === 'complete' && !draft.hasSpawnedInitialChat && isActive) {
+      const timer = setTimeout(() => {
+        setDraft(prev => {
+          if (prev.hasSpawnedInitialChat) return prev;
+          
+          const updated = { ...prev, hasSpawnedInitialChat: true };
+          onDraftChange?.(updated);
+          entiRepository.saveSilent(updated);
+          
+          if (onRequestOpenChat) {
+            onRequestOpenChat();
+          }
+          
+          return updated;
+        });
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [currentStatus, draft.hasSpawnedInitialChat, isActive, onDraftChange, onRequestOpenChat]);
 
   return (
     <div 

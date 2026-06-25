@@ -420,21 +420,18 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
 
   React.useEffect(() => {
     if (currentStatus === 'complete' && !draft.hasSpawnedInitialChat && isActive) {
-      const timer = setTimeout(() => {
-        setDraft(prev => {
-          if (prev.hasSpawnedInitialChat) return prev;
-          return { ...prev, hasSpawnedInitialChat: true };
-        });
-        
-        const updated = { ...draft, hasSpawnedInitialChat: true };
-        onDraftChange?.(updated);
-        entiRepository.saveSilent(updated);
-        
-        if (onRequestOpenChat) {
-          onRequestOpenChat();
-        }
-      }, 200);
-      return () => clearTimeout(timer);
+      setDraft(prev => {
+        if (prev.hasSpawnedInitialChat) return prev;
+        return { ...prev, hasSpawnedInitialChat: true };
+      });
+      
+      const updated = { ...draft, hasSpawnedInitialChat: true };
+      onDraftChange?.(updated);
+      entiRepository.saveSilent(updated);
+      
+      if (onRequestOpenChat) {
+        onRequestOpenChat();
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStatus, draft.hasSpawnedInitialChat, isActive]);

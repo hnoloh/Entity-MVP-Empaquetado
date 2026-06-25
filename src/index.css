@@ -100,8 +100,8 @@ input, textarea, [contenteditable="true"] {
 }
 
 .window-btn.close-btn:hover {
-  color: #ff4444;
-  filter: drop-shadow(0 0 6px rgba(255, 68, 68, 0.6));
+  color: #00bcd4;
+  filter: drop-shadow(0 0 6px rgba(0, 188, 212, 0.6));
 }
 
 .window-btn:active {

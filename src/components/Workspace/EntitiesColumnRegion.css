@@ -118,11 +118,8 @@
 }
 
 .btn-delete-inline:hover {
-  color: #ff4444;
-}
-
-.btn-delete-inline:hover {
-  color: #ff4444;
+  color: #00bcd4;
+  filter: drop-shadow(0 0 4px rgba(0, 188, 212, 0.4));
 }
 
 .entity-section-title {

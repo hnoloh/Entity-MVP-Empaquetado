@@ -23,8 +23,7 @@ export function ChatStandaloneRoot({ chatId }: { chatId: string }) {
     import('../../utils/isTauri').then(({ checkIsTauri }) => {
       if (checkIsTauri()) {
         import('@tauri-apps/api/window').then(({ getCurrentWindow }) => {
-          const win = getCurrentWindow();
-          setAppWindow(win);
+          setAppWindow(getCurrentWindow());
         });
       }
     });
@@ -37,8 +36,6 @@ export function ChatStandaloneRoot({ chatId }: { chatId: string }) {
         e.data.chats.forEach((ch: Chat) => chatRepository.saveSilent(ch));
         setGrupos(e.data.grupos);
         setReady(true);
-        const fakeUi = document.getElementById('fake-chat-ui');
-        if (fakeUi) fakeUi.remove();
       } else if (e.data.type === 'chat_updated') {
         chatRepository.saveSilent(e.data.chat);
       } else if (e.data.type === 'enti_updated') {
@@ -94,6 +91,10 @@ export function ChatStandaloneRoot({ chatId }: { chatId: string }) {
           import('@tauri-apps/api/window').then(async ({ getCurrentWindow }) => {
             const win = getCurrentWindow();
             win.setTitle(computedTitle);
+            
+            // Just show the window. It is centered natively via openChatWindowFlow.
+            // Do not reposition it here, or it will jump around when title changes or on reload.
+            win.show();
           });
         }
       });

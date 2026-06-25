@@ -12,8 +12,7 @@ interface EntiEditorProps {
   enti: Enti;
   onSave: (draft: Enti) => void;
   onClose: () => void;
-  isActive: boolean;
-  onDraftChange?: (draft: Enti) => void;
+  onNameChange?: (name: string) => void;
   onRequestOpenChat?: () => void;
 }
 
@@ -242,7 +241,7 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
 
 // --- Componente Principal ---
 
-export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, isActive, onDraftChange, onRequestOpenChat }) => {
+export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, isActive, onNameChange, onRequestOpenChat }) => {
   const initialEntiRef = React.useRef<Enti>(enti);
   const [draft, setDraft] = useState<Enti>(enti);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
@@ -271,7 +270,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
   const isToolsDirty = JSON.stringify(initialTools) !== JSON.stringify(currentTools);
 
   React.useEffect(() => {
-    // eslint-disable-next-line
     setDraft(prev => {
       const currentKnowledge = prev.harness.knowledgeAttachments || [];
       const currentWorkMaterial = prev.harness.workMaterialAttachments || [];
@@ -290,7 +288,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
         }
       };
       
-      // Auto-save en vivo para que los adjuntos se reflejen al instante en el chat.
       const rulesArray = typeof updatedDraft.harness.rules === 'string'
         ? (updatedDraft.harness.rules as string).split('\n').filter(r => r.trim() !== '')
         : updatedDraft.harness.rules;
@@ -305,13 +302,15 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
   }, [sessionAttachments]);
 
   React.useEffect(() => {
-    if (onDraftChange) {
-      onDraftChange(draft);
+    if (onNameChange) {
+      onNameChange(draft.name);
     }
-    // Instant sync to repository so that other components (like ChatView)
-    // can use the updated state without forcing a manual save.
-    entiRepository.saveSilent(draft);
-  }, [draft, onDraftChange]);
+  }, [draft.name, onNameChange]);
+
+  React.useEffect(() => {
+    setDraft(enti);
+    initialEntiRef.current = enti;
+  }, [enti]);
 
   const isDirty = JSON.stringify(initialEntiRef.current) !== JSON.stringify(draft) || isToolsDirty;
 

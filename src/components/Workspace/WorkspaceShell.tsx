@@ -175,7 +175,7 @@ export default function WorkspaceShell() {
             height: geometry.height,
             center: true,
             decorations: false,
-            visible: false,
+            visible: true,
             transparent: true
           });
           

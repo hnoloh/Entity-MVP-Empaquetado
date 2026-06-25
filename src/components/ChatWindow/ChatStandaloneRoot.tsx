@@ -25,9 +25,6 @@ export function ChatStandaloneRoot({ chatId }: { chatId: string }) {
         import('@tauri-apps/api/window').then(({ getCurrentWindow }) => {
           const win = getCurrentWindow();
           setAppWindow(win);
-          // Show the window immediately as soon as the React DOM is mounted.
-          // This prevents the black unstyled HTML flash while still being instantaneous.
-          win.show();
         });
       }
     });

@@ -13,6 +13,7 @@ interface EntiEditorProps {
   onSave: (draft: Enti) => void;
   onClose: () => void;
   onNameChange?: (name: string) => void;
+  onDraftChange?: (draft: Enti) => void;
   onRequestOpenChat?: () => void;
 }
 
@@ -241,7 +242,7 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
 
 // --- Componente Principal ---
 
-export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, isActive, onNameChange, onRequestOpenChat }) => {
+export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, isActive, onNameChange, onDraftChange, onRequestOpenChat }) => {
   const initialEntiRef = React.useRef<Enti>(enti);
   const [draft, setDraft] = useState<Enti>(enti);
   const [showCloseDialog, setShowCloseDialog] = useState(false);

@@ -91,10 +91,7 @@ export function ChatStandaloneRoot({ chatId }: { chatId: string }) {
           import('@tauri-apps/api/window').then(async ({ getCurrentWindow }) => {
             const win = getCurrentWindow();
             win.setTitle(computedTitle);
-            
-            // Just show the window. It is centered natively via openChatWindowFlow.
-            // Do not reposition it here, or it will jump around when title changes or on reload.
-            win.show();
+            // No longer centering or showing here because WorkspaceShell handles it instantly
           });
         }
       });
@@ -170,9 +167,7 @@ export function ChatStandaloneRoot({ chatId }: { chatId: string }) {
         {ready ? (
           <ChatView chatId={chatId} grupos={grupos} onCloseRequest={() => window.close()} />
         ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00e5ff' }}>
-            Iniciando conexión...
-          </div>
+          <div style={{ width: '100%', height: '100%', backgroundColor: 'transparent' }} />
         )}
       </div>
     </div>

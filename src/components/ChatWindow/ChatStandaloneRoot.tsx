@@ -6,6 +6,7 @@ import { entiRepository } from '../../domain/enti/entiRepository';
 import type { Group } from '../../domain/group/Group';
 import type { Chat } from '../../domain/chat/Chat';
 import type { Enti } from '../../domain/enti/Enti';
+import { clearChatHistoryFlow } from '../../domain/chat/clearChatHistoryFlow';
 import { WindowResizeHandles } from '../Titlebar/WindowResizeHandles';
 import './ChatWindow.css';
 
@@ -123,11 +124,10 @@ export function ChatStandaloneRoot({ chatId }: { chatId: string }) {
   };
 
   const handleClearChat = () => {
-    const c = chatRepository.getById(chatId);
-    if (c) {
-      c.history = [];
-      chatRepository.save(c);
-      syncChannel.postMessage({ type: 'chat_updated', chat: c });
+    const updated = clearChatHistoryFlow(chatId);
+    if (updated) {
+      syncChannel.postMessage({ type: 'chat_updated', chat: updated });
+      window.dispatchEvent(new CustomEvent('chat-history-cleared', { detail: { chatId } }));
     }
   };
 

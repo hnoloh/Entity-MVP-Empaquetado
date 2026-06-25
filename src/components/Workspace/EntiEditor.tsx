@@ -15,6 +15,7 @@ interface EntiEditorProps {
   onNameChange?: (name: string) => void;
   onDraftChange?: (draft: Enti) => void;
   onRequestOpenChat?: () => void;
+  isActive?: boolean;
 }
 
 // --- Subcomponentes para mantener el código limpio (Clean Code) ---
@@ -271,6 +272,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
   const isToolsDirty = JSON.stringify(initialTools) !== JSON.stringify(currentTools);
 
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDraft(prev => {
       const currentKnowledge = prev.harness.knowledgeAttachments || [];
       const currentWorkMaterial = prev.harness.workMaterialAttachments || [];
@@ -309,11 +311,12 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
   }, [draft.name, onNameChange]);
 
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDraft(enti);
     initialEntiRef.current = enti;
   }, [enti]);
 
-  const isDirty = JSON.stringify(initialEntiRef.current) !== JSON.stringify(draft) || isToolsDirty;
+  const isDirty = JSON.stringify(enti) !== JSON.stringify(draft) || isToolsDirty;
 
   React.useEffect(() => {
     if (isBrainSelectOpen && brainSelectStep === "local_models" && localDetectionState === "detecting") {

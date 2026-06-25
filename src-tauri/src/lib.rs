@@ -1,5 +1,5 @@
 use tauri::{Manager, Emitter};
-use serde::{Serialize, Deserialize};
+use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
 use futures_util::StreamExt;

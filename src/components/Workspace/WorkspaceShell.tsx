@@ -20,8 +20,6 @@ import "./WorkspaceShell.css";
 import { startEntityLifecycleFlow, closeEntityLifecycleFlow } from "../../domain/lifecycle";
 import { checkIsTauri } from "../../utils/isTauri";
 
-const pendingNativeWindows = new Set<string>();
-
 export default function WorkspaceShell() {
   const [startupStatus, setStartupStatus] = useState<'pending' | 'success' | 'controlled_error' | 'blocked'>('pending');
   const [state, setState] = useState<WorkspaceState>("visible");
@@ -142,8 +140,6 @@ export default function WorkspaceShell() {
           import('@tauri-apps/api/webviewWindow').then(({ WebviewWindow }) => {
             const label = `chat-${chatId}`;
             
-            if (pendingNativeWindows.has(label)) return;
-            
             // Si la ventana ya existe, la enfocamos
             WebviewWindow.getByLabel(label).then(existingWin => {
               if (existingWin) {
@@ -152,8 +148,6 @@ export default function WorkspaceShell() {
                 return;
               }
               
-              pendingNativeWindows.add(label);
-
               // Si no existe, la creamos
               let title = `Chat`;
               const chat = chatRepository.getById(chatId);
@@ -166,51 +160,19 @@ export default function WorkspaceShell() {
                 }
               }
 
-              import('@tauri-apps/api/window').then(async (windowApi) => {
-                let x: number | undefined = undefined;
-                let y: number | undefined = undefined;
-                try {
-                  if (windowApi.currentMonitor) {
-                    const monitor = await windowApi.currentMonitor();
-                    if (monitor) {
-                      const scale = monitor.scaleFactor;
-                      const physicalWidth = geometry.width * scale;
-                      const physicalHeight = geometry.height * scale;
-                      x = Math.max(0, monitor.position.x + (monitor.size.width - physicalWidth) / 2) / scale;
-                      y = Math.max(0, monitor.position.y + (monitor.size.height - physicalHeight) / 2) / scale;
-                    }
-                  }
-                } catch (e) {
-                  console.error("currentMonitor error", e);
-                }
-
-                const webview = new WebviewWindow(label, {
-                  url: `/?chatId=${chatId}`,
-                  title: title,
-                  width: geometry.width,
-                  height: geometry.height,
-                  x: x !== undefined ? Math.floor(x) : undefined,
-                  y: y !== undefined ? Math.floor(y) : undefined,
-                  center: x === undefined, // Fallback to auto-centering if manual fails
-                  decorations: false,
-                  visible: true,
-                  transparent: true
-                });
-                
-                webview.once('tauri://error', (err) => {
-                  pendingNativeWindows.delete(label);
-                  console.error('Tauri WebviewWindow error', err);
-                });
-                
-                webview.once('tauri://created', () => {
-                  pendingNativeWindows.delete(label);
-                });
-
-                // Safety timeout in case tauri://created doesn't fire
-                setTimeout(() => pendingNativeWindows.delete(label), 2000);
-              }).catch(err => {
-                console.error("Window API import error", err);
-                pendingNativeWindows.delete(label);
+              const webview = new WebviewWindow(label, {
+                url: `/?chatId=${chatId}`,
+                title: title,
+                width: geometry.width,
+                height: geometry.height,
+                center: true,
+                decorations: false,
+                visible: false,
+                transparent: true
+              });
+              
+              webview.once('tauri://error', (err) => {
+                console.error('Tauri WebviewWindow error', err);
               });
             });
           }).catch(err => {

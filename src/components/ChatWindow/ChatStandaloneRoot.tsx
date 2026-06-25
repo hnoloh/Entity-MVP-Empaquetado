@@ -23,7 +23,11 @@ export function ChatStandaloneRoot({ chatId }: { chatId: string }) {
     import('../../utils/isTauri').then(({ checkIsTauri }) => {
       if (checkIsTauri()) {
         import('@tauri-apps/api/window').then(({ getCurrentWindow }) => {
-          setAppWindow(getCurrentWindow());
+          const win = getCurrentWindow();
+          setAppWindow(win);
+          // Show the window immediately as soon as the React DOM is mounted.
+          // This prevents the black unstyled HTML flash while still being instantaneous.
+          win.show();
         });
       }
     });
@@ -91,10 +95,6 @@ export function ChatStandaloneRoot({ chatId }: { chatId: string }) {
           import('@tauri-apps/api/window').then(async ({ getCurrentWindow }) => {
             const win = getCurrentWindow();
             win.setTitle(computedTitle);
-            
-            // Just show the window. It is centered natively via openChatWindowFlow.
-            // Do not reposition it here, or it will jump around when title changes or on reload.
-            win.show();
           });
         }
       });

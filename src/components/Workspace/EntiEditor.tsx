@@ -5,6 +5,7 @@ import { deriveEntiStatus } from "../../domain/enti/entiStatus";
 import { EntiHarnessAttachmentDropZone } from "../EntiHarness/EntiHarnessAttachmentDropZone";
 import { EntiToolBelt } from "../EntiEditor/EntiToolBelt";
 import { toolAuthorizationRepository } from "../../domain/tools/toolAuthorizationRepository";
+import { entiRepository } from "../../domain/enti/entiRepository";
 import "./EntiEditor.css";
 
 interface EntiEditorProps {
@@ -241,6 +242,7 @@ const ExpandedFieldModal: React.FC<ExpandedModalProps> = ({ label, value, onChan
 // --- Componente Principal ---
 
 export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, isActive, onDraftChange }) => {
+  const initialEntiRef = React.useRef<Enti>(enti);
   const [draft, setDraft] = useState<Enti>(enti);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [expandedField, setExpandedField] = useState<{ key: keyof Enti["harness"]; label: string } | null>(null);
@@ -289,7 +291,16 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
     });
   }, [sessionAttachments]);
 
+  React.useEffect(() => {
+    if (onDraftChange) {
+      onDraftChange(draft);
+    }
+    // Instant sync to repository so that other components (like ChatView)
+    // can use the updated state without forcing a manual save.
+    entiRepository.saveSilent(draft);
+  }, [draft, onDraftChange]);
 
+  const isDirty = JSON.stringify(initialEntiRef.current) !== JSON.stringify(draft) || isToolsDirty;
 
   React.useEffect(() => {
     if (isBrainSelectOpen && brainSelectStep === "local_models" && localDetectionState === "detecting") {
@@ -320,7 +331,6 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
     }
   }, [isBrainSelectOpen, brainSelectStep, localDetectionState]);
 
-  const isDirty = JSON.stringify(draft) !== JSON.stringify(enti) || isToolsDirty;
 
   const handleCloseAttempt = React.useCallback(() => {
     if (isDirty) {
@@ -352,6 +362,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
     };
     
     setInitialTools(currentTools); // Reset tools dirty state
+    initialEntiRef.current = updatedDraft; // Resetea el ref para que no esté sucio al cerrar
     
     onSave(updatedDraft);
     setShowCloseDialog(false);
@@ -362,6 +373,9 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
     // Revert tool authorizations for this Enti
     const allOtherTools = toolAuthorizationRepository.list().filter(t => t.entiId !== enti.id);
     toolAuthorizationRepository.save([...allOtherTools, ...initialTools]);
+    
+    // Revertir los cambios en vivo del Enti
+    entiRepository.save(initialEntiRef.current);
     
     setShowCloseDialog(false);
     onClose();
@@ -375,6 +389,19 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
     const draftWithStatus = { ...newDraft, status: deriveEntiStatus(newDraft) };
     setDraft(draftWithStatus);
     onDraftChange?.(draftWithStatus);
+
+    // Auto-save en vivo para que los cambios se reflejen al instante en el chat.
+    // Convertimos rules a array si es necesario para no romper el runtime.
+    const rulesArray = typeof draftWithStatus.harness.rules === 'string'
+      ? (draftWithStatus.harness.rules as string).split('\n').filter(r => r.trim() !== '')
+      : draftWithStatus.harness.rules;
+
+    const entiToSave = {
+      ...draftWithStatus,
+      harness: { ...draftWithStatus.harness, rules: rulesArray }
+    };
+    
+    entiRepository.save(entiToSave);
   };
 
   const handleChange = (field: keyof Enti, value: string) => {

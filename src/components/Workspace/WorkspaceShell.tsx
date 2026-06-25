@@ -146,18 +146,10 @@ export default function WorkspaceShell() {
         
         if (creatingWindows.has(label)) return;
         
-        // Si la ventana ya existe, la enfocamos
-        cachedWebviewWindow.getByLabel(label).then((existingWin: any) => {
-          if (existingWin) {
-            existingWin.unminimize();
-            existingWin.setFocus();
-            return;
-          }
-          
-          creatingWindows.add(label);
-          
-          // Si no existe, la creamos
-          let title = `Chat`;
+        creatingWindows.add(label);
+        
+        // Si no existe, la creamos
+        let title = `Chat`;
           const chat = chatRepository.getById(chatId);
           if (chat) {
             if (chat.owner.type === 'enti') {
@@ -188,7 +180,6 @@ export default function WorkspaceShell() {
           });
           // Timeout de seguridad por si tauri://created falla
           setTimeout(() => creatingWindows.delete(label), 2000);
-        });
       }
     };
     window.addEventListener('request-os-window-open', handleOsWindowOpen as EventListener);

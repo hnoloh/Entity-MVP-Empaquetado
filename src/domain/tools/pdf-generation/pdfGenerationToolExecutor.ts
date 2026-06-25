@@ -28,7 +28,7 @@ export class PdfGenerationToolExecutor {
 
       // Save to disk ONLY if targetPath is explicitly provided
       if (input.targetPath) {
-        let dirPath = input.targetPath.replace(/\/$/, '');
+        const dirPath = input.targetPath.replace(/\/$/, '');
         let isDesktop = false;
         if (dirPath.toLowerCase().endsWith('escritorio') || dirPath === '..') {
           isDesktop = true;

@@ -3,7 +3,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import type { SplashLifecycleState } from '../../platform/desktop/splash';
 import type { LLMDownloadProgressEvent, LLMInstallResult } from '../../platform/desktop/llm-auto-installer';
-import ghostImg from '../../assets/ghost.jpeg';
+import ghostImg from '../../assets/ghost.png';
 import './SplashScreen.css';
 
 export const SplashScreen: React.FC<{ onComplete?: () => void }> = ({ onComplete }) => {

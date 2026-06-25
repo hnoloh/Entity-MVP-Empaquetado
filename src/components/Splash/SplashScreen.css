@@ -33,7 +33,6 @@
   transform-style: preserve-3d;
   -webkit-mask-image: radial-gradient(circle, black 30%, transparent 65%);
   mask-image: radial-gradient(circle, black 30%, transparent 65%);
-  mix-blend-mode: screen;
   opacity: 0.95;
 }
 

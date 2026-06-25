@@ -1,7 +1,7 @@
 .workbench-region {
   flex: 1;
   min-width: 0; /* Permite que el contenedor se encoja sin desbordar */
-  background: linear-gradient(180deg, rgba(0, 229, 255, 0.03) 0%, rgba(2, 6, 23, 0.95) 100%);
+  background-color: #0d1b26; /* Cian apastelado oscuro y uniforme */
   border-radius: 16px;
   border: 1px solid rgba(0, 229, 255, 0.1);
   position: relative;

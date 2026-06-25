@@ -1,4 +1,4 @@
-import ghostImg from "../../assets/ghost.jpeg";
+import ghostImg from "../../assets/ghost.png";
 import "./WorkspaceGhostView.css";
 
 export default function WorkspaceGhostView() {

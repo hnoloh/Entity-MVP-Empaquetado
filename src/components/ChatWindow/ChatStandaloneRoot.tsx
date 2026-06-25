@@ -37,6 +37,8 @@ export function ChatStandaloneRoot({ chatId }: { chatId: string }) {
         e.data.chats.forEach((ch: Chat) => chatRepository.saveSilent(ch));
         setGrupos(e.data.grupos);
         setReady(true);
+        const fakeUi = document.getElementById('fake-chat-ui');
+        if (fakeUi) fakeUi.remove();
       } else if (e.data.type === 'chat_updated') {
         chatRepository.saveSilent(e.data.chat);
       } else if (e.data.type === 'enti_updated') {

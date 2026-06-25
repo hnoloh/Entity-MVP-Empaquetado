@@ -28,7 +28,7 @@
   cursor: pointer;
   background: rgba(255, 255, 255, 0.02);
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.1);
   border-radius: 0;
   margin-bottom: 0;
   transition: all 0.2s ease;
@@ -289,7 +289,7 @@
 
 .delete-dialog-buttons .btn-cancel {
   background: #1e293b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.2);
   color: #fff;
 }
 

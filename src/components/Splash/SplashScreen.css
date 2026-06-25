@@ -9,8 +9,7 @@
   align-items: center;
   width: 100vw;
   height: 100vh;
-  background: rgba(20, 20, 25, 0.85);
-  backdrop-filter: blur(12px);
+  background: #0d1b26;
   overflow: hidden;
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-user-select: none;

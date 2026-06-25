@@ -47,7 +47,7 @@
 .chat-view-clear-btn {
   background: transparent;
   color: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.2);
   border-radius: 6px;
   padding: 6px 12px;
   font-size: 12px;
@@ -137,7 +137,7 @@
 .chat-message.role-assistant {
   align-self: flex-start;
   background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 229, 255, 0.1);
   border-bottom-left-radius: 4px;
   color: rgba(255, 255, 255, 0.9);
 }
@@ -175,7 +175,7 @@
   display: flex;
   padding: 16px;
   background: rgba(15, 23, 42, 0.8);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(0, 229, 255, 0.1);
   gap: 12px;
   align-items: flex-end;
   backdrop-filter: blur(12px);
@@ -193,7 +193,7 @@
   width: 100%;
   padding: 12px 36px 12px 16px; /* Espacio extra a la derecha para el botón de expandir */
   background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.2);
   border-radius: 12px; /* Menos redondeado que un píldora para poder mostrar múltiples líneas bien */
   color: #fff;
   font-size: 14px;

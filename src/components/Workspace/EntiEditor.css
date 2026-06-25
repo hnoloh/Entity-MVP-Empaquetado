@@ -46,7 +46,7 @@
   align-items: center;
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.1);
 }
 
 .editor-title {
@@ -409,6 +409,14 @@
 .close-dialog button {
   background: #1e293b;
   color: #ffffff;
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+.close-dialog button:hover {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: rgba(0, 229, 255, 0.4);
+  color: #00e5ff;
 }
 
 /* Custom Select Dropdown for Cyan Theme */
@@ -484,7 +492,7 @@
   display: flex;
   align-items: center;
   padding: 0.5rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.15);
   background: rgba(0, 0, 0, 0.2);
   gap: 0.5rem;
 }
@@ -541,15 +549,15 @@
   gap: 8px;
   padding: 10px;
   background: rgba(10, 11, 14, 0.8);
-  border-top: 1px solid rgba(255, 255, 255, 0.03);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(0, 229, 255, 0.1);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.1);
 }
 
 .cloud-api-key-input-container .harness-input {
   flex: 1;
   background-color: rgba(255, 255, 255, 0.03);
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.2);
   padding: 8px 12px;
   border-radius: 4px;
   font-size: 0.85rem;

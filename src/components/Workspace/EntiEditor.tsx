@@ -634,7 +634,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
             />
         </div>
       </div>
-      <div style={{ marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+      <div style={{ marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px solid rgba(0, 229, 255, 0.1)' }}>
         <EntiToolBelt entiId={draft.id} />
       </div>
 

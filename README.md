@@ -54,4 +54,6 @@ El acceso al sistema de archivos mediante `@tauri-apps/plugin-fs` está diseñad
 - Refactorización de herramientas (DOCX, PDF, HTML) para integrarse 100% con `@tauri-apps/plugin-fs` y `BaseDirectory.Desktop`.
 - Mejora en la lógica del prompt de los Entis (`buildEntiPromptInput.ts`) para diferenciar inteligentemente entre peticiones de *enlace de descarga* vs *guardado automático en disco*.
 - El botón de descarga ahora utiliza `@tauri-apps/api/path` para sugerir automáticamente el Escritorio como carpeta destino en el explorador de archivos nativo.
-- Limpieza general de scripts de pruebas y logs generados durante la depuración.
+- Resolución de escalado de iconos en entornos Linux añadiendo recursos de 512x512.
+- Centrado geométrico estricto y exacto (calculado matemáticamente) de todas las ventanas nativas como contingencia para entornos Wayland/GNOME.
+- Pulido de interfaz general (Glassmorphism, contornos cian, Splash Screen opaco y unificación de paleta).

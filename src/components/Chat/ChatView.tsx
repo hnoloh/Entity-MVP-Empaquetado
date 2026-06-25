@@ -160,7 +160,7 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
     }
   }
 
-  const { dropState, errorMessage, handlers } = useChatAttachmentDrop(
+  const { zoneRef, dropState, errorMessage, handlers } = useChatAttachmentDrop(
     resolvedOwnerType,
     resolvedOwnerId,
     chatId,
@@ -321,6 +321,7 @@ export function ChatView({ chatId, grupos }: ChatViewProps) {
 
   return (
     <div 
+      ref={zoneRef}
       data-testid={`chat-view-${chat.id}`} 
       className="chat-view-container"
       style={{ position: 'relative' }}

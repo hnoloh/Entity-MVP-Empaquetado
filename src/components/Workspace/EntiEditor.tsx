@@ -281,7 +281,7 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
       ) {
         return prev;
       }
-      return {
+      const updatedDraft = {
         ...prev,
         harness: {
           ...prev.harness,
@@ -289,6 +289,18 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
           workMaterialAttachments: sessionAttachments.workMaterial
         }
       };
+      
+      // Auto-save en vivo para que los adjuntos se reflejen al instante en el chat.
+      const rulesArray = typeof updatedDraft.harness.rules === 'string'
+        ? (updatedDraft.harness.rules as string).split('\n').filter(r => r.trim() !== '')
+        : updatedDraft.harness.rules;
+
+      entiRepository.save({
+        ...updatedDraft,
+        harness: { ...updatedDraft.harness, rules: rulesArray }
+      });
+      
+      return updatedDraft;
     });
   }, [sessionAttachments]);
 

@@ -16,9 +16,19 @@ import { ChatWindowHost } from "../ChatWindow/ChatWindowHost";
 import { GroupEditor } from "../Group/GroupEditor";
 import { useAutosave } from "./useAutosave";
 import "./WorkspaceShell.css";
+import { checkIsTauri } from "../../utils/isTauri";
 
 import { startEntityLifecycleFlow, closeEntityLifecycleFlow } from "../../domain/lifecycle";
-import { checkIsTauri } from "../../utils/isTauri";
+let cachedIsTauri = checkIsTauri();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let cachedWebviewWindow: any = null;
+const creatingWindows = new Set<string>();
+
+if (cachedIsTauri) {
+  import('@tauri-apps/api/webviewWindow').then(({ WebviewWindow }) => {
+    cachedWebviewWindow = WebviewWindow;
+  });
+}
 
 export default function WorkspaceShell() {
   const [startupStatus, setStartupStatus] = useState<'pending' | 'success' | 'controlled_error' | 'blocked'>('pending');
@@ -118,15 +128,11 @@ export default function WorkspaceShell() {
 
   useEffect(() => {
     const handleOsWindowClose = (e: CustomEvent) => {
-      import('../../utils/isTauri').then(({ checkIsTauri }) => {
-        if (checkIsTauri()) {
-          import('@tauri-apps/api/webviewWindow').then(({ WebviewWindow }) => {
-            WebviewWindow.getByLabel(e.detail.label).then(w => {
-              if (w) w.close();
-            });
-          });
-        }
-      });
+      if (cachedIsTauri && cachedWebviewWindow) {
+        cachedWebviewWindow.getByLabel(e.detail.label).then((w: any) => {
+          if (w) w.close();
+        });
+      }
     };
     window.addEventListener('request-os-window-close', handleOsWindowClose as EventListener);
     return () => window.removeEventListener('request-os-window-close', handleOsWindowClose as EventListener);
@@ -135,51 +141,55 @@ export default function WorkspaceShell() {
   useEffect(() => {
     const handleOsWindowOpen = (e: CustomEvent) => {
       const { chatId, geometry } = e.detail;
-      import('../../utils/isTauri').then(({ checkIsTauri }) => {
-        if (checkIsTauri()) {
-          import('@tauri-apps/api/webviewWindow').then(({ WebviewWindow }) => {
-            const label = `chat-${chatId}`;
-            
-            // Si la ventana ya existe, la enfocamos
-            WebviewWindow.getByLabel(label).then(existingWin => {
-              if (existingWin) {
-                existingWin.unminimize();
-                existingWin.setFocus();
-                return;
-              }
-              
-              // Si no existe, la creamos
-              let title = `Chat`;
-              const chat = chatRepository.getById(chatId);
-              if (chat) {
-                if (chat.owner.type === 'enti') {
-                  const enti = entiRepository.getById(chat.owner.id);
-                  if (enti) title = enti.name;
-                } else {
-                  title = `Grupo`;
-                }
-              }
+      if (cachedIsTauri && cachedWebviewWindow) {
+        const label = `chat-${chatId}`;
+        
+        if (creatingWindows.has(label)) return;
+        
+        // Si la ventana ya existe, la enfocamos
+        cachedWebviewWindow.getByLabel(label).then((existingWin: any) => {
+          if (existingWin) {
+            existingWin.unminimize();
+            existingWin.setFocus();
+            return;
+          }
+          
+          creatingWindows.add(label);
+          
+          // Si no existe, la creamos
+          let title = `Chat`;
+          const chat = chatRepository.getById(chatId);
+          if (chat) {
+            if (chat.owner.type === 'enti') {
+              const enti = entiRepository.getById(chat.owner.id);
+              if (enti) title = enti.name;
+            } else {
+              title = `Grupo`;
+            }
+          }
 
-              const webview = new WebviewWindow(label, {
-                url: `/?chatId=${chatId}`,
-                title: title,
-                width: geometry.width,
-                height: geometry.height,
-                center: true,
-                decorations: false,
-                visible: false,
-                transparent: true
-              });
-              
-              webview.once('tauri://error', (err) => {
-                console.error('Tauri WebviewWindow error', err);
-              });
-            });
-          }).catch(err => {
-            console.error('Failed to import Tauri module', err);
+          const webview = new cachedWebviewWindow(label, {
+            url: `/?chatId=${chatId}`,
+            title: title,
+            width: geometry.width,
+            height: geometry.height,
+            center: true,
+            decorations: false,
+            visible: true,
+            transparent: true
           });
-        }
-      });
+          
+          webview.once('tauri://error', (err: any) => {
+            console.error('Tauri WebviewWindow error', err);
+            creatingWindows.delete(label);
+          });
+          webview.once('tauri://created', () => {
+            creatingWindows.delete(label);
+          });
+          // Timeout de seguridad por si tauri://created falla
+          setTimeout(() => creatingWindows.delete(label), 2000);
+        });
+      }
     };
     window.addEventListener('request-os-window-open', handleOsWindowOpen as EventListener);
     return () => window.removeEventListener('request-os-window-open', handleOsWindowOpen as EventListener);
@@ -225,21 +235,19 @@ export default function WorkspaceShell() {
     
     // Delegamos la apertura al flujo de dominio, la infraestructura (los listeners) se encargará
     // de abrir la ventana OS si es necesario.
-    import('../../utils/isTauri').then(({ checkIsTauri }) => {
-      if (checkIsTauri()) {
-        openChatWindowFlow(chat!.id, registry);
-        return;
-      }
+    if (cachedIsTauri) {
+      openChatWindowFlow(chat!.id, registry);
+      return;
+    }
 
-      // Fallback in-app
-      const existingWindows = registry.findByChatId(chat!.id);
-      if (existingWindows.length === 0) {
-        openChatWindowFlow(chat!.id, registry);
-      } else {
-        focusChatWindowFlow(registry, existingWindows[0].windowId);
-        window.dispatchEvent(new CustomEvent('request-focus-window', { detail: { windowId: existingWindows[0].windowId } }));
-      }
-    });
+    // Fallback in-app
+    const existingWindows = registry.findByChatId(chat!.id);
+    if (existingWindows.length === 0) {
+      openChatWindowFlow(chat!.id, registry);
+    } else {
+      focusChatWindowFlow(registry, existingWindows[0].windowId);
+      window.dispatchEvent(new CustomEvent('request-focus-window', { detail: { windowId: existingWindows[0].windowId } }));
+    }
   };
 
   const handleSelectEnti = (id: string) => {
@@ -404,7 +412,7 @@ export default function WorkspaceShell() {
           onSave={handleSaveEnti}
           onClose={() => handleCloseEditor(enti.id)}
           onDraftChange={(draft) => setLiveDrafts(prev => ({ ...prev, [enti.id]: { name: draft.name, draft } }))}
-          onRequestOpenChat={() => handleOpenChat(enti.id, 'enti')}
+          onRequestOpenChat={() => autoChatEnabled && handleOpenChat(enti.id, 'enti')}
         />
       );
     } else {

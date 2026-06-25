@@ -16,10 +16,24 @@ class InMemoryToolAuthorizationRepository implements ToolAuthorizationRepository
   private listeners = new Set<() => void>();
 
   constructor() {
+    this.loadFromStorage();
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'tool_authorizations') {
+          this.loadFromStorage();
+          this.emit();
+        }
+      });
+    }
+  }
+
+  private loadFromStorage() {
     try {
       const stored = localStorage.getItem('tool_authorizations');
       if (stored) {
         this.authorizations = JSON.parse(stored);
+      } else {
+        this.authorizations = [];
       }
     } catch (e) {
       console.error('Failed to load tool authorizations', e);

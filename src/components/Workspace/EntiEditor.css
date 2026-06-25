@@ -1,7 +1,5 @@
 .enti-editor {
   background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(0, 229, 255, 0.15);
   border-radius: 12px;
   padding: 0.8rem 1rem;
@@ -227,8 +225,6 @@
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
   z-index: 9999;
   border-radius: 0;
   display: flex;
@@ -367,8 +363,6 @@
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(2, 6, 23, 0.8);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   z-index: 9999;
 }
 

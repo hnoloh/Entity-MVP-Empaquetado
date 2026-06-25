@@ -26,7 +26,6 @@
 .entities-column {
   width: 250px;
   background-color: #0d1b26; /* Cian apastelado oscuro y uniforme */
-  backdrop-filter: blur(12px);
   border: 1px solid rgba(0, 229, 255, 0.1);
   border-radius: 16px;
   display: flex;

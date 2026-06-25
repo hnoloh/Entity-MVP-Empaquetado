@@ -423,18 +423,17 @@ export const EntiEditor: React.FC<EntiEditorProps> = ({ enti, onSave, onClose, i
       const timer = setTimeout(() => {
         setDraft(prev => {
           if (prev.hasSpawnedInitialChat) return prev;
-          
-          const updated = { ...prev, hasSpawnedInitialChat: true };
-          onDraftChange?.(updated);
-          entiRepository.saveSilent(updated);
-          
-          if (onRequestOpenChat) {
-            onRequestOpenChat();
-          }
-          
-          return updated;
+          return { ...prev, hasSpawnedInitialChat: true };
         });
-      }, 700);
+        
+        const updated = { ...draft, hasSpawnedInitialChat: true };
+        onDraftChange?.(updated);
+        entiRepository.saveSilent(updated);
+        
+        if (onRequestOpenChat) {
+          onRequestOpenChat();
+        }
+      }, 200);
       return () => clearTimeout(timer);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
